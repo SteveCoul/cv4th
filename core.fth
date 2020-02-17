@@ -1549,6 +1549,46 @@ internals forth-wordlist 2 set-order definitions
   again
 ; immediate
 
+internals set-current
+
+12345 constant undefined-value
+: match-or-end? 2 pick 0= >r compare 0= r> or ;
+
+: scan-args 
+  begin
+    2dup s" |" match-or-end? 0= while
+    2dup s" --" match-or-end? 0= while
+    2dup s" :}" match-or-end? 0= while
+    rot 1+ parse-name
+  again then then then
+;
+
+: scan-locals 
+  2dup s" |" compare 0= 0= if exit then
+  2drop parse-name
+  begin
+    2dup s" --" match-or-end? 0= while
+    2dup s" :}" match-or-end? 0= while
+	rot 1+ parse-name
+	postpone undefined-value
+  again then then
+;
+
+: scan-end
+  begin
+    2dup s" :}" match-or-end? 0= while
+    2drop parse-name
+  repeat
+;
+
+forth-wordlist set-current
+
+: {: 
+   0 parse-name scan-args scan-locals scan-end 2drop
+   0 ?do (local) loop 
+   0 0 (local)
+; immediate
+
 only definitions
 
 \ ---------------------------------------------------------------------------------------------
