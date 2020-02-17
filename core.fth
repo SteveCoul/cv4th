@@ -380,9 +380,9 @@ forth-wordlist set-current
 	1 >in +!
   repeat
   drop
-  >in @ #tib @ = not if 1 >in +! then	\ and the delimiter we hit goes too
   tib @ r@ +
   >in @ r> -
+  >in @ #tib @ = not if 1 >in +! then	\ and the delimiter we hit goes too
 ;
 
 : parse-name																	\ \ CORE-EXT
