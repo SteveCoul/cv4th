@@ -1,0 +1,48 @@
+
+(abort) under bootstrap interepret doesn't always work?
+
+opcodename not implemented
+
+need a list of wordlists for marker
+
+marker not working
+
+fill should probably be an opcode
+
+: */ 1 abort" */ not implemented"; immediate									\ \ CORE
+: */MOD 1 abort" */MOD not implemented"; immediate								\ \ CORE
+: / 1 abort" / not implemented"; immediate										\ \ CORE
+: /MOD 1 abort" /MOD not implemented"; immediate								\ \ CORE
+: 2* 1 abort" 2* not implemented"; immediate									\ \ CORE
+: 2/ 1 abort" 2/ not implemented"; immediate									\ \ CORE
+: 2! 1 abort" 2! not implemented"; immediate									\ \ CORE
+: FM/MOD  1 abort" FM/MOD  not implemented"; immediate							\ \ CORE
+: M* 1 abort" M* not implemented"; immediate									\ \ CORE
+: MOD 1 abort" MOD not implemented"; immediate									\ \ CORE
+: S>D 1 abort" S>D not implemented"; immediate									\ \ CORE
+: SM/REM 1 abort" SM/REM not implemented"; immediate							\ \ CORE
+: UM* 1 abort" UM* not implemented"; immediate									\ \ CORE
+
+: 2@ 1 abort" 2@ not implemented"; immediate									\ \ CORE
+
+: INVERT 1 abort" INVERT not implemented"; immediate							\ \ CORE
+: LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
+: MAX 1 abort" MAX not implemented"; immediate									\ \ CORE
+: MIN 1 abort" MIN not implemented"; immediate									\ \ CORE
+: RSHIFT 1 abort" RSHIFT not implemented"; immediate							\ \ CORE
+: XOR 1 abort" XOR not implemented"; immediate									\ \ CORE
+
+: RECURSE 1 abort" RECURSE not implemented"; immediate							\ \ CORE
+
+(local) dictionary limits etc.
+
+io.parse needs multiple buffers for RENAME etc. ( IE 2 S" to C convesion )
+
+
+// Add opcode	NEAR_CALL <16bitvalue to subtract from here>	( IE calling recently defined words )
+
+// Be warned, I'm assuming that a 32 bit read does not need to be aligned! Need to rewrite @ ! if that's not true
+// everything else should probably work. I don't want to mess with aligning everything 
+
+// TODO what I've called the user area isn't really. *some* of them are but HERE, FORTH_WORDLIST etc are global
+
