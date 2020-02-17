@@ -366,7 +366,25 @@ internals set-current
 ;
 forth-wordlist set-current
 
-: parse																			\ \ CORE-EXT
+internals set-current
+: (parse) \ delimiter skip-char -- c-addr u										\ \ INTERNAL
+  swap >r
+  ?dup if
+    >r
+    begin
+      >in @ #tib @ -
+      0= if
+        0
+      else
+        tib @ >in @ + c@ r@ should-skip
+      then
+    while
+      1 >in +!
+    repeat
+    r> drop
+  then
+  r> 
+
   >in @ >r					\ delim -- R: first-idx --
   begin
     >in @ #tib @ -
@@ -384,70 +402,25 @@ forth-wordlist set-current
   >in @ r> -
   >in @ #tib @ = not if 1 >in +! then	\ and the delimiter we hit goes too
 ;
+forth-wordlist set-current
+
+: parse 0 (parse) ;																\ \ CORE-EXT
 
 : parse-name																	\ \ CORE-EXT
-  begin
-    >in @ #tib @ -
-	0= if
-		0
-	else
-		tib @ >in @ + c@ bl should-skip
-	then
-  while
-	1 >in +!
-  repeat
-  bl parse
-; 
+  bl bl (parse)
+;
 
 : word																			\ \ CORE
-
-  >r
 
   \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
   \ anything bigger than the size of the input buffer anyhow.
   [ OPCODE_JUMP c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
 
-  0 over c!			\ reset count of buffer string
-
-  >in @ #tib @ = if r> drop exit then
- 
-  begin							
-    tib @ >in @ + c@			
-    r@ should-skip
-	dup
-    if						
-      1 >in +!	
-    then
-    not							
-    >in @ #tib @ =				
-    or							
-  until
-
-  >in @ #tib @ = if r> drop exit then
-
-  dup 1 + 	
-
-  begin							\ ^count ^buffer --
-    tib @ >in @ + c@			
-    dup r@ should-skip
-	if
-		drop	
-		1 >in +!		\ skip trailing delimiter, I think this is correct, maybe 'better' to skip all again
-		true
-	else						\ ^count ^buffer char --
-		over c!				
-		1 +		
-		over dup c@ 1 + swap c!
-		1 >in +!
-
-		false
-    then
-	>in @ #tib @ = 
-	or
-  until	
-  drop
-
-  r> drop
+  >r
+  bl (parse)
+  dup r@ c!
+  r@ 1+ swap move
+  r>
 ;
 
 : char																			\ \ CORE
