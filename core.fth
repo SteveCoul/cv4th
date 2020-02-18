@@ -596,10 +596,8 @@ internals set-current
 	forget-locals
     A_QUIT @	
 	?dup if
-		 [ opJUMPD c, ]	\ don't return from here, off and running
+		>r 			\ sneaky!!
 	then
-    cr s" (abort) under bootstrap" type cr
-	\ if no interpreter we RET, which in the VM means return and it'll run a new loop
 ;
 forth-wordlist set-current
 
@@ -793,13 +791,13 @@ forth-wordlist set-current
 	0 ,
 	
 	opDOLIT c,					\ get the resolv address at runtime N bytes on from here
-	here 13 + ,
+	here 14 + ,				\ depends on instruction count below!
 	opFETCH c,
 	\ 3 numbers to satisfy unloop after the jump (limit index, something random)
 	opDUP c, opTOR c,
 	opSWAP c, opTOR c,
 	opSWAP c, opTOR c,	
-	opJUMPD c,
+    opTOR c, opRET c,		\ >r-ret == jump direct
 	
 	here swap !
 	opDOLIT c,
@@ -865,7 +863,7 @@ forth-wordlist set-current
 	postpone >r
 	postpone swap
 	postpone >r
-	opJUMPD c,
+	opTOR c, opRET c,	\ IE jump
 ; immediate
 
 : case																			\ \ CORE-EXT
@@ -1181,14 +1179,13 @@ internals set-current
 	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ .hex8 2 + else
 	dup c@ opRET = 		    if 5 spaces ." | " ." Ret" drop dup	else
 	dup c@ opJUMP = 	    if 5 spaces ." | " ." Jump" dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
-	dup c@ opJUMPD = 	    if 5 spaces ." | " ." JumpD" 1 + else
 	dup c@ opJUMP_EQ_ZERO = if 5 spaces ." | " ." jeq0 " dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
 
 	dup c@ .hex8 space dup c@ aschar emit space ." | " 
 
 	dup c@ opcodename ?dup if type 1+ else
 	dup ." code " c@ .hex 1+ 
-    then then then then then then then then then
+    then then then then then then then then
   repeat
   2drop
 ;

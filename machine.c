@@ -240,10 +240,6 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			if ( tmp == 0 ) IP = GET_CELL( machine, IP );
 			else IP+=4;
 			break;			
-		case opJUMPD:
-			IP=datastack[DP-1];
-			DP--;
-			break;
 		case opJUMP:
 			IP=GET_CELL( machine, IP );
 			break;

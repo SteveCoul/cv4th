@@ -344,7 +344,6 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opGREATER_THAN );
 	OPCONST_DB( opIP );
 	OPCONSTANT( opJUMP );
-	OPCONSTANT( opJUMPD );
 	OPCONSTANT( opJUMP_EQ_ZERO );
 	OPCONSTANT( opIN );
 	OPCONST_DB( opLESS_THAN );

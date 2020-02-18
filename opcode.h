@@ -43,7 +43,6 @@ enum {
 	opIP,
 
 	opJUMP,
-	opJUMPD,
 	opJUMP_EQ_ZERO,
 
 	opIN,
