@@ -346,13 +346,17 @@ forth-wordlist set-current
   2drop
 ;
 
+: count dup 1 + swap c@ ;														\ \ CORE
+
+internals set-current
+: ctype count type ;		
+forth-wordlist set-current
+
 internals set-current
 : w,																			\ \ INTERNAL
   here 2 allot w!
 ;
 forth-wordlist set-current
-
-: count dup 1 + swap c@ ;														\ \ CORE
 
 : literal opDOLIT c, , ; immediate												\ \ CORE
 : abs dup 0< if negate then ;													\ \ CORE
@@ -481,7 +485,7 @@ forth-wordlist set-current
 ;
 
 : .(																			\ \ CORE-EXT
-  [char] ) word count type
+  [char] ) word ctype
 ; immediate
 
 : c" 																			\ \ CORE-EXT
@@ -624,7 +628,7 @@ forth-wordlist set-current
 		then
 		dup -2 = if
 			cr s" [THROW (nohandler)] " type
-			here count type cr		
+			here ctype cr		
 			(abort)
 		then
 		cr s" [THROW (nohandler)] Exception #" type . cr
@@ -1069,7 +1073,7 @@ forth-wordlist set-current
   get-current @		
   ?dup 0= if exit then
   begin
-    dup head>name count type bl emit	
+    dup head>name ctype bl emit	
     @
     dup 0 =
   until
@@ -1167,8 +1171,8 @@ internals set-current
   begin
     cr dup .hex32 ." : " 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
-  	dup c@ opSHORT_CALL =   if 5 spaces ." | " dup 1+ w@ >name count type 3 +	else
-	dup c@ opCALL = 	    if 5 spaces ." | " dup 1+ @ >name count type 5 + else
+  	dup c@ opSHORT_CALL =   if 5 spaces ." | " dup 1+ w@ >name ctype 3 +	else
+	dup c@ opCALL = 	    if 5 spaces ." | " dup 1+ @ >name ctype 5 + else
 	dup c@ opDOLIT = 	    if 5 spaces ." | " dup 1+ @ 0 <# #s #> type 5 + else
 	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ 0 <# #s #> type 2 + else
 	dup c@ opRET = 		    if 5 spaces ." | " ." Ret" drop dup	else
@@ -1694,7 +1698,7 @@ forth-wordlist set-current
 	case 
 	0 of endof
 	-1 of endof
-	-2 of cr here count type cr endof
+	-2 of cr here ctype cr endof
 	dup cr ." Exception #" . cr
 	endcase
   repeat 
@@ -1736,7 +1740,7 @@ forth-wordlist set-current
 	0 of drop prompt? 0 endof
     postpone [
 	-1 of endof
-	-2 of cr here count type cr endof
+	-2 of cr here ctype cr endof
 	dup cr ." Exception #" . cr
 	endcase
   repeat
