@@ -112,16 +112,16 @@ variable code-s
 variable print-over
 
 : (size)
-  line-counter @ 0= if
-	cr ." Total-Size  Header-Size Code-Size"
-	20 line-counter !
-  then
   -1 line-counter +!
   last-word @ over - 	\ head total-size --
   over last-word !
   over 4 + 1 + c@ 6 +	\ head total-size header-size
   2dup -				\ head total-size header-size code-size
   dup print-over @ > if
+          line-counter @ 0= if
+            cr ." Total-Size  Header-Size Code-Size"
+        	20 line-counter !
+          then
 		  cr rot 
 		  dup total-s +! 10 .r space 
 		  swap dup header-s +! 10 .r space 
