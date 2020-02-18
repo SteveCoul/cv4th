@@ -1151,30 +1151,40 @@ internals set-current
   then then
 ;
 
+: .hex32	\ v --
+  base @ >r hex 0 <# # # # # # # # # #> type r> base !
+;
+
+: .hex8		\ v --
+  base @ >r hex 0 <# # # #> type r> base !
+;
+	
+: .hex		\ v --
+  base @ >r hex 0 <# #s #> type r> base !
+;
+
 : dis		\ a-addr len --														\ \ INTERNAL
-  base @ >r hex
   over + swap		\ end p --
   begin
-    cr dup 0 <# # # # # # # # # #> type s" : " type
+    cr dup .hex32 ." : " 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if 5 spaces ." | " dup 1+ w@ >name count type 3 +	else
 	dup c@ opCALL = 	    if 5 spaces ." | " dup 1+ @ >name count type 5 + else
 	dup c@ opDOLIT = 	    if 5 spaces ." | " dup 1+ @ 0 <# #s #> type 5 + else
 	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ 0 <# #s #> type 2 + else
-	dup c@ opRET = 		    if 5 spaces ." | " s" Ret" type drop dup	else
-	dup c@ opJUMP = 	    if 5 spaces ." | " s" Jump" type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
-	dup c@ opJUMPD = 	    if 5 spaces ." | " s" JumpD" type 1 + else
-	dup c@ opJUMP_EQ_ZERO = if 5 spaces ." | " s" jeq0 " type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
+	dup c@ opRET = 		    if 5 spaces ." | " ." Ret" drop dup	else
+	dup c@ opJUMP = 	    if 5 spaces ." | " ." Jump" dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
+	dup c@ opJUMPD = 	    if 5 spaces ." | " ." JumpD" 1 + else
+	dup c@ opJUMP_EQ_ZERO = if 5 spaces ." | " ." jeq0 " dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
 
-	dup c@ 0 <# # # #> type space dup c@ aschar emit space ." | " 
+	dup c@ .hex8 space dup c@ aschar emit space ." | " 
 
 	dup c@ opcodename ?dup if type 1+ else
-	dup s" code " type c@ 0 <# #s #> type 1+ 
+	dup s" code " type c@ .hex 1+ 
     then then then then then then then then then
     2dup <=
   until
   2drop
-  r> base !
 ;
 forth-wordlist set-current
 
