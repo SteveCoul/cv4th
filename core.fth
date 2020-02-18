@@ -1631,40 +1631,42 @@ forth-wordlist set-current
 internals set-current
 variable save-tmp
 
+: (save-cell)		( ptr fd c-addr u -- ) 
+  cr type space over @ hex . decimal
+  1 cells swap write-file drop ;
+
 : save
-  bl word count 
-  cr ." Saving to " 2dup type
+  parse-name
   0 create-file if
-	drop cr ." failed to create file"
+	drop cr ." create fail"
   else
 	\ fd --
 	287454020 save-tmp !
-	dup save-tmp 1 cells rot write-file drop
-	cr ." Header " save-tmp @ hex . decimal
+	save-tmp over s" HDR" (save-cell)
 
 	here unused + save-tmp ! 
-	cr ." Total Dictionary size " save-tmp @ dup . space hex . decimal
-	dup save-tmp 1 cells rot write-file drop
+	save-tmp over s" Dict# " (save-cell)
 
-	S" STACK-CELLS" environment? drop save-tmp !
-	cr ." Data stack size (cells) " save-tmp @ .
-	dup save-tmp 1 cells rot write-file drop
+	[ get-order environment-wid swap 1+ set-order ]
+	STACK-CELLS save-tmp !
+	save-tmp over s" DStack#" (save-cell)
 
-	S" RETURN-STACK-CELLS" environment? drop save-tmp !
-	cr ." Return stack size (cells) " save-tmp @ .
-	dup save-tmp 1 cells rot write-file drop
+	RETURN-STACK-CELLS save-tmp !
+	save-tmp over s" RStack#" (save-cell)
+	[ get-order nip 1- set-order ]
 
-	cr ." Entrypoint " hex A_QUIT @ . decimal
-	dup A_QUIT 1 cells rot write-file drop
+	A_QUIT over s" boot" (save-cell)
 
 	dup 0 here rot write-file if
-		cr ." failed write"
+		cr ." write fail"
 	then
 	close-file if
-		cr ." failed to close file"
+		cr ." close fail"
 	then
   then
-; immediate
+; 
+
+
 forth-wordlist set-current
 
 : include-file																	\ \ FILE
