@@ -189,6 +189,10 @@ opIMMEDIATE forth-wordlist @ >flag c!
 
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
+: ahead																			\ \ PROGRAMMING-TOOLS
+  opBRANCH c, here 0 ,
+; immediate
+
 : if																			\ \ CORE
   opQBRANCH c,
   here 
@@ -271,18 +275,14 @@ opIMMEDIATE forth-wordlist @ >flag c!
 get-order internals swap 1+ set-order
 
 internals set-current
-: locals-count					\ how to create a variable badly :-)
-  [ opDOLIT c, here 9 + ,
-	opBRANCH c, here 8 + ,
-    0 ,
-  ]
-;
-: locals-here					\ how to create a variable badly :-)
-  [ opDOLIT c, here 9 + ,
-	opBRANCH c, here 8 + ,
-    0 ,
-  ]
-;
+
+: [fake-variable]
+  opCALL c, here 8 + , 0 , opRFROM c,
+; immediate
+
+: locals-count [fake-variable] ;
+: locals-here  [fake-variable] ;
+
 forth-wordlist set-current
 
 internals set-current
@@ -494,16 +494,17 @@ forth-wordlist set-current
   [char] ) word ctype
 ; immediate
 
-: c" 																			\ \ CORE-EXT
-  opBRANCH c, here 0 ,			\ patch-jump
-  here							\ patch-jump where-to-store
-  [char] " word count				\ patch-jump where-to-store text textlen
+: c"                                                                                                                           
+  opBRANCH c, here 0 ,                 \ patch-jump
+  here                                                 \ patch-jump where-to-store
+  [char] " word count                          \ patch-jump where-to-store text textlen
   dup 1+ allot
-  here >r							\ 
-  2 pick opDOLIT c, ,			\ patch buffer text textlen --
+  here >r                                                      \ 
+  2 pick opDOLIT c, ,                  \ patch buffer text textlen --
   dup 3 pick c!
-  rot 1+						\ patch text textlen buffer+1 --
-  swap							\ patch text buffer+1 textlen --						
+  rot 1+                                               \ patch text textlen buffer+1 --
+  swap                                                 \ patch text buffer+1 textlen --                                        
+        
   move
   r> swap !
 ; immediate
@@ -589,6 +590,27 @@ forth-wordlist set-current
 ;
 
 internals set-current
+: >name																			
+  dup >r	\ p -- R: xt --
+  begin
+    1-
+    dup count + r@ =
+  until
+  r> drop 
+;
+
+: >head																			
+  >name
+  1-
+  1 cells -
+;
+forth-wordlist set-current
+
+: [']																			\ \ CORE
+	bl word find drop [literal]
+; immediate
+
+internals set-current
 : (abort)																		
 	0 sp!
    	0 rsp!
@@ -602,12 +624,7 @@ internals set-current
 forth-wordlist set-current
 
 internals set-current
-: exception-handler			\ how to create a variable badly :-)
-  [ opDOLIT c, here 9 + ,
-	opBRANCH c, here 8 + ,
-    0 ,
-  ]
-;
+: exception-handler	[fake-variable] ;
 forth-wordlist set-current
 
 : catch																			\ \ EXCEPTION
@@ -696,27 +713,6 @@ forth-wordlist set-current
 : sign																			\ \ CORE
 	0< if [char] - hold then	
 ;
-
-internals set-current
-: >name																			
-  dup >r	\ p -- R: xt --
-  begin
-    1-
-    dup count + r@ =
-  until
-  r> drop 
-;
-
-: >head																			
-  >name
-  1-
-  1 cells -
-;
-forth-wordlist set-current
-
-: [']																			\ \ CORE
-	bl word find drop [literal]
-; immediate
 
 : compile,																		\ \ CORE-EXT
   dup >head >flag c@ dup opIMMEDIATE = swap opNONE = or if
