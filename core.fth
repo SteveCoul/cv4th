@@ -189,6 +189,12 @@ opIMMEDIATE forth-wordlist @ >flag c!
 
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
+internals set-current
+: resolv		\ a-addr --
+  here swap !
+;
+forth-wordlist set-current
+
 : ahead																			\ \ PROGRAMMING-TOOLS
   opBRANCH c, here 0 ,
 ; immediate
@@ -203,11 +209,11 @@ opIMMEDIATE forth-wordlist @ >flag c!
   opBRANCH c,
   here
   0 ,
-  swap here swap !
+  swap resolv
 ; immediate
 
 : then																			\ \ CORE
-  here swap !
+  resolv
 ; immediate
 
 : begin																			\ \ CORE
@@ -228,7 +234,7 @@ opIMMEDIATE forth-wordlist @ >flag c!
 : repeat																		\ \ CORE
   opBRANCH c,
   ,
-  here swap !
+  resolv
 ; immediate
 
 : get-order																		\ \ SEARCH-ORDER
