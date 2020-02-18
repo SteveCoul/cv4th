@@ -154,3 +154,14 @@ variable print-over
   (size-words)
 ;
 
+: z" 
+	postpone AHEAD
+	[char] " parse
+	here >r
+	dup 1+ allot
+	dup r@ + 0 swap c!
+    r@ swap move
+	postpone then
+	r> [literal]
+; immediate
+
