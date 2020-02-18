@@ -1081,23 +1081,44 @@ forth-wordlist set-current
   cr
 ;
 
+internals set-current
+
+: aschar 
+  dup bl < if drop [char] . else
+  dup [char] z > if drop [char] . else
+  then then
+;
+
+: .hex32	\ v --
+  base @ >r hex 0 <# # # # # # # # # #> type r> base !
+;
+
+: .hex8		\ v --
+  base @ >r hex 0 <# # # #> type r> base !
+;
+	
+: .hex		\ v --
+  base @ >r hex 0 <# #s #> type r> base !
+;
+
+forth-wordlist set-current
+
 : dump		\ a-addr len --														\ \ PROGRAMMING-TOOLS
-  base @ >r hex
   over +	
 
   begin			\ ptr end --
     cr
-    over 0 <# # # # # # # # # #> type s" : " type
+    over .hex32 ." : "
 
 	16 0 do
-		over i + over <= if over i + c@ 0 <# # # #> type bl emit else 3 spaces then
+		over i + over <= if over i + c@ .hex8 bl emit else 3 spaces then
 		i 7 = if bl emit then
 	loop
 
 	[char] | emit bl emit
 
 	16 0 do
-	    over i + over <= if over i + c@ dup 31 < over 127 > or if drop [char] . then emit then
+	    over i + over <= if over i + c@ aschar emit then
 	loop
 
     swap 16 + swap 
@@ -1105,7 +1126,6 @@ forth-wordlist set-current
   until
   2drop
   cr
-  r> base !
 ;
 
 internals set-current
@@ -1148,24 +1168,6 @@ internals set-current
   drop 0
 ;
 
-: aschar 
-  dup bl < if drop [char] . else
-  dup [char] z > if drop [char] . else
-  then then
-;
-
-: .hex32	\ v --
-  base @ >r hex 0 <# # # # # # # # # #> type r> base !
-;
-
-: .hex8		\ v --
-  base @ >r hex 0 <# # # #> type r> base !
-;
-	
-: .hex		\ v --
-  base @ >r hex 0 <# #s #> type r> base !
-;
-
 : dis		\ a-addr len --														\ \ INTERNAL
   over + swap		\ end p --
   begin
@@ -1173,8 +1175,8 @@ internals set-current
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if 5 spaces ." | " dup 1+ w@ >name ctype 3 +	else
 	dup c@ opCALL = 	    if 5 spaces ." | " dup 1+ @ >name ctype 5 + else
-	dup c@ opDOLIT = 	    if 5 spaces ." | " dup 1+ @ 0 <# #s #> type 5 + else
-	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ 0 <# #s #> type 2 + else
+	dup c@ opDOLIT = 	    if 5 spaces ." | " dup 1+ @ .hex 5 + else
+	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ .hex8 2 + else
 	dup c@ opRET = 		    if 5 spaces ." | " ." Ret" drop dup	else
 	dup c@ opJUMP = 	    if 5 spaces ." | " ." Jump" dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
 	dup c@ opJUMPD = 	    if 5 spaces ." | " ." JumpD" 1 + else
@@ -1183,7 +1185,7 @@ internals set-current
 	dup c@ .hex8 space dup c@ aschar emit space ." | " 
 
 	dup c@ opcodename ?dup if type 1+ else
-	dup s" code " type c@ .hex 1+ 
+	dup ." code " c@ .hex 1+ 
     then then then then then then then then then
     2dup <=
   until
@@ -1209,7 +1211,7 @@ forth-wordlist set-current
 
 : .s 																			\ \ PROGRAMMING-TOOLS
   depth
-  ?dup 0= if cr 10 spaces s" (empty)" type exit then
+  ?dup 0= if cr 10 spaces ." (empty)" exit then
 
   cr 13 spaces ." top"
   0 begin
