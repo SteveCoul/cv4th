@@ -59,20 +59,20 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 
 		switch( opcode ) {
 		/* locals */
-		case OPCODE_LPFETCH:
+		case opLPFETCH:
 			DP++;
 			datastack[ DP-1 ] = LP;
 			break;
-		case OPCODE_LPSTORE:
+		case opLPSTORE:
 			LP = datastack[ DP-1 ];
 			DP--;
 			break;
-		case OPCODE_LFETCH:
+		case opLFETCH:
 			tmp = datastack[ DP-1 ];
 			tmp += LP;
 			datastack[ DP-1 ] = returnstack[ tmp ];
 			break;
-		case OPCODE_LSTORE:
+		case opLSTORE:
 			tmp = datastack[ DP-1 ];
 			tmp += LP;
 			tmp2 = datastack[ DP-2 ];
@@ -80,17 +80,17 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			returnstack[ tmp ] = tmp2;
 			break;
 		/* files */
-		case OPCODE_DELETE_FILE:
+		case opDELETE_FILE:
 			tmp = datastack[ DP-1 ]; DP--;
 			datastack[DP-1] = (uint32_t)ioDelete( ABS_PTR(machine,datastack[DP-1]), tmp );
 			break;
-		case OPCODE_RENAME_FILE:
+		case opRENAME_FILE:
 			tmp = datastack[DP-1]; DP--;		// tmp = newlen
 			tmp2 = datastack[DP-1]; DP--;		// tmp2 = newname
 			tmp3 = datastack[DP-1]; DP--;		// tmp3 = len
 			datastack[DP-1] = (uint32_t)ioRename( ABS_PTR(machine,datastack[DP-1]), tmp3, ABS_PTR(machine,tmp2), tmp );
 			break;
-		case OPCODE_REPOSITION_FILE:
+		case opREPOSITION_FILE:
 			/* assuming 31bit file length */
 			{
 				int i = ioReposition( (int)datastack[ DP-1 ], (int)datastack[ DP-3 ] );
@@ -98,7 +98,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				datastack[ DP-1 ] = (uint32_t)i;
 			}
 			break;
-		case OPCODE_RESIZE_FILE:
+		case opRESIZE_FILE:
 			/* assuming 31bit file length */
 			{
 				int i = ioResize( (int)datastack[ DP-1 ], (int)datastack[ DP-3 ] );
@@ -106,7 +106,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				datastack[ DP-1 ] = (uint32_t)i;
 			}
 			break;
-		case OPCODE_FILE_POSITION:		/* note, I'm not doing 64bit, never having files that big */
+		case opFILE_POSITION:		/* note, I'm not doing 64bit, never having files that big */
 			{
 				int i = ioPosition( (int)datastack[DP-1] );
 				if ( i < 0 ) {
@@ -120,7 +120,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				}
 			}
 			break;
-		case OPCODE_FILE_SIZE:		/* note, I'm not doing 64bit, never having files that big */
+		case opFILE_SIZE:		/* note, I'm not doing 64bit, never having files that big */
 			{
 				int i = ioSize( (int)datastack[DP-1] );
 				if ( i < 0 ) {
@@ -134,12 +134,12 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				}
 			}
 			break;
-		case OPCODE_FILE_STATUS:
+		case opFILE_STATUS:
 			// cant really think of anything atm. I want to report.
 			datastack[ DP-2 ] = 0;
 			datastack[ DP-1 ] = 0;
 			break;
-		case OPCODE_WRITE_FILE:
+		case opWRITE_FILE:
 			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'file-id'
 			tmp2 = datastack[ DP-1 ]; DP--;		// tmp2 is length
 			tmp3 = datastack[ DP-1 ];			// tmp3 is pointer
@@ -149,7 +149,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				else		 datastack[ DP-1 ] = 0;
 			}
 			break;
-		case OPCODE_READ_FILE:
+		case opREAD_FILE:
 			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'file-id'
 			tmp2 = datastack[ DP-1 ];			// tmp2 is length
 			tmp3 = datastack[ DP-2 ];			// tmp3 is pointer
@@ -164,7 +164,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				}
 			}
 			break;
-		case OPCODE_OPEN_FILE:
+		case opOPEN_FILE:
 			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'fam'
 			tmp2 = datastack[ DP-1 ];			// tmp2 is length of name
 			tmp3 = datastack[ DP-2 ];			// tmp3 is name pointer
@@ -179,7 +179,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				}
 			}
 			break;
-		case OPCODE_CREATE_FILE:
+		case opCREATE_FILE:
 			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'fam'
 			tmp2 = datastack[ DP-1 ];			// tmp2 is length of name
 			tmp3 = datastack[ DP-2 ];			// tmp3 is name pointer
@@ -194,76 +194,76 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				}
 			}
 			break;
-		case OPCODE_FLUSH_FILE:
+		case opFLUSH_FILE:
 			datastack[DP-1] = (uint32_t)ioFlush( (int)datastack[ DP-1 ] );
 			break;
-		case OPCODE_CLOSE_FILE:
+		case opCLOSE_FILE:
 			datastack[DP-1] = (uint32_t)ioClose( (int)datastack[ DP-1 ] );
 			break;
 		/* internal magic */
-		case OPCODE_NONE:
+		case opNONE:
 			printf("Bang\n"); 
 			exit(0);
 			break;			
-		case OPCODE_BYE:
+		case opBYE:
 			exit(0);
 			break;
-		case OPCODE_IP:
+		case opIP:
 			datastack[ DP ] = IP;
 			DP++;
 			break;
-		case OPCODE_RSPFETCH:
+		case opRSPFETCH:
 			datastack[ DP ] = RP;
 			DP++;
 			break;
-		case OPCODE_RSPSTORE:
+		case opRSPSTORE:
 			RP = datastack[ DP-1 ];
 			DP--;
 			break;
-		case OPCODE_SPFETCH:
+		case opSPFETCH:
 			datastack[ DP ] = DP;
 			DP++;
 			break;
-		case OPCODE_SPSTORE:
+		case opSPSTORE:
 			DP = datastack[ DP-1 ];
 			break;
 		/* calls, jumps etc */
-		case OPCODE_EXECUTE:
+		case opEXECUTE:
 			returnstack[ RP ] = IP;
 			RP++;
 			IP = datastack[ DP-1 ];
 			DP--;
 			break;
-		case OPCODE_JUMP_EQ:
+		case opJUMP_EQ:
 			tmp = datastack[ DP-1 ] == datastack[ DP-2 ];
 			DP-=2;
 			if ( tmp ) IP = GET_CELL( machine, IP );
 			else IP+=4;
 			break;			
-		case OPCODE_JUMP_EQ_ZERO:
+		case opJUMP_EQ_ZERO:
 			tmp = datastack[ DP-1 ];
 			DP--;
 			if ( tmp == 0 ) IP = GET_CELL( machine, IP );
 			else IP+=4;
 			break;			
-		case OPCODE_JUMPD:
+		case opJUMPD:
 			IP=datastack[DP-1];
 			DP--;
 			break;
-		case OPCODE_JUMP:
+		case opJUMP:
 			IP=GET_CELL( machine, IP );
 			break;
-		case OPCODE_SHORT_CALL:
+		case opSHORT_CALL:
 			returnstack[ RP ] = IP+2;
 			RP++;
 			IP = GET_WORD( machine, IP );
 			break;
-		case OPCODE_CALL:
+		case opCALL:
 			returnstack[ RP ] = IP+4;
 			RP++;
 			IP = GET_CELL( machine, IP );
 			break;
-		case OPCODE_RET:
+		case opRET:
 			if ( RP == 0 ) {
 				return;
 			}
@@ -271,15 +271,15 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			IP=returnstack[ RP ];
 			break;
 		/* stackrobatics */
-		case OPCODE_DEPTH:
+		case opDEPTH:
 			datastack[ DP ] = DP;
 			DP++;
 			break;
-		case OPCODE_NIP:
+		case opNIP:
 			datastack[ DP-2 ] = datastack[ DP-1 ];
 			DP--;
 			break;
-		case OPCODE_TUCK:	
+		case opTUCK:	
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
 			DP++;
@@ -287,7 +287,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			datastack[ DP-2 ] = tmp2;
 			datastack[ DP-1 ] = tmp;
 			break;
-		case OPCODE_ROLL:
+		case opROLL:
 			tmp = datastack[ DP-1 ];
 			DP--;
 			if ( tmp ) {
@@ -296,36 +296,36 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				datastack[ DP-1 ] = tmp2;
 			}
 			break;
-		case OPCODE_DUP:
+		case opDUP:
 			datastack[ DP ] = datastack[ DP-1 ];
 			DP++;
 			break;
-		case OPCODE_2DUP:
+		case op2DUP:
 			DP+=2;
 			datastack[ DP-2 ] = datastack[ DP-4 ];
 			datastack[ DP-1 ] = datastack[ DP-3 ];
 			break;
-		case OPCODE_DROP:
+		case opDROP:
 			DP--;
 			break;
-		case OPCODE_2DROP:
+		case op2DROP:
 			DP-=2;
 			break;
-		case OPCODE_OVER:
+		case opOVER:
 			datastack[ DP ] = datastack[ DP - 2 ];
 			DP++;
 			break;
-		case OPCODE_2OVER: 	
+		case op2OVER: 	
 			DP+=2;
 			datastack[ DP-2 ] = datastack[ DP-6 ];
 			datastack[ DP-1 ] = datastack[ DP-5 ];
 			break;
-		case OPCODE_SWAP:
+		case opSWAP:
 			tmp = datastack[ DP-2 ];
 			datastack[ DP-2 ] = datastack[ DP-1 ];
 			datastack[ DP-1 ] = tmp;
 			break;
-		case OPCODE_2SWAP:	
+		case op2SWAP:	
 			tmp = datastack[ DP-2 ];
 			tmp2 = datastack[ DP-1 ];
 			datastack[ DP-2 ] = datastack[ DP-4 ];
@@ -333,25 +333,25 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			datastack[ DP-4 ] = tmp;
 			datastack[ DP-3 ] = tmp2;
 			break;
-		case OPCODE_PICK:
+		case opPICK:
 			datastack[ DP-1 ] = datastack[ DP - datastack[ DP - 1 ] - 2 ];
 			break;
-		case OPCODE_ROT:
+		case opROT:
 			tmp = datastack[ DP-3 ];
 			datastack[ DP-3 ] = datastack[ DP-2 ];
 			datastack[ DP-2 ] = datastack[ DP-1 ];
 			datastack[ DP-1 ] = tmp;
 			break;
 		/* comparisons */
-		case OPCODE_U_GREATER_THAN:
+		case opU_GREATER_THAN:
 			datastack[ DP-2 ] = datastack[ DP-2 ] > datastack[ DP-1 ] ? 1 : 0;
 			DP--;
 			break;
-		case OPCODE_U_LESS_THAN:
+		case opU_LESS_THAN:
 			datastack[ DP-2 ] = datastack[ DP-2 ] < datastack[ DP-1 ] ? 1 : 0;
 			DP--;
 			break;
-		case OPCODE_GREATER_THAN:
+		case opGREATER_THAN:
 			{
 				int b = datastack[ DP-1 ];
 				DP--;
@@ -359,7 +359,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				datastack[ DP-1 ] = ( a > b ) ? 1 : 0;
 			}
 			break;
-		case OPCODE_LESS_THAN:
+		case opLESS_THAN:
 			{
 				int b = datastack[ DP-1 ];
 				DP--;
@@ -367,65 +367,65 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				datastack[ DP-1 ] = ( a < b ) ? 1 : 0;
 			}
 			break;
-		case OPCODE_EQUALS:	
+		case opEQUALS:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] == datastack[ DP ] ? 1 : 0;
 			break;
 		/* fetch/store */
-		case OPCODE_WFETCH:
+		case opWFETCH:
 			datastack[ DP-1 ] = GET_WORD( machine, datastack[ DP-1 ] );
 			break;
-		case OPCODE_CFETCH:
+		case opCFETCH:
 			datastack[ DP-1 ] = GET_BYTE( machine, datastack[ DP-1 ] );
 			break;
-		case OPCODE_FETCH:
+		case opFETCH:
 			datastack[ DP-1 ] = GET_CELL( machine, datastack[ DP-1 ] );
 			break;
-		case OPCODE_PLUSSTORE:
+		case opPLUSSTORE:
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
 			DP-=2;
 			WRITE_CELL( machine, tmp, GET_CELL(machine, tmp) + tmp2 );
 			break;
-		case OPCODE_WSTORE:
+		case opWSTORE:
 			tmp = datastack[ DP-1 ];
 			WRITE_WORD( machine, tmp, datastack[ DP-2 ] );
 			DP-=2;
 			break;
-		case OPCODE_CSTORE:
+		case opCSTORE:
 			tmp = datastack[ DP-1 ];
 			WRITE_BYTE( machine, tmp, datastack[ DP-2 ] );
 			DP-=2;
 			break;
-		case OPCODE_STORE:
+		case opSTORE:
 			tmp = datastack[ DP-1 ];
 			WRITE_CELL( machine, tmp, datastack[ DP-2 ] );
 			DP-=2;
 			break;
 		/* return stack fetch/store */
-		case OPCODE_RFETCH:
+		case opRFETCH:
 			datastack[ DP ] = returnstack[ RP-1 ];
 			DP++;
 			break;
-		case OPCODE_TOR:
+		case opTOR:
 			DP--;
 			returnstack[ RP ] = datastack[ DP ];
 			RP++;
 			break;
-		case OPCODE_RFROM:
+		case opRFROM:
 			datastack[ DP ] = returnstack[ RP-1 ];
 			DP++;
 			RP--;
 			break;
 		/* memory */
-		case OPCODE_COMPARE:
+		case opCOMPARE:
 			tmp = datastack[ DP-3 ];
 			tmp2 = datastack[ DP-2 ];
 			tmp3 = datastack[ DP-1 ];
 			DP-=2;
 			datastack[ DP-1 ] = cmp( ABS_PTR( machine, tmp ), ABS_PTR( machine, tmp2 ), tmp3 );
 			break;
-		case OPCODE_MOVE:
+		case opMOVE:
 			tmp = datastack[ DP-3 ];
 			tmp2 = datastack[ DP-2 ];
 			tmp3 = datastack[ DP-1 ];
@@ -434,7 +434,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				memmove( ABS_PTR( machine, tmp2 ), ABS_PTR( machine, tmp ), tmp3 );
 			break;
 		/* math */
-		case OPCODE_ADD2:
+		case opADD2:
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
 			DP-=2;
@@ -451,7 +451,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			datastack[ DP-1 ] = tmp3;
 			datastack[ DP-2 ] = tmp4;
 			break;
-		case OPCODE_UMULT:
+		case opUMULT:
 			tmp = datastack[ DP-1 ];		
 			DP--;
 			tmp2 = datastack[ DP-1 ];
@@ -466,25 +466,25 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			datastack[ DP-1 ] = tmp2;
 			datastack[ DP-2 ] = tmp3;
 			break;
-		case OPCODE_MULT:	
+		case opMULT:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] * datastack[ DP ];
 			break;
-		case OPCODE_PLUS:	
+		case opPLUS:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] + datastack[ DP ];
 			break;
-		case OPCODE_MINUS:	
+		case opMINUS:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] - datastack[ DP ];
 			break;
-		case OPCODE_ONEPLUS:
+		case opONEPLUS:
 			datastack[ DP-1 ]++;
 			break;
-		case OPCODE_ONEMINUS:
+		case opONEMINUS:
 			datastack[ DP-1 ]--;
 			break;
-		case OPCODE_UM_SLASH_MOD:
+		case opUM_SLASH_MOD:
 			tmp = datastack[ DP-1 ];		// divisor
 			DP--;
 			{
@@ -500,28 +500,28 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			}
 			break;
 		/* io */
-		case OPCODE_IN:
+		case opIN:
 			datastack[ DP ] = getchar();
 			DP++;
 			break;
-		case OPCODE_EMIT:
+		case opEMIT:
 			putchar( datastack[DP-1] );
 			DP--;
 			break;
 		/* logic */
-		case OPCODE_NOT:
+		case opNOT:
 			datastack[ DP-1 ] = datastack[ DP-1 ] ? 0 : 1;
 			break;
-		case OPCODE_OR:	
+		case opOR:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] | datastack[ DP ];
 			break;
-		case OPCODE_AND:
+		case opAND:
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] & datastack[ DP ];
 			break;
 		/* others */
-		case OPCODE_DOLIT:
+		case opDOLIT:
 			datastack[ DP ] = GET_CELL( machine, IP );
 			DP++;
 			IP+=4;

@@ -4,7 +4,7 @@
 : \
   #tib @ >in !
 ; 
-OPCODE_IMMEDIATE forth-wordlist @ >flag c!
+opIMMEDIATE forth-wordlist @ >flag c!
 \ Apologies for the above magic, it makes the comment word immediate so I can use it
 
 \ ---------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ OPCODE_IMMEDIATE forth-wordlist @ >flag c!
 ;
 
 : immediate																		\ \ CORE
-  OPCODE_IMMEDIATE
+  opIMMEDIATE
   get-current @ >flag
   c!
 ;
@@ -116,61 +116,61 @@ OPCODE_IMMEDIATE forth-wordlist @ >flag c!
 : , here 1 cells allot !  ;														\ \ CORE
 
 : r>																			\ \ CORE
-  [ OPCODE_RFROM c, 
-    OPCODE_RFROM c, 
-    OPCODE_SWAP c, 
-	OPCODE_TOR c, ]
-; OPCODE_RFROM get-current @ >flag c!			\ set compile time behavior to lay opcode
+  [ opRFROM c, 
+    opRFROM c, 
+    opSWAP c, 
+	opTOR c, ]
+; opRFROM get-current @ >flag c!			\ set compile time behavior to lay opcode
 
 : 2r>																			\ \ CORE EXT
-  [ OPCODE_RFROM c, 
-    OPCODE_RFROM c, 
-	OPCODE_RFROM c,	
-    OPCODE_SWAP c, 
-	OPCODE_ROT c,
-	OPCODE_TOR c, ]
+  [ opRFROM c, 
+    opRFROM c, 
+	opRFROM c,	
+    opSWAP c, 
+	opROT c,
+	opTOR c, ]
 ; 
 
 : r@																			\ \ CORE
   [
-	OPCODE_RFROM c,
-	OPCODE_RFROM c,
-    OPCODE_DUP c,
-    OPCODE_SWAP c,
-	OPCODE_TOR c,
-    OPCODE_SWAP c,
-	OPCODE_TOR c,
+	opRFROM c,
+	opRFROM c,
+    opDUP c,
+    opSWAP c,
+	opTOR c,
+    opSWAP c,
+	opTOR c,
   ]
-; OPCODE_RFETCH get-current @ >flag c!
+; opRFETCH get-current @ >flag c!
 
 : >r																			\ \ CORE
   [
-	OPCODE_RFROM c,
-	OPCODE_SWAP c,
-	OPCODE_TOR c,	
-	OPCODE_TOR c,	
+	opRFROM c,
+	opSWAP c,
+	opTOR c,	
+	opTOR c,	
   ]
-; OPCODE_TOR get-current @ >flag c!
+; opTOR get-current @ >flag c!
 
 : 2>r
   [	
-	OPCODE_RFROM c,	
-	OPCODE_ROT c,
-	OPCODE_TOR c,
-	OPCODE_SWAP c,
-	OPCODE_TOR c,
-	OPCODE_TOR c,
+	opRFROM c,	
+	opROT c,
+	opTOR c,
+	opSWAP c,
+	opTOR c,
+	opTOR c,
   ]
 ;
 
 : 2r@ 																			\ \ CORE-EXT
   [ 
-	OPCODE_RFROM c,
-	OPCODE_RFROM c,
-	OPCODE_RFROM c,		\ ret a b --
-	OPCODE_ROT c,
-	OPCODE_TOR c,
-	OPCODE_SWAP c,
+	opRFROM c,
+	opRFROM c,
+	opRFROM c,		\ ret a b --
+	opROT c,
+	opTOR c,
+	opSWAP c,
   ]
 ;
 
@@ -192,13 +192,13 @@ OPCODE_IMMEDIATE forth-wordlist @ >flag c!
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
 : if																			\ \ CORE
-  OPCODE_JUMP_EQ_ZERO c,
+  opJUMP_EQ_ZERO c,
   here 
   0 ,
 ; immediate
 
 : else																			\ \ CORE
-  OPCODE_JUMP c,
+  opJUMP c,
   here
   0 ,
   swap here swap !
@@ -213,18 +213,18 @@ OPCODE_IMMEDIATE forth-wordlist @ >flag c!
 ; immediate
 
 : until																			\ \ CORE
-  OPCODE_JUMP_EQ_ZERO c,
+  opJUMP_EQ_ZERO c,
   ,
 ; immediate
 
 : while																			\ \ CORE
-  OPCODE_JUMP_EQ_ZERO c,
+  opJUMP_EQ_ZERO c,
   here swap
   0 ,
 ; immediate
 
 : repeat																		\ \ CORE
-  OPCODE_JUMP c,
+  opJUMP c,
   ,
   here swap !
 ; immediate
@@ -272,14 +272,14 @@ OPCODE_IMMEDIATE forth-wordlist @ >flag c!
 
 internals set-current
 : locals-count					\ how to create a variable badly :-)
-  [ OPCODE_DOLIT c, here 9 + ,
-	OPCODE_JUMP c, here 8 + ,
+  [ opDOLIT c, here 9 + ,
+	opJUMP c, here 8 + ,
     0 ,
   ]
 ;
 : locals-here					\ how to create a variable badly :-)
-  [ OPCODE_DOLIT c, here 9 + ,
-	OPCODE_JUMP c, here 8 + ,
+  [ opDOLIT c, here 9 + ,
+	opJUMP c, here 8 + ,
     0 ,
   ]
 ;
@@ -288,23 +288,23 @@ forth-wordlist set-current
 get-order internals swap 1+ set-order internals set-current
 : end-locals
   locals-count @ if
-	OPCODE_LPFETCH c,
-	OPCODE_DOLIT c, 0 ,
-	OPCODE_LFETCH c,
-	OPCODE_LPSTORE c,
-	OPCODE_RSPSTORE c,
+	opLPFETCH c,
+	opDOLIT c, 0 ,
+	opLFETCH c,
+	opLPSTORE c,
+	opRSPSTORE c,
     0 locals-count !
   then
 ;
 
 : compile-l@
-  OPCODE_DOLIT c, ,	
-  OPCODE_LFETCH c,
+  opDOLIT c, ,	
+  opLFETCH c,
 ;
 
 forth-wordlist set-current
 
-: exit end-locals OPCODE_RET c, ; immediate										\ \ CORE
+: exit end-locals opRET c, ; immediate										\ \ CORE
 
 : ?dup dup 0= if exit then dup ;												\ \ CORE
 
@@ -355,7 +355,7 @@ forth-wordlist set-current
 
 : count dup 1 + swap c@ ;														\ \ CORE
 
-: literal OPCODE_DOLIT c, , ; immediate											\ \ CORE
+: literal opDOLIT c, , ; immediate											\ \ CORE
 : abs dup 0< if negate then ;													\ \ CORE
 
 internals set-current
@@ -418,7 +418,7 @@ forth-wordlist set-current
 
   \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
   \ anything bigger than the size of the input buffer anyhow.
-  [ OPCODE_JUMP c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
+  [ opJUMP c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
 
   >r
   bl (parse)
@@ -437,7 +437,7 @@ forth-wordlist set-current
 
 internals set-current
 : [literal]																		\ \ INTERNAL
-  OPCODE_DOLIT c, ,	
+  opDOLIT c, ,	
 ;
 forth-wordlist set-current
  
@@ -485,12 +485,12 @@ forth-wordlist set-current
 : c" 																			\ \ CORE-EXT
   \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
   \ anything bigger than the size of the input buffer anyhow.
-  OPCODE_JUMP c, here 0 ,			\ patch-jump
+  opJUMP c, here 0 ,			\ patch-jump
   here							\ patch-jump where-to-store
   [char] " word count				\ patch-jump where-to-store text textlen
   dup 1+ allot
   here >r							\ 
-  2 pick OPCODE_DOLIT c, ,		\ patch buffer text textlen --
+  2 pick opDOLIT c, ,		\ patch buffer text textlen --
   dup 3 pick c!
   rot 1+						\ patch text textlen buffer+1 --
   swap							\ patch text buffer+1 textlen --						
@@ -500,19 +500,19 @@ forth-wordlist set-current
 
 : s"																			\ \ CORE / FILE-ACCESS
   state @ if
-	OPCODE_JUMP c, here 0 ,			\ patch-jump
+	opJUMP c, here 0 ,			\ patch-jump
 	here							\ patch-jump where-to-store
 	[char] " word count				\ patch-jump where-to-store text textlen
 	dup allot
 	here >r							\ 
-	2 pick OPCODE_DOLIT c, ,		\ 
-	dup OPCODE_DOLIT c, ,			\ 
+	2 pick opDOLIT c, ,		\ 
+	dup opDOLIT c, ,			\ 
 	>r swap r> move
 	r> swap !
   else
 	  \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
   	  \ anything bigger than the size of the input buffer anyhow.
-  	  [ OPCODE_JUMP c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
+  	  [ opJUMP c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
       [char] " word count			\ tmp c-addr u --
       swap 2 pick 2 pick			\ tmp u c-addr tmp u --
 	  move
@@ -532,13 +532,13 @@ forth-wordlist set-current
 		if
 			2 pick 2 pick						
 			2 pick head>name 1 + swap				
-			[ OPCODE_COMPARE c, ]
+			[ opCOMPARE c, ]
 			0= if 
 														\ c-addr u link --
 				nip nip
 				dup 
 				head>name count + 						
-				swap >flag c@ OPCODE_IMMEDIATE = if
+				swap >flag c@ opIMMEDIATE = if
 					1
 				else
 					-1
@@ -586,7 +586,7 @@ internals set-current
 	forget-locals
     A_QUIT @	
 	?dup if
-		 [ OPCODE_JUMPD c, ]	\ don't return from here, off and running
+		 [ opJUMPD c, ]	\ don't return from here, off and running
 	then
     cr s" (abort) under bootstrap" type cr
 	\ if no interpreter we RET, which in the VM means return and it'll run a new loop
@@ -595,8 +595,8 @@ forth-wordlist set-current
 
 internals set-current
 : exception-handler			\ how to create a variable badly :-)
-  [ OPCODE_DOLIT c, here 9 + ,
-	OPCODE_JUMP c, here 8 + ,
+  [ opDOLIT c, here 9 + ,
+	opJUMP c, here 8 + ,
     0 ,
   ]
 ;
@@ -711,11 +711,11 @@ forth-wordlist set-current
 ; immediate
 
 : compile,																		\ \ CORE-EXT
-  dup >head >flag c@ dup OPCODE_IMMEDIATE = swap OPCODE_NONE = or if
+  dup >head >flag c@ dup opIMMEDIATE = swap opNONE = or if
 	dup 65536 < if
-		OPCODE_SHORT_CALL c, w,
+		opSHORT_CALL c, w,
 	else
-	  	OPCODE_CALL c, ,
+	  	opCALL c, ,
 	then
   else
     >head >flag c@ c,
@@ -766,7 +766,7 @@ forth-wordlist set-current
 ; immediate
 
 : do		\ limit idx --														\ \ CORE
-	OPCODE_DOLIT c,
+	opDOLIT c,
 	here				\ cs: here
 	0 ,
 	postpone >r			
@@ -778,21 +778,21 @@ forth-wordlist set-current
 : ?do		\ limit idx --														\ \ CORE-EXT
 	postpone 2dup
 	postpone =
-	OPCODE_JUMP_EQ_ZERO c,
+	opJUMP_EQ_ZERO c,
 	here 
 	0 ,
 	
-	OPCODE_DOLIT c,					\ get the resolv address at runtime N bytes on from here
+	opDOLIT c,					\ get the resolv address at runtime N bytes on from here
 	here 13 + ,
-	OPCODE_FETCH c,
+	opFETCH c,
 	\ 3 numbers to satisfy unloop after the jump (limit index, something random)
-	OPCODE_DUP c, OPCODE_TOR c,
-	OPCODE_SWAP c, OPCODE_TOR c,
-	OPCODE_SWAP c, OPCODE_TOR c,	
-	OPCODE_JUMPD c,
+	opDUP c, opTOR c,
+	opSWAP c, opTOR c,
+	opSWAP c, opTOR c,	
+	opJUMPD c,
 	
 	here swap !
-	OPCODE_DOLIT c,
+	opDOLIT c,
 	here				\ cs: here
 	0 ,
 	postpone >r			
@@ -855,7 +855,7 @@ forth-wordlist set-current
 	postpone >r
 	postpone swap
 	postpone >r
-	OPCODE_JUMPD c,
+	opJUMPD c,
 ; immediate
 
 : case																			\ \ CORE-EXT
@@ -909,7 +909,7 @@ forth-wordlist set-current
 
 : key																			\ \ CORE
   begin
-    [ OPCODE_IN c, ]
+    [ opIN c, ]
 	?dup 
   until
 ;
@@ -922,7 +922,7 @@ forth-wordlist set-current
 : :																				\ \ CORE
   here 0				\ colon-sys --
   get-current @ ,
-  OPCODE_NONE c,
+  opNONE c,
   bl word 
   count dup c,			\ colon-sys c-addr u --
   here over allot		\ colon-sys c-addr u here --
@@ -932,7 +932,7 @@ forth-wordlist set-current
 
 : ; 																			\ \ CORE
   end-locals
-  OPCODE_RET c,
+  opRET c,
   ?dup 0= if
 	get-current !
   else
@@ -949,17 +949,17 @@ forth-wordlist set-current
   here 
   get-current @ ,
   get-current !					\ warning, I don't really want the definition on the wordlist until it's complete !
-  OPCODE_NONE c,
+  opNONE c,
   bl word count dup c,
   here over allot
   swap move
 
-  OPCODE_DOLIT c,			\ not sure I really need this lit, I can just fix >body
+  opDOLIT c,			\ not sure I really need this lit, I can just fix >body
   here 0 ,
 
-  OPCODE_JUMP c,
+  opJUMP c,
   here cell+ ,
-  OPCODE_RET c,
+  opRET c,
 
   here swap !
 ;
@@ -975,9 +975,9 @@ forth-wordlist set-current
 : does>																			\ \ CORE
   end-locals
   \ the '10' is the DOLIT and a CALL, we cannot let postpone use SHORT_CALL (via compile,)
-  OPCODE_DOLIT c, here 10 + ,
-  OPCODE_CALL c, ['] (does>) , 	\ *was* postpone (does>), see above
-  OPCODE_RET c,
+  opDOLIT c, here 10 + ,
+  opCALL c, ['] (does>) , 	\ *was* postpone (does>), see above
+  opRET c,
 ; immediate
 
 : constant create , does> @ ;													\ \ CORE
@@ -1002,9 +1002,9 @@ forth-wordlist set-current
 	dup count locals-wordlist search-wordlist if
 		nip
 		1+ @		\ get the literal from the first instruction in the word
-		OPCODE_DOLIT c,
+		opDOLIT c,
 		,
-		OPCODE_LSTORE c,
+		opLSTORE c,
 		exit
 	then
 
@@ -1114,31 +1114,31 @@ internals set-current
   begin
     cr dup 0 <# # # # # # # # # #> type s" : " type
 
-  	dup c@ OPCODE_SHORT_CALL = if
+  	dup c@ opSHORT_CALL = if
 		dup 1+ w@ >name count type
 		3 +	
 	else
-		dup c@ OPCODE_CALL = if
+		dup c@ opCALL = if
 			dup 1+ @ >name count type 
 			5 +
 	    else
-			dup c@ OPCODE_DOLIT = if
+			dup c@ opDOLIT = if
 			  dup 1+ @ 0 <# #s #> type
 	      	  5 +
 			else
-				dup c@ OPCODE_RET = if
+				dup c@ opRET = if
 					s" Ret" type
 					drop dup	\ force end
 				else
-					dup c@ OPCODE_JUMP = if
+					dup c@ opJUMP = if
 						s" Jump" type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit
 						5 +
 					else
-						dup c@ OPCODE_JUMPD = if
+						dup c@ opJUMPD = if
 							s" JumpD" type
 							1 +
 						else
-	  						dup c@ OPCODE_JUMP_EQ_ZERO = if
+	  						dup c@ opJUMP_EQ_ZERO = if
 								s" jeq0 " type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit
 								5 +
 							else
@@ -1216,8 +1216,8 @@ forth-wordlist set-current
 		1- >r
 		1+ >r
 		>r
-		base @ [ OPCODE_UMULT c, ]
-		r> 0 [ OPCODE_ADD2 c, ]
+		base @ [ opUMULT c, ]
+		r> 0 [ opADD2 c, ]
 		r> 
 		r> 
 	0 until
@@ -1478,7 +1478,7 @@ get-order internals swap 1+ set-order
   ?dup if
     nip nip nip
   else
-    [ get-order internals swap 1+ set-order OPCODE_COMPARE get-order nip 1- set-order c, ]
+    [ get-order internals swap 1+ set-order opCOMPARE get-order nip 1- set-order c, ]
   then
 ;
 
@@ -1496,9 +1496,9 @@ internals forth-wordlist 2 set-order definitions
 
 	locals-count @ if
 		['] rsp@ compile,
-		OPCODE_LPFETCH c, 
+		opLPFETCH c, 
 		['] >r compile,
-		OPCODE_LPSTORE c, 
+		opLPSTORE c, 
 	then
 	locals-count @ 0 ?do ['] >r compile, loop
   else
@@ -1516,7 +1516,7 @@ internals forth-wordlist 2 set-order definitions
     dup locals-wordlist !
 	1 cells +
 
-	OPCODE_IMMEDIATE over c!  1 +
+	opIMMEDIATE over c!  1 +
 	
 	over over c!  1 +
 
@@ -1525,12 +1525,12 @@ internals forth-wordlist 2 set-order definitions
 	2r>							\ u lh --	
 	+							\ locals here
 
-	OPCODE_DOLIT over c! 1+
+	opDOLIT over c! 1+
 	locals-count @ 1+ over ! 1 cells +		
-	OPCODE_CALL over c! 1+
+	opCALL over c! 1+
 	['] compile-l@ over ! 1 cells +
 
-	OPCODE_RET over c!  1+
+	opRET over c!  1+
 
 	locals-here !
 

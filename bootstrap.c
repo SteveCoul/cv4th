@@ -62,10 +62,10 @@ static machine_t*	machine;
 #define TO_XT( r_address )				r_address + GET_BYTE( machine, r_address+5 ) + 6
 #define TO_NAME( r_address )			r_address + 5
 
-#define VARIABLE( r_address, name )	LAY_HEADER( OPCODE_NONE, name ); C_COMMA( OPCODE_DOLIT ); COMMA( r_address ); C_COMMA( OPCODE_RET )
-#define OPWORD( opcode, name ) LAY_HEADER( opcode, name ); C_COMMA( opcode ); C_COMMA( OPCODE_RET )
-#define CONSTANT( name, value ) LAY_HEADER( OPCODE_NONE, name ); C_COMMA( OPCODE_DOLIT ); COMMA( value ); C_COMMA( OPCODE_RET )
-#define OPCONSTANT( name ) LAY_HEADER( OPCODE_NONE, #name ); C_COMMA( OPCODE_DOLIT ); COMMA( name ); C_COMMA( OPCODE_RET );
+#define VARIABLE( r_address, name )	LAY_HEADER( opNONE, name ); C_COMMA( opDOLIT ); COMMA( r_address ); C_COMMA( opRET )
+#define OPWORD( opcode, name ) LAY_HEADER( opcode, name ); C_COMMA( opcode ); C_COMMA( opRET )
+#define CONSTANT( name, value ) LAY_HEADER( opNONE, name ); C_COMMA( opDOLIT ); COMMA( value ); C_COMMA( opRET )
+#define OPCONSTANT( name ) LAY_HEADER( opNONE, #name ); C_COMMA( opDOLIT ); COMMA( name ); C_COMMA( opRET );
 
 #define INTERNALS_DEFINITIONS			WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST );
 #define FORTH_DEFINITIONS				WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST );
@@ -208,11 +208,11 @@ int main( int argc, char** argv ) {
 	CONSTANT( "locals-wordlist", A_LOCALS_WORDLIST );	
 
 	FORTH_DEFINITIONS
-	LAY_HEADER( OPCODE_NONE, "here" );	// in forth code here is not a variable
-	C_COMMA( OPCODE_DOLIT );
+	LAY_HEADER( opNONE, "here" );	// in forth code here is not a variable
+	C_COMMA( opDOLIT );
 	COMMA( A_HERE );
-	C_COMMA( OPCODE_FETCH );
-	C_COMMA( OPCODE_RET );
+	C_COMMA( opFETCH );
+	C_COMMA( opRET );
 
 	VARIABLE( A_STATE, "state" );
 	VARIABLE( A_TIB, "tib" );
@@ -239,92 +239,92 @@ int main( int argc, char** argv ) {
 
 	/** Forth definitions that map to a single opcode */
 	FORTH_DEFINITIONS
-	OPWORD( OPCODE_OPEN_FILE, "open-file" );
-	OPWORD( OPCODE_CLOSE_FILE, "close-file" );
-	OPWORD( OPCODE_CREATE_FILE, "create-file" );
-	OPWORD( OPCODE_READ_FILE, "read-file" );
-	OPWORD( OPCODE_WRITE_FILE, "write-file" );
-	OPWORD( OPCODE_DELETE_FILE, "delete-file" );
-	OPWORD( OPCODE_FILE_POSITION, "file-position" );
-	OPWORD( OPCODE_FILE_SIZE, "file-size" );
-	OPWORD( OPCODE_FILE_STATUS, "file-status" );
-	OPWORD( OPCODE_FLUSH_FILE, "flush-file" );
-	OPWORD( OPCODE_RESIZE_FILE, "resize-file" );
-	OPWORD( OPCODE_RENAME_FILE, "rename-file" );
-	OPWORD( OPCODE_REPOSITION_FILE, "reposition-file" );
-	OPWORD( OPCODE_U_GREATER_THAN, "u>" );
-	OPWORD( OPCODE_U_LESS_THAN, "u<" );
-	OPWORD( OPCODE_NIP, "nip" );
-	OPWORD( OPCODE_ROT, "rot" );
-	OPWORD( OPCODE_TUCK, "tuck" );
-	OPWORD( OPCODE_ROLL, "roll" );
-	OPWORD( OPCODE_2DUP, "2dup" );
-	OPWORD( OPCODE_2DROP, "2drop" );
-	OPWORD( OPCODE_2OVER, "2over" );
-	OPWORD( OPCODE_2SWAP, "2swap" );
-	OPWORD( OPCODE_MOVE, "move" );
-	OPWORD( OPCODE_DEPTH, "depth" );
-	OPWORD( OPCODE_OVER, "over" );
-	OPWORD( OPCODE_DUP, "dup" );
-	OPWORD( OPCODE_PICK, "pick" );
-	OPWORD( OPCODE_FETCH, "@" );
-	OPWORD( OPCODE_EQUALS, "=" );
-	OPWORD( OPCODE_STORE, "!" );
-	OPWORD( OPCODE_NOT, "not" );
-	OPWORD( OPCODE_OR, "or" );
-	OPWORD( OPCODE_AND, "and" );
-	OPWORD( OPCODE_CSTORE, "c!" );
-	OPWORD( OPCODE_CFETCH, "c@" );
-	OPWORD( OPCODE_DROP, "drop" );
-	OPWORD( OPCODE_EMIT, "emit" );
-	OPWORD( OPCODE_MULT, "*" );
-	OPWORD( OPCODE_MINUS, "-" );
-	OPWORD( OPCODE_GREATER_THAN, ">" );
-	OPWORD( OPCODE_LESS_THAN, "<" );
-	OPWORD( OPCODE_PLUS, "+" );
-	OPWORD( OPCODE_PLUSSTORE, "+!" );
-	OPWORD( OPCODE_SWAP, "swap" );
-	OPWORD( OPCODE_UM_SLASH_MOD, "um/mod" );
+	OPWORD( opOPEN_FILE, "open-file" );
+	OPWORD( opCLOSE_FILE, "close-file" );
+	OPWORD( opCREATE_FILE, "create-file" );
+	OPWORD( opREAD_FILE, "read-file" );
+	OPWORD( opWRITE_FILE, "write-file" );
+	OPWORD( opDELETE_FILE, "delete-file" );
+	OPWORD( opFILE_POSITION, "file-position" );
+	OPWORD( opFILE_SIZE, "file-size" );
+	OPWORD( opFILE_STATUS, "file-status" );
+	OPWORD( opFLUSH_FILE, "flush-file" );
+	OPWORD( opRESIZE_FILE, "resize-file" );
+	OPWORD( opRENAME_FILE, "rename-file" );
+	OPWORD( opREPOSITION_FILE, "reposition-file" );
+	OPWORD( opU_GREATER_THAN, "u>" );
+	OPWORD( opU_LESS_THAN, "u<" );
+	OPWORD( opNIP, "nip" );
+	OPWORD( opROT, "rot" );
+	OPWORD( opTUCK, "tuck" );
+	OPWORD( opROLL, "roll" );
+	OPWORD( op2DUP, "2dup" );
+	OPWORD( op2DROP, "2drop" );
+	OPWORD( op2OVER, "2over" );
+	OPWORD( op2SWAP, "2swap" );
+	OPWORD( opMOVE, "move" );
+	OPWORD( opDEPTH, "depth" );
+	OPWORD( opOVER, "over" );
+	OPWORD( opDUP, "dup" );
+	OPWORD( opPICK, "pick" );
+	OPWORD( opFETCH, "@" );
+	OPWORD( opEQUALS, "=" );
+	OPWORD( opSTORE, "!" );
+	OPWORD( opNOT, "not" );
+	OPWORD( opOR, "or" );
+	OPWORD( opAND, "and" );
+	OPWORD( opCSTORE, "c!" );
+	OPWORD( opCFETCH, "c@" );
+	OPWORD( opDROP, "drop" );
+	OPWORD( opEMIT, "emit" );
+	OPWORD( opMULT, "*" );
+	OPWORD( opMINUS, "-" );
+	OPWORD( opGREATER_THAN, ">" );
+	OPWORD( opLESS_THAN, "<" );
+	OPWORD( opPLUS, "+" );
+	OPWORD( opPLUSSTORE, "+!" );
+	OPWORD( opSWAP, "swap" );
+	OPWORD( opUM_SLASH_MOD, "um/mod" );
 	// DO NOT embed opcode for execute or we can't run it from the bootstrap interpreter ( I think? maybe try one day )
-	LAY_HEADER( OPCODE_NONE, "execute" );
-	C_COMMA( OPCODE_EXECUTE ); C_COMMA( OPCODE_RET );
+	LAY_HEADER( opNONE, "execute" );
+	C_COMMA( opEXECUTE ); C_COMMA( opRET );
 	// Do not make the r> >r r@ words here because compiling the opcode behavior as above doesn't work if you ' execute etc.
 
 	INTERNALS_DEFINITIONS
-	OPWORD( OPCODE_BYE, "bye" );
-	OPWORD( OPCODE_RSPFETCH, "rsp@" );
-	OPWORD( OPCODE_RSPSTORE, "rsp!" );
-	OPWORD( OPCODE_SPFETCH, "sp@" );
-	OPWORD( OPCODE_SPSTORE, "sp!" );
-	OPWORD( OPCODE_WFETCH, "w@" );
-	OPWORD( OPCODE_WSTORE, "w!" );
+	OPWORD( opBYE, "bye" );
+	OPWORD( opRSPFETCH, "rsp@" );
+	OPWORD( opRSPSTORE, "rsp!" );
+	OPWORD( opSPFETCH, "sp@" );
+	OPWORD( opSPSTORE, "sp!" );
+	OPWORD( opWFETCH, "w@" );
+	OPWORD( opWSTORE, "w!" );
 
 	/* only the ones I need to save space */
-	OPCONSTANT( OPCODE_NONE );
-	OPCONSTANT( OPCODE_ADD2 );
-	OPCONSTANT( OPCODE_UMULT );
-	OPCONSTANT( OPCODE_IN );
-	OPCONSTANT( OPCODE_FETCH );
-	OPCONSTANT( OPCODE_CALL );
-	OPCONSTANT( OPCODE_SHORT_CALL );
- 	OPCONSTANT( OPCODE_COMPARE );
-    OPCONSTANT( OPCODE_RET );
-	OPCONSTANT( OPCODE_JUMP_EQ_ZERO );
-	OPCONSTANT( OPCODE_JUMP );
-	OPCONSTANT( OPCODE_JUMPD );
-	OPCONSTANT( OPCODE_DOLIT );
-    OPCONSTANT( OPCODE_DUP );
-	OPCONSTANT( OPCODE_LPFETCH );
-	OPCONSTANT( OPCODE_LPSTORE );
-	OPCONSTANT( OPCODE_RSPSTORE );
-	OPCONSTANT( OPCODE_LFETCH );
-	OPCONSTANT( OPCODE_LSTORE );
-    OPCONSTANT( OPCODE_SWAP );
-    OPCONSTANT( OPCODE_RFROM );
-    OPCONSTANT( OPCODE_TOR );
-    OPCONSTANT( OPCODE_ROT );
-    OPCONSTANT( OPCODE_RFETCH );
-	OPCONSTANT( OPCODE_IMMEDIATE );
+	OPCONSTANT( opNONE );
+	OPCONSTANT( opADD2 );
+	OPCONSTANT( opUMULT );
+	OPCONSTANT( opIN );
+	OPCONSTANT( opFETCH );
+	OPCONSTANT( opCALL );
+	OPCONSTANT( opSHORT_CALL );
+ 	OPCONSTANT( opCOMPARE );
+    OPCONSTANT( opRET );
+	OPCONSTANT( opJUMP_EQ_ZERO );
+	OPCONSTANT( opJUMP );
+	OPCONSTANT( opJUMPD );
+	OPCONSTANT( opDOLIT );
+    OPCONSTANT( opDUP );
+	OPCONSTANT( opLPFETCH );
+	OPCONSTANT( opLPSTORE );
+	OPCONSTANT( opRSPSTORE );
+	OPCONSTANT( opLFETCH );
+	OPCONSTANT( opLSTORE );
+    OPCONSTANT( opSWAP );
+    OPCONSTANT( opRFROM );
+    OPCONSTANT( opTOR );
+    OPCONSTANT( opROT );
+    OPCONSTANT( opRFETCH );
+	OPCONSTANT( opIMMEDIATE );
 
 	FORTH_DEFINITIONS
 	/**
@@ -379,7 +379,7 @@ rescan:
 				WRITE_CELL( machine, A_TOIN, (GET_CELL( machine, A_TOIN )) + i );
 
 				if ( next_word_is_colon_name ) {
-					LAY_HEADER( OPCODE_NONE, tmp_word );
+					LAY_HEADER( opNONE, tmp_word );
 					WRITE_CELL( machine, A_STATE, 1 );
 					next_word_is_colon_name = 0;
 					goto rescan;
@@ -395,7 +395,7 @@ rescan:
 				// we'll do a naive version and then scan to see if we've got the two forth words yet.
 				if ( ( strcmp( tmp_word, ";" ) == 0 ) && ( ( word_colon == 0 ) || ( word_semicolon == 0 ) ) ) {
 					WRITE_CELL( machine, A_STATE, 0 );
-					C_COMMA( OPCODE_RET );
+					C_COMMA( opRET );
 					if ( word_colon == 0 ) 		{ word_colon = find(":"); if ( word_colon ) printf("now have :\n"); }
 					if ( word_semicolon == 0 )  { word_semicolon = find(";"); if ( word_semicolon ) printf("now have ;\n" ); }
 					goto rescan;
@@ -423,7 +423,7 @@ rescan:
 					if ( tmp_word[0] == '-' ) v = 0- atoi( tmp_word+1 );
 					else v = atoi( tmp_word );
 					if ( STATE == 1 ) {
-						C_COMMA( OPCODE_DOLIT );
+						C_COMMA( opDOLIT );
 						COMMA( v );
 					} else {
 						machine->datastack[ machine->DP ] = v;
@@ -433,14 +433,14 @@ rescan:
 					uint32_t xt = TO_XT( v );
 					uint8_t* header = ((uint8_t*)(machine->memory))+v;
 
-					if ( ( STATE == 0 ) || ( header[4] == OPCODE_IMMEDIATE ) ) {
+					if ( ( STATE == 0 ) || ( header[4] == opIMMEDIATE ) ) {
 						machine_execute( machine, xt );
-					} else if ( header[4] == OPCODE_NONE ) {
+					} else if ( header[4] == opNONE ) {
 						if ( xt < 65536 ) {
-							C_COMMA( OPCODE_SHORT_CALL );
+							C_COMMA( opSHORT_CALL );
 							W_COMMA( xt );
 						} else {
-							C_COMMA( OPCODE_CALL );
+							C_COMMA( opCALL );
 							COMMA( xt );
 						}
 					} else {
