@@ -495,8 +495,6 @@ forth-wordlist set-current
 ; immediate
 
 : c" 																			\ \ CORE-EXT
-  \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
-  \ anything bigger than the size of the input buffer anyhow.
   opJUMP c, here 0 ,			\ patch-jump
   here							\ patch-jump where-to-store
   [char] " word count				\ patch-jump where-to-store text textlen
