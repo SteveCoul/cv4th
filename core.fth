@@ -356,7 +356,14 @@ internals set-current
 ;
 forth-wordlist set-current
 
-: literal opDOLIT c, , ; immediate												\ \ CORE
+: literal 																		\ \ CORE
+  dup 0 256 within if
+    opDOLIT_U8 c, c,
+  else
+    opDOLIT c, , 
+  then
+; immediate	
+
 : abs dup 0< if negate then ;													\ \ CORE
 
 internals set-current
@@ -438,10 +445,11 @@ forth-wordlist set-current
 
 internals set-current
 : [literal]																		
-  opDOLIT c, ,	
-;
-: [literalu8]																	
-  opDOLIT_U8 c, c,	
+  dup 0 256 within if
+	opDOLIT_U8 c, c,
+  else
+    opDOLIT c, ,
+  then
 ;
 forth-wordlist set-current
  
@@ -1206,16 +1214,18 @@ forth-wordlist set-current
 
 : .s 																			\ \ PROGRAMMING-TOOLS
   depth
-  ?dup 0= if cr 10 spaces ." (empty)" exit then
-
-  cr 13 spaces ." top"
-  0 begin
-    2dup <>
-  while
-    dup 2 + pick cr 16 .r
-	1+
-  repeat
-  2drop
+  ?dup 0= if 
+	cr 10 spaces ." (empty)" 
+  else
+    cr 13 spaces ." top"
+    0 begin
+      2dup <>
+    while
+      dup 2 + pick cr 16 .r
+  	1+
+    repeat
+    2drop
+  then
 ;
 
 internals set-current
@@ -1278,7 +1288,7 @@ internals set-current
 			abort"	>number gave the interpreter a number too big for 1 cell and I don't handle that yet"
 			r> *
 			state @ if
-				dup 256 < if [literalu8] else [literal] then
+				[literal] 
 			then
 		else
 			r> drop

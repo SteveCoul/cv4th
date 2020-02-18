@@ -490,7 +490,7 @@ rescan:
 					if ( tmp_word[0] == '-' ) v = 0- atoi( tmp_word+1 );
 					else v = atoi( tmp_word );
 					if ( STATE == 1 ) {
-						if ( v < 256 ) {
+						if ( ( v < 256 ) && ( v >= 0 ) ) {
 							C_COMMA( opDOLIT_U8 );
 							C_COMMA( v );
 						} else {
