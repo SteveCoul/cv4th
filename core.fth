@@ -355,7 +355,7 @@ forth-wordlist set-current
 
 : count dup 1 + swap c@ ;														\ \ CORE
 
-: literal opDOLIT c, , ; immediate											\ \ CORE
+: literal opDOLIT c, , ; immediate												\ \ CORE
 : abs dup 0< if negate then ;													\ \ CORE
 
 internals set-current
@@ -439,6 +439,9 @@ internals set-current
 : [literal]																		\ \ INTERNAL
   opDOLIT c, ,	
 ;
+: [literalu8]																	\ \ INTERNAL
+  opDOLIT_U8 c, c,	
+;
 forth-wordlist set-current
  
 : [char] char [literal] ; immediate 											\ \ CORE
@@ -490,7 +493,7 @@ forth-wordlist set-current
   [char] " word count				\ patch-jump where-to-store text textlen
   dup 1+ allot
   here >r							\ 
-  2 pick opDOLIT c, ,		\ patch buffer text textlen --
+  2 pick opDOLIT c, ,			\ patch buffer text textlen --
   dup 3 pick c!
   rot 1+						\ patch text textlen buffer+1 --
   swap							\ patch text buffer+1 textlen --						
@@ -1114,48 +1117,17 @@ internals set-current
   begin
     cr dup 0 <# # # # # # # # # #> type s" : " type
 
-  	dup c@ opSHORT_CALL = if
-		dup 1+ w@ >name count type
-		3 +	
-	else
-		dup c@ opCALL = if
-			dup 1+ @ >name count type 
-			5 +
-	    else
-			dup c@ opDOLIT = if
-			  dup 1+ @ 0 <# #s #> type
-	      	  5 +
-			else
-				dup c@ opRET = if
-					s" Ret" type
-					drop dup	\ force end
-				else
-					dup c@ opJUMP = if
-						s" Jump" type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit
-						5 +
-					else
-						dup c@ opJUMPD = if
-							s" JumpD" type
-							1 +
-						else
-	  						dup c@ opJUMP_EQ_ZERO = if
-								s" jeq0 " type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit
-								5 +
-							else
-								dup c@ opcodename ?dup if
-									type
-									1+
-								else
-									dup s" code " type c@ 0 <# #s #> type
-								    1+
-								then
-							then
-						then
-					then
-				then
-			then
-		then
-	then
+  	dup c@ opSHORT_CALL = if dup 1+ w@ >name count type 3 +	else
+	dup c@ opCALL = if dup 1+ @ >name count type 5 + else
+	dup c@ opDOLIT = if dup 1+ @ 0 <# #s #> type 5 + else
+	dup c@ opDOLIT_U8 = if dup 1+ c@ 0 <# #s #> type 2 + else
+	dup c@ opRET = if s" Ret" type drop dup	else
+	dup c@ opJUMP = if s" Jump" type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
+	dup c@ opJUMPD = if s" JumpD" type 1 + else
+	dup c@ opJUMP_EQ_ZERO = if s" jeq0 " type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
+	dup c@ opcodename ?dup if type 1+ else
+	dup s" code " type c@ 0 <# #s #> type 1+ 
+    then then then then then then then then then
     2dup <=
   until
   2drop
@@ -1253,7 +1225,7 @@ internals set-current
 			abort"	>number gave the interpreter a number too big for 1 cell and I don't handle that yet"
 			r> *
 			state @ if
-				 [literal]
+				dup 256 < if [literalu8] else [literal] then
 			then
 		else
 			r> drop

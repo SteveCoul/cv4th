@@ -30,6 +30,7 @@ enum {
 	opDEVICE_STORE16,
 	opDEVICE_STORE32,
 	opDOLIT,
+	opDOLIT_U8,
 	opDROP,
 	opDUP,
 

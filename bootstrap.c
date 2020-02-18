@@ -64,8 +64,19 @@ static machine_t*	machine;
 
 #define VARIABLE( r_address, name )	LAY_HEADER( opNONE, name ); C_COMMA( opDOLIT ); COMMA( r_address ); C_COMMA( opRET )
 #define OPWORD( opcode, name ) LAY_HEADER( opcode, name ); C_COMMA( opcode ); C_COMMA( opRET )
-#define CONSTANT( name, value ) LAY_HEADER( opNONE, name ); C_COMMA( opDOLIT ); COMMA( value ); C_COMMA( opRET )
-#define OPCONSTANT( name ) LAY_HEADER( opNONE, #name ); C_COMMA( opDOLIT ); COMMA( name ); C_COMMA( opRET );
+
+#define CONSTANT( name, value ) 	\
+									LAY_HEADER( opNONE, name ); 	 \
+									if ( value < 256 ) { \
+										C_COMMA( opDOLIT_U8 ); \
+										C_COMMA( value ); \
+									} else { \
+										C_COMMA( opDOLIT );  \
+										COMMA( value );  \
+									} \
+									C_COMMA( opRET )
+
+#define OPCONSTANT( name ) CONSTANT( #name, name )
 
 #define INTERNALS_DEFINITIONS			WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST );
 #define FORTH_DEFINITIONS				WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST );
@@ -313,6 +324,7 @@ int main( int argc, char** argv ) {
 	OPCONSTANT( opJUMP );
 	OPCONSTANT( opJUMPD );
 	OPCONSTANT( opDOLIT );
+	OPCONSTANT( opDOLIT_U8 );
     OPCONSTANT( opDUP );
 	OPCONSTANT( opLPFETCH );
 	OPCONSTANT( opLPSTORE );
@@ -423,8 +435,13 @@ rescan:
 					if ( tmp_word[0] == '-' ) v = 0- atoi( tmp_word+1 );
 					else v = atoi( tmp_word );
 					if ( STATE == 1 ) {
-						C_COMMA( opDOLIT );
-						COMMA( v );
+						if ( v < 256 ) {
+							C_COMMA( opDOLIT_U8 );
+							C_COMMA( v );
+						} else {
+							C_COMMA( opDOLIT );
+							COMMA( v );
+						}
 					} else {
 						machine->datastack[ machine->DP ] = v;
 						machine->DP++;

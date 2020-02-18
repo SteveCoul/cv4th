@@ -526,6 +526,11 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			DP++;
 			IP+=4;
 			break;
+		case opDOLIT_U8:
+			datastack[ DP ] = GET_BYTE( machine, IP );
+			DP++;
+			IP+=1;
+			break;
 		default:
 			printf("Illegal opcode [%x]\n", opcode );
 			exit(0);
