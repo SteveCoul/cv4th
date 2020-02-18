@@ -36,14 +36,14 @@ opIMMEDIATE forth-wordlist @ >flag c!
 \ NATIVE: 2over																	\ \ CORE
 \ NATIVE: 2swap																	\ \ CORE
 \ NATIVE: forth-wordlist														\ \ SEARCH-ORDER
-\ NATIVE: INTERNALS																\ \ INTERNAL
-\ NATIVE: w@																	\ \ INTERNAL
-\ NATIVE: w!																	\ \ INTERNAL
-\ NATIVE: BYE																	\ \ INTERNAL
-\ NATIVE: sp@ 																	\ \ INTERNAL
-\ NATIVE: sp! 																	\ \ INTERNAL
-\ NATIVE: rsp@ 																	\ \ INTERNAL
-\ NATIVE: rsp! 																	\ \ INTERNAL
+\ NATIVE: INTERNALS																
+\ NATIVE: w@																	
+\ NATIVE: w!																	
+\ NATIVE: BYE																	
+\ NATIVE: sp@ 																	
+\ NATIVE: sp! 																	
+\ NATIVE: rsp@ 																	
+\ NATIVE: rsp! 																	
 \ NATIVE: here																	\ \ CORE
 \ NATIVE: state																	\ \ CORE
 \ NATIVE: tib																	\ \ DEAD?
@@ -76,7 +76,6 @@ opIMMEDIATE forth-wordlist @ >flag c!
 \ NATIVE: execute																\ \ CORE
 \ NATIVE: u< 																	\ \ CORE
 \ NATIVE: u> 																	\ \ CORE-EXT
-
 
 \ ---------------------------------------------------------------------------------------------
 
@@ -353,7 +352,7 @@ internals set-current
 forth-wordlist set-current
 
 internals set-current
-: w,																			\ \ INTERNAL
+: w,																			
   here 2 allot w!
 ;
 forth-wordlist set-current
@@ -362,7 +361,7 @@ forth-wordlist set-current
 : abs dup 0< if negate then ;													\ \ CORE
 
 internals set-current
-: should-skip	\ ( char delim -- flag )										\ \ INTERNAL
+: should-skip	\ ( char delim -- flag )										
 	dup bl = if
 		over	
 		= swap 9 =
@@ -374,7 +373,7 @@ internals set-current
 forth-wordlist set-current
 
 internals set-current
-: (parse) \ delimiter skip-char -- c-addr u										\ \ INTERNAL
+: (parse) \ delimiter skip-char -- c-addr u										
   swap >r
   ?dup if
     >r
@@ -439,10 +438,10 @@ forth-wordlist set-current
 ;
 
 internals set-current
-: [literal]																		\ \ INTERNAL
+: [literal]																		
   opDOLIT c, ,	
 ;
-: [literalu8]																	\ \ INTERNAL
+: [literalu8]																	
   opDOLIT_U8 c, c,	
 ;
 forth-wordlist set-current
@@ -526,7 +525,7 @@ forth-wordlist set-current
 ; immediate
 
 internals set-current
-: head>name			>flag 1 + ;													\ \ INTERNAL
+: head>name			>flag 1 + ;													
 forth-wordlist set-current
 
 : search-wordlist	\ c-addr u wid -- 0 | xt 1 | xt -1 							\ \ SEARCH-ORDER
@@ -559,7 +558,7 @@ forth-wordlist set-current
 
 internals set-current
 
-: forget-locals	0 locals-wordlist !	;											\ \ INTERNAL
+: forget-locals	0 locals-wordlist !	;											
 
 forth-wordlist set-current
 
@@ -585,7 +584,7 @@ forth-wordlist set-current
 ;
 
 internals set-current
-: (abort)																		\ \ INTERNAL
+: (abort)																		
 	0 sp!
    	0 rsp!
 	0 state !
@@ -696,7 +695,7 @@ forth-wordlist set-current
 ;
 
 internals set-current
-: >name																			\ \ INTERNAL
+: >name																			
   dup >r	\ p -- R: xt --
   begin
     1-
@@ -705,7 +704,7 @@ internals set-current
   r> drop 
 ;
 
-: >head																			\ \ INTERNAL
+: >head																			
   >name
   1-
   1 cells -
@@ -903,7 +902,7 @@ forth-wordlist set-current
 ;
 
 internals set-current
-: >name 	 \ xt -- c-addr														\ \ INTERNAL
+: >name 	 \ xt -- c-addr														
   dup >r
   begin
 	1- 
@@ -973,7 +972,7 @@ forth-wordlist set-current
 : >body 1+ @ ; 																	\ \ CORE
 
 internals set-current
-: (does>)																		\ \ INTERNAL
+: (does>)																		
   get-current @ cell+ 1+ count + 1+ cell+ 1+ !
 ;
 forth-wordlist set-current
@@ -990,11 +989,6 @@ forth-wordlist set-current
 : variable create 0 , does> ;													\ \ CORE
 : buffer: create allot ;														\ \ CORE-EXT
 : value create , does> @ ;														\ \ CORE-EXT
-
-internals set-current
-: >= < not ;																	\ \ INTERNAL
-: <= > not ;																	\ \ INTERNAL
-forth-wordlist set-current
 
 256 buffer: pad																	\ \ CORE-EXT
 
@@ -1107,23 +1101,24 @@ forth-wordlist set-current
   over +	
 
   begin			\ ptr end --
+	2dup <
+  while
     cr
     over .hex32 ." : "
 
-	16 0 do
-		over i + over <= if over i + c@ .hex8 bl emit else 3 spaces then
+	16 0 do	
+		over i + over < if over i + c@ .hex8 bl emit else 3 spaces then
 		i 7 = if bl emit then
 	loop
 
 	[char] | emit bl emit
 
 	16 0 do
-	    over i + over <= if over i + c@ aschar emit then
+	    over i + over < if over i + c@ aschar emit then
 	loop
 
     swap 16 + swap 
-    2dup >=
-  until
+  repeat
   2drop
   cr
 ;
@@ -1168,9 +1163,11 @@ internals set-current
   drop 0
 ;
 
-: dis		\ a-addr len --														\ \ INTERNAL
+: dis		\ a-addr len --														
   over + swap		\ end p --
   begin
+    2dup >
+  while
     cr dup .hex32 ." : " 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if 5 spaces ." | " dup 1+ w@ >name ctype 3 +	else
@@ -1187,8 +1184,7 @@ internals set-current
 	dup c@ opcodename ?dup if type 1+ else
 	dup ." code " c@ .hex 1+ 
     then then then then then then then then then
-    2dup <=
-  until
+  repeat
   2drop
 ;
 forth-wordlist set-current
@@ -1223,24 +1219,24 @@ forth-wordlist set-current
   2drop
 ;
 
+internals set-current
+: islower [char] a [char] z 1+ within ;
+: toupper dup islower if 32 - then ;
+forth-wordlist set-current
+
 : >number		\ ud c-addr u -- ud c-addr u									\ \ CORE
 	begin
 		dup 0= if exit then
-		over c@ 		
+		over c@ toupper
 
 		\ ud c-addr u char --
-		dup [char] a >=		
-		over [char] z <=		
-		and if 32 - then
-		\ ud c-addr u charlc --
-		dup [char] 0 < if drop exit then
-		dup [char] Z > if drop exit then
-		dup [char] 9 > over [char] A < and if drop exit then
-		[char] 0 -
-		dup 9 > if 7 - then
+
+		dup [char] 0 [char] Z 1+ within 0= if drop exit then
+		dup [char] 9 1+ [char] A within if drop exit then
+		[char] 0 - dup 9 > if 7 - then
 
 		\ ud c-addr u digit --
-		dup base @ >= if drop exit then
+        dup base @ < 0= if drop exit then
 		rot rot
 		\ ud digit c-addr u --
 		1- >r
@@ -1255,7 +1251,7 @@ forth-wordlist set-current
 
 \ some folks call this 'interpret' :-)
 internals set-current
-: (evaluate)																	\ \ INTERNAL
+: (evaluate)																	
   begin
     bl word 
 
@@ -1342,7 +1338,7 @@ forth-wordlist set-current
 ;
 
 internals set-current
-: eof?		\ id -- flag														\ \ INTERNAL
+: eof?		\ id -- flag														
   dup >r
   file-size if 2drop r> drop true then
   r> file-position if 2drop 2drop true then
