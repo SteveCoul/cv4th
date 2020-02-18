@@ -133,9 +133,39 @@ int refill( void ) {
 
 int main( int argc, char** argv ) {
 
-	uint32_t word_colon = 0;
-	uint32_t word_semicolon = 0;
-	
+	machine_endian_t	endian = ENDIAN_NATIVE;
+	uint32_t			word_colon = 0;
+	uint32_t			word_semicolon = 0;
+	const char*			include_file = NULL;
+	const char*			post_action = NULL;
+	int					i;
+
+	for ( i = 1; i < argc; i++ ) {
+		if ( ( strcmp( argv[i], "-h" ) == 0 ) || ( strcmp( argv[i], "-help" ) == 0 ) ) {
+			printf("%s <args>\n", argv[0] );
+			printf("-h -help		This text\n" );
+			printf("-f <name>		File to include on boot\n" );
+			printf("-p <string>		Text to run on start but after include\n" );
+			printf("-be				Select big endian\n");
+			printf("-le				Select little endian\n");
+			printf("				Default endian is host native\n");
+			exit(0);
+		}
+
+		if ( strcmp( argv[i], "-f" ) == 0 ) {
+			include_file = argv[i+1]; i++;
+		} else if ( strcmp( argv[i], "-p" ) == 0 ) {		
+			post_action = argv[ i+1 ]; i++;
+		} else if ( strcmp( argv[i], "-be" ) == 0 ) {
+			endian = ENDIAN_BIG;
+		} else if ( strcmp( argv[i], "-le" ) == 0 ) { 
+			endian = ENDIAN_LITTLE;
+		} else {
+			printf("invalid switch %s\n", argv[i] );
+			exit(0);
+		}
+	}
+
 	machine = (machine_t*)malloc( sizeof(machine_t) );
 
 	machine_init( machine );
@@ -143,7 +173,7 @@ int main( int argc, char** argv ) {
 	machine->datastack = malloc( SIZE_DATA_STACK/4 );
 	machine->returnstack = malloc( SIZE_RETURN_STACK/4 );
 
-	machine_set_endian( machine, ENDIAN_BIG );
+	machine_set_endian( machine, endian );
 
 	memset( machine->memory, 0, SIZE_FORTH );
 
@@ -290,16 +320,19 @@ int main( int argc, char** argv ) {
 	FORTH_DEFINITIONS
 	/**
  	 */
-	input = open( argv[1], O_RDONLY );
+	if ( include_file )
+		input = open( include_file, O_RDONLY );
+	else	
+		input = STDIN_FILENO;
 	for (;;) {
 		int next_word_is_colon_name;
 aborted:
 		if ( ! refill() ) {
-			if ( argc > 2 ) {
+			if ( post_action ) {
 				int i;
 				WRITE_CELL( machine, A_HASH_TIB, 0 );
-				for ( i = 0; i < strlen( argv[2] ); i++ ) {
-					WRITE_BYTE( machine, A_INPUT_BUFFER + GET_CELL( machine, A_HASH_TIB ), argv[2][i] );
+				for ( i = 0; i < strlen(post_action ); i++ ) {
+					WRITE_BYTE( machine, A_INPUT_BUFFER + GET_CELL( machine, A_HASH_TIB ), post_action[i] );
 					WRITE_CELL( machine, A_HASH_TIB, (GET_CELL( machine, A_HASH_TIB )) + 1 );
 				}
 				WRITE_CELL( machine, A_TOIN, 0 );

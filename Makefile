@@ -10,5 +10,5 @@ runner: opcode.h runner.c common.h common.c machine.h io.h io.c io_file.h io_fil
 	strip runner
 
 kernel.img: bootstrap core.fth
-	./bootstrap core.fth "get-order internals swap 1+ set-order ' bye ' save only definitions execute kernel.img execute"
+	./bootstrap -f core.fth -p "get-order internals swap 1+ set-order ' bye ' save only definitions execute kernel.img execute"
 
