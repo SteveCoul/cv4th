@@ -234,13 +234,13 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			IP = datastack[ DP-1 ];
 			DP--;
 			break;
-		case opJUMP_EQ_ZERO:
+		case opQBRANCH:
 			tmp = datastack[ DP-1 ];
 			DP--;
 			if ( tmp == 0 ) IP = GET_CELL( machine, IP );
 			else IP+=4;
 			break;			
-		case opJUMP:
+		case opBRANCH:
 			IP=GET_CELL( machine, IP );
 			break;
 		case opSHORT_CALL:

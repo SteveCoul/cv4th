@@ -12,6 +12,7 @@ enum {
 	opADD2,
 	opAND,
 
+	opBRANCH,
 	opBYE,
 
 	opCALL,
@@ -42,9 +43,6 @@ enum {
 
 	opIP,
 
-	opJUMP,
-	opJUMP_EQ_ZERO,
-
 	opIN,
 
 	opLESS_THAN,
@@ -68,6 +66,8 @@ enum {
 	opPICK,
 	opPLUS,
 	opPLUSSTORE,
+
+	opQBRANCH,
 
 	opREAD_FILE,
 	opRENAME_FILE,

@@ -190,13 +190,13 @@ opIMMEDIATE forth-wordlist @ >flag c!
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
 : if																			\ \ CORE
-  opJUMP_EQ_ZERO c,
+  opQBRANCH c,
   here 
   0 ,
 ; immediate
 
 : else																			\ \ CORE
-  opJUMP c,
+  opBRANCH c,
   here
   0 ,
   swap here swap !
@@ -211,18 +211,18 @@ opIMMEDIATE forth-wordlist @ >flag c!
 ; immediate
 
 : until																			\ \ CORE
-  opJUMP_EQ_ZERO c,
+  opQBRANCH c,
   ,
 ; immediate
 
 : while																			\ \ CORE
-  opJUMP_EQ_ZERO c,
+  opQBRANCH c,
   here swap
   0 ,
 ; immediate
 
 : repeat																		\ \ CORE
-  opJUMP c,
+  opBRANCH c,
   ,
   here swap !
 ; immediate
@@ -273,13 +273,13 @@ get-order internals swap 1+ set-order
 internals set-current
 : locals-count					\ how to create a variable badly :-)
   [ opDOLIT c, here 9 + ,
-	opJUMP c, here 8 + ,
+	opBRANCH c, here 8 + ,
     0 ,
   ]
 ;
 : locals-here					\ how to create a variable badly :-)
   [ opDOLIT c, here 9 + ,
-	opJUMP c, here 8 + ,
+	opBRANCH c, here 8 + ,
     0 ,
   ]
 ;
@@ -426,7 +426,7 @@ forth-wordlist set-current
 
   \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
   \ anything bigger than the size of the input buffer anyhow.
-  [ opJUMP c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
+  [ opBRANCH c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
 
   >r
   bl (parse)
@@ -495,7 +495,7 @@ forth-wordlist set-current
 ; immediate
 
 : c" 																			\ \ CORE-EXT
-  opJUMP c, here 0 ,			\ patch-jump
+  opBRANCH c, here 0 ,			\ patch-jump
   here							\ patch-jump where-to-store
   [char] " word count				\ patch-jump where-to-store text textlen
   dup 1+ allot
@@ -510,7 +510,7 @@ forth-wordlist set-current
 
 : s"																			\ \ CORE / FILE-ACCESS
   state @ if
-	opJUMP c, here 0 ,			\ patch-jump
+	opBRANCH c, here 0 ,			\ patch-jump
 	here							\ patch-jump where-to-store
 	[char] " word count				\ patch-jump where-to-store text textlen
 	dup allot
@@ -522,7 +522,7 @@ forth-wordlist set-current
   else
 	  \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
   	  \ anything bigger than the size of the input buffer anyhow.
-  	  [ opJUMP c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
+  	  [ opBRANCH c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
       [char] " word count			\ tmp c-addr u --
       swap 2 pick 2 pick			\ tmp u c-addr tmp u --
 	  move
@@ -604,7 +604,7 @@ forth-wordlist set-current
 internals set-current
 : exception-handler			\ how to create a variable badly :-)
   [ opDOLIT c, here 9 + ,
-	opJUMP c, here 8 + ,
+	opBRANCH c, here 8 + ,
     0 ,
   ]
 ;
@@ -786,7 +786,7 @@ forth-wordlist set-current
 : ?do		\ limit idx --														\ \ CORE-EXT
 	postpone 2dup
 	postpone =
-	opJUMP_EQ_ZERO c,
+	opQBRANCH c,
 	here 
 	0 ,
 	
@@ -965,7 +965,7 @@ forth-wordlist set-current
   opDOLIT c,			\ not sure I really need this lit, I can just fix >body
   here 0 ,
 
-  opJUMP c,
+  opBRANCH c,
   here cell+ ,
   opRET c,
 
@@ -1178,8 +1178,8 @@ internals set-current
 	dup c@ opDOLIT = 	    if 5 spaces ." | " dup 1+ @ .hex 5 + else
 	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ .hex8 2 + else
 	dup c@ opRET = 		    if 5 spaces ." | " ." Ret" drop dup	else
-	dup c@ opJUMP = 	    if 5 spaces ." | " ." Jump" dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
-	dup c@ opJUMP_EQ_ZERO = if 5 spaces ." | " ." jeq0 " dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
+	dup c@ opBRANCH = 	    if 5 spaces ." | " ." branch" dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
+	dup c@ opQBRANCH = 	    if 5 spaces ." | " ." ?branch" dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
 
 	dup c@ .hex8 space dup c@ aschar emit space ." | " 
 

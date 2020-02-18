@@ -320,6 +320,7 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( op2SWAP );
 	OPCONSTANT( opADD2 );
 	OPCONST_DB( opAND );
+	OPCONSTANT( opBRANCH );
 	OPCONST_DB( opBYE );
 	OPCONSTANT( opCALL );
 	OPCONST_DB( opCFETCH );
@@ -343,8 +344,6 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opFLUSH_FILE );
 	OPCONST_DB( opGREATER_THAN );
 	OPCONST_DB( opIP );
-	OPCONSTANT( opJUMP );
-	OPCONSTANT( opJUMP_EQ_ZERO );
 	OPCONSTANT( opIN );
 	OPCONST_DB( opLESS_THAN );
 	OPCONSTANT( opLPFETCH );
@@ -364,6 +363,7 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opPICK );
 	OPCONST_DB( opPLUS );
 	OPCONST_DB( opPLUSSTORE );
+	OPCONSTANT( opQBRANCH );
 	OPCONST_DB( opREAD_FILE );
 	OPCONST_DB( opRENAME_FILE );
 	OPCONST_DB( opREPOSITION_FILE );
