@@ -270,6 +270,8 @@ opIMMEDIATE forth-wordlist @ >flag c!
   2drop
 ;
 
+get-order internals swap 1+ set-order
+
 internals set-current
 : locals-count					\ how to create a variable badly :-)
   [ opDOLIT c, here 9 + ,
@@ -285,7 +287,7 @@ internals set-current
 ;
 forth-wordlist set-current
 
-get-order internals swap 1+ set-order internals set-current
+internals set-current
 : end-locals
   locals-count @ if
 	opLPFETCH c,
@@ -301,7 +303,6 @@ get-order internals swap 1+ set-order internals set-current
   opDOLIT c, ,	
   opLFETCH c,
 ;
-
 forth-wordlist set-current
 
 : exit end-locals opRET c, ; immediate										\ \ CORE
@@ -320,13 +321,11 @@ forth-wordlist set-current
   -1 set-order
 ;
 
-get-order internals swap 1+ set-order
 : wordlist																		\ \ SEARCH-ORDER
   A_LIST_OF_WORDLISTS @ ,
   here A_LIST_OF_WORDLISTS !
   here 0 ,
 ;
-get-order nip 1- set-order
 
 : definitions																	\ \ SEARCH-ORDER
   get-order over set-current
@@ -1482,7 +1481,7 @@ get-order ENVIRONMENT-wid swap 1+ set-order definitions
 : RETURN-STACK-CELLS	SIZE_RETURN_STACK ;
 : STACK-CELLS			SIZE_DATA_STACK ;
 
-internals forth-wordlist 2 set-order forth definitions
+internals forth-wordlist 2 set-order definitions
 
 : environment?																	\ \ CORE
 	ENVIRONMENT-wid search-wordlist if
@@ -1491,8 +1490,6 @@ internals forth-wordlist 2 set-order forth definitions
 	  false
     then
 ;
-
-get-order internals swap 1+ set-order
 
 \ ---------------------------------------------------------------------------------------------
 \ ---------------------------------------------------------------------------------------------
@@ -1510,10 +1507,10 @@ get-order internals swap 1+ set-order
 \ ---------------------------------------------------------------------------------------------
 \ ---------------------------------------------------------------------------------------------
 
-get-order ENVIRONMENT-wid swap 1+ set-order definitions
+ENVIRONMENT-wid set-current
 16 constant #LOCALS
+forth-wordlist set-current
 
-internals forth-wordlist 2 set-order definitions
 : (local)
   2dup or 0= if
 	2drop
@@ -1618,14 +1615,9 @@ forth-wordlist set-current
    0 0 (local)
 ; immediate
 
-only definitions
-
 \ ---------------------------------------------------------------------------------------------
 \ Files
 \ ---------------------------------------------------------------------------------------------
-
-only definitions
-get-order internals swap 1+ set-order
 
 : bin ;																			\ \ FILE
 
@@ -1641,7 +1633,7 @@ get-order internals swap 1+ set-order
   parse-name required
 ;
 
-get-order internals swap 1+ set-order internals set-current
+internals set-current
 variable line-end
 10 line-end c!
 forth-wordlist set-current
@@ -1690,7 +1682,6 @@ variable save-tmp
 	then
   then
 ; 
-
 
 forth-wordlist set-current
 
@@ -1752,7 +1743,6 @@ forth-wordlist set-current
   bye	
 ; 
 
-get-order internals swap 1+ set-order
 ' quit A_QUIT !	
 only definitions
 
