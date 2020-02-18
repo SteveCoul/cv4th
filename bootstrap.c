@@ -284,7 +284,7 @@ int main( int argc, char** argv ) {
 	OPWORD( opFETCH, "@" );
 	OPWORD( opEQUALS, "=" );
 	OPWORD( opSTORE, "!" );
-	OPWORD( opNOT, "not" );
+	OPWORD( opZEROEQ, "0=" );
 	OPWORD( opOR, "or" );
 	OPWORD( opAND, "and" );
 	OPWORD( opCSTORE, "c!" );
@@ -390,6 +390,7 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opWFETCH );
 	OPCONST_DB( opWRITE_FILE );
 	OPCONST_DB( opWSTORE );
+	OPCONST_DB( opZEROEQ );
 	OPCONSTANT( opIMMEDIATE );
 
 	FORTH_DEFINITIONS

@@ -503,7 +503,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			DP--;
 			break;
 		/* logic */
-		case opNOT:
+		case opZEROEQ:
 			datastack[ DP-1 ] = datastack[ DP-1 ] ? 0 : 1;
 			break;
 		case opOR:	

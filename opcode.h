@@ -59,7 +59,6 @@ enum {
 	opMULT,
 
 	opNIP,
-	opNOT,
 
 	opONEMINUS,
 	opONEPLUS,
@@ -100,6 +99,7 @@ enum {
 	opWFETCH,
 	opWRITE_FILE,
 	opWSTORE,
+	opZEROEQ,
 	opIMMEDIATE };
 
 #endif

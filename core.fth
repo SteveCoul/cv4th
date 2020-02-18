@@ -58,7 +58,7 @@ opIMMEDIATE forth-wordlist @ >flag c!
 \ NATIVE: @																		\ \ CORE
 \ NATIVE: =																		\ \ CORE
 \ NATIVE: !																		\ \ CORE
-\ NATIVE: not																	\ \ ???
+\ NATIVE: 0=																	\ \ ???
 \ NATIVE: or																	\ \ CORE
 \ NATIVE: and																	\ \ CORE
 \ NATIVE: c!																	\ \ CORE
@@ -181,12 +181,11 @@ opIMMEDIATE forth-wordlist @ >flag c!
 : bl 32 ;																		\ \ CORE
 : cr 10 emit ;																	\ \ CORE
 
-: 0= 0 = ;																		\ \ CORE
 : 0< 0 < ;																		\ \ CORE
 
-: 0<> 0= not ;																	\ \ CORE-EXT
+: 0<> 0= 0= ;																	\ \ CORE-EXT
 : 0> 0 > ;																		\ \ CORE-EXT
-: <> = not ;																	\ \ CORE-EXT
+: <> = 0= ;																		\ \ CORE-EXT
 
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
@@ -406,7 +405,7 @@ internals set-current
   drop
   tib @ r@ +
   >in @ r> -
-  >in @ #tib @ = not if 1 >in +! then	\ and the delimiter we hit goes too
+  >in @ #tib @ = 0= if 1 >in +! then	\ and the delimiter we hit goes too
 ;
 forth-wordlist set-current
 
@@ -821,7 +820,7 @@ forth-wordlist set-current
     postpone +		\ limit IDX --
     postpone 2dup
 	postpone >
-	postpone not	\ limit IDX flag --
+	postpone 0=		\ limit IDX flag --
     postpone swap
 	postpone >r
 	postpone swap
@@ -1354,7 +1353,7 @@ forth-wordlist set-current
   begin
 	2dup <>
 	r@ eof? 
-	not and
+	0= and
   while					\ c-addr max count -- : R: fileid --
 	2 pick 1 r@ read-file ?dup if
 		r> drop
