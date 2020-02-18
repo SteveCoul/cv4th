@@ -494,42 +494,6 @@ forth-wordlist set-current
   [char] ) word ctype
 ; immediate
 
-: c"                                                                                                                           
-  opBRANCH c, here 0 ,                 \ patch-jump
-  here                                                 \ patch-jump where-to-store
-  [char] " word count                          \ patch-jump where-to-store text textlen
-  dup 1+ allot
-  here >r                                                      \ 
-  2 pick opDOLIT c, ,                  \ patch buffer text textlen --
-  dup 3 pick c!
-  rot 1+                                               \ patch text textlen buffer+1 --
-  swap                                                 \ patch text buffer+1 textlen --                                        
-        
-  move
-  r> swap !
-; immediate
-
-: s"																			\ \ CORE / FILE-ACCESS
-  state @ if
-	opBRANCH c, here 0 ,			\ patch-jump
-	here							\ patch-jump where-to-store
-	[char] " word count				\ patch-jump where-to-store text textlen
-	dup allot
-	here >r							\ 
-	2 pick opDOLIT c, ,		\ 
-	dup opDOLIT c, ,			\ 
-	>r swap r> move
-	r> swap !
-  else
-	  \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
-  	  \ anything bigger than the size of the input buffer anyhow.
-  	  [ opBRANCH c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
-      [char] " word count			\ tmp c-addr u --
-      swap 2 pick 2 pick			\ tmp u c-addr tmp u --
-	  move
-  then
-; immediate
-
 internals set-current
 : head>name			>flag 1 + ;													
 forth-wordlist set-current
@@ -606,9 +570,17 @@ internals set-current
 ;
 forth-wordlist set-current
 
-: [']																			\ \ CORE
-	bl word find drop [literal]
-; immediate
+: compile,																		\ \ CORE-EXT
+  dup >head >flag c@ dup opIMMEDIATE = swap opNONE = or if
+	dup 65536 < if
+		opSHORT_CALL c, w,
+	else
+	  	opCALL c, ,
+	then
+  else
+    >head >flag c@ c,
+  then
+;
 
 internals set-current
 : (abort)																		
@@ -646,11 +618,10 @@ forth-wordlist set-current
 			(abort)
 		then
 		dup -2 = if
-			cr s" [THROW (nohandler)] " type
-			here ctype cr		
+			cr here ctype 
 			(abort)
 		then
-		cr s" [THROW (nohandler)] Exception #" type . cr
+		cr [char] # emit . 
 		(abort)
 	then
 
@@ -661,6 +632,10 @@ forth-wordlist set-current
   then
 ;
 
+: [']																			\ \ CORE
+	bl word find 0= if -13 throw then [literal]	
+; immediate
+
 : abort																			\ \ CORE EXCEPTION
   -1 throw
 ; 
@@ -669,7 +644,7 @@ forth-wordlist set-current
 	bl word 
 	find
 	0= if
-		cr s" word not found" type abort
+		-13 throw
 	then
 ; 
 
@@ -714,24 +689,12 @@ forth-wordlist set-current
 	0< if [char] - hold then	
 ;
 
-: compile,																		\ \ CORE-EXT
-  dup >head >flag c@ dup opIMMEDIATE = swap opNONE = or if
-	dup 65536 < if
-		opSHORT_CALL c, w,
-	else
-	  	opCALL c, ,
-	then
-  else
-    >head >flag c@ c,
-  then
-;
-
 \ Obsolete and I don't need it either so not doing it
 \ [compile]																		\ \ CORE-EXT
 
 : postpone																		\ \ CORE
 	bl word find ?dup 0= if		
-		cr type s"  not found" type abort
+		-13 throw
 	else
 		1 = if 
 			compile,
@@ -741,6 +704,31 @@ forth-wordlist set-current
 			compile,
  		then
  	then
+; immediate
+
+: c" 																			\ \ CORE
+	postpone AHEAD
+	[char] " parse
+	here >r
+	dup 1+ allot
+	dup r@ c!
+    r@ 1+ swap move
+	postpone then
+	r> [literal]
+; immediate
+
+: s"																			\ \ CORE / FILE-ACCESS
+  state @ if
+	postpone c"
+	postpone count
+  else
+	  \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
+  	  \ anything bigger than the size of the input buffer anyhow.
+  	  [ opBRANCH c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
+      [char] " word count			\ tmp c-addr u --
+      swap 2 pick 2 pick			\ tmp u c-addr tmp u --
+	  move
+  then
 ; immediate
 
 : again																			\ \ CORE-EXT
@@ -782,9 +770,7 @@ forth-wordlist set-current
 : ?do		\ limit idx --														\ \ CORE-EXT
 	postpone 2dup
 	postpone =
-	opQBRANCH c,
-	here 
-	0 ,
+	postpone if
 	
 	opDOLIT c,					\ get the resolv address at runtime N bytes on from here
 	here 14 + ,				\ depends on instruction count below!
@@ -795,7 +781,7 @@ forth-wordlist set-current
 	opSWAP c, opTOR c,	
     opTOR c, opRET c,		\ >r-ret == jump direct
 	
-	here swap !
+	postpone then
 	opDOLIT c,
 	here				\ cs: here
 	0 ,
@@ -1007,7 +993,7 @@ forth-wordlist set-current
 		exit
 	then
 
-	find 0= abort" word not found (to)"
+	find 0= if -13 throw then
 	state @ if
 		[literal]
 		postpone >body
@@ -1283,9 +1269,8 @@ internals set-current
 			then
 		else
 			r> drop
-			cr type ."  not found (interpreter)"
 			2drop
-			abort
+			-13 throw
 		then
 	else
 		1 = if
