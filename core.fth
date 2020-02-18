@@ -947,8 +947,9 @@ forth-wordlist set-current
   opDOLIT c,			\ not sure I really need this lit, I can just fix >body
   here 0 ,
 
-  opBRANCH c,
-  here cell+ ,
+  opDOLIT c,
+  here cell+ 1+ ,
+  opTOR c,				\ lit>r otherwise known as branch :-)
   opRET c,
 
   here swap !
@@ -958,7 +959,7 @@ forth-wordlist set-current
 
 internals set-current
 : (does>)																		
-  get-current @ cell+ 1+ count + 1+ cell+ 1+ !
+  get-current @ cell+ 1+ count + 1+ cell+ 1+ !	
 ;
 forth-wordlist set-current
 
