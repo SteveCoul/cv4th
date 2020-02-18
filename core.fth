@@ -1107,8 +1107,48 @@ forth-wordlist set-current
 
 internals set-current
 
+: isconstantdef		\ head -- flag
+  4 + 1 + count +	\ ptr
+  dup c@ opDOLIT = if
+	5 +
+	c@ opRET = 
+  else
+    dup c@ opDOLIT_U8 = if 
+	  2 +
+	  c@ opRET = 
+    else
+      drop false 
+    then
+  then
+;
+
 : opcodename 		\ value -- caddr u | -- 0
+  internals
+  begin
+    @ ?dup
+  while
+    dup 4 + 1 +			\ value head name --
+    dup c@ 2 > if
+		dup 1+ c@ [char] o = if	
+			dup 2 + c@ [char] p = if	
+				over isconstantdef if  	\ value head name --
+					dup count + execute	\ value head name constant-value --
+					3 pick = if
+						nip nip count exit
+					then
+				then
+			then
+		then
+    then
+    drop
+  repeat
   drop 0
+;
+
+: aschar 
+  dup bl < if drop [char] . else
+  dup [char] z > if drop [char] . else
+  then then
 ;
 
 : dis		\ a-addr len --														\ \ INTERNAL
@@ -1116,15 +1156,18 @@ internals set-current
   over + swap		\ end p --
   begin
     cr dup 0 <# # # # # # # # # #> type s" : " type
+	\ I ned to process anything here that has inline data, anything else can be in opcodename
+  	dup c@ opSHORT_CALL =   if 5 spaces ." | " dup 1+ w@ >name count type 3 +	else
+	dup c@ opCALL = 	    if 5 spaces ." | " dup 1+ @ >name count type 5 + else
+	dup c@ opDOLIT = 	    if 5 spaces ." | " dup 1+ @ 0 <# #s #> type 5 + else
+	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ 0 <# #s #> type 2 + else
+	dup c@ opRET = 		    if 5 spaces ." | " s" Ret" type drop dup	else
+	dup c@ opJUMP = 	    if 5 spaces ." | " s" Jump" type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
+	dup c@ opJUMPD = 	    if 5 spaces ." | " s" JumpD" type 1 + else
+	dup c@ opJUMP_EQ_ZERO = if 5 spaces ." | " s" jeq0 " type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
 
-  	dup c@ opSHORT_CALL = if dup 1+ w@ >name count type 3 +	else
-	dup c@ opCALL = if dup 1+ @ >name count type 5 + else
-	dup c@ opDOLIT = if dup 1+ @ 0 <# #s #> type 5 + else
-	dup c@ opDOLIT_U8 = if dup 1+ c@ 0 <# #s #> type 2 + else
-	dup c@ opRET = if s" Ret" type drop dup	else
-	dup c@ opJUMP = if s" Jump" type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
-	dup c@ opJUMPD = if s" JumpD" type 1 + else
-	dup c@ opJUMP_EQ_ZERO = if s" jeq0 " type dup 1+ @ [char] [ emit 0 <# # # # # # # # # #> type [char] ] emit 5 + else
+	dup c@ 0 <# # # #> type space dup c@ aschar emit space ." | " 
+
 	dup c@ opcodename ?dup if type 1+ else
 	dup s" code " type c@ 0 <# #s #> type 1+ 
     then then then then then then then then then

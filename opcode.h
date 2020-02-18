@@ -23,12 +23,6 @@ enum {
 
 	opDELETE_FILE,
 	opDEPTH,
-	opDEVICE_FETCH8,
-	opDEVICE_FETCH16,
-	opDEVICE_FETCH32,
-	opDEVICE_STORE8,
-	opDEVICE_STORE16,
-	opDEVICE_STORE32,
 	opDOLIT,
 	opDOLIT_U8,
 	opDROP,
@@ -50,7 +44,6 @@ enum {
 
 	opJUMP,
 	opJUMPD,
-	opJUMP_EQ,
 	opJUMP_EQ_ZERO,
 
 	opIN,

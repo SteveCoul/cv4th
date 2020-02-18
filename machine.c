@@ -234,12 +234,6 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			IP = datastack[ DP-1 ];
 			DP--;
 			break;
-		case opJUMP_EQ:
-			tmp = datastack[ DP-1 ] == datastack[ DP-2 ];
-			DP-=2;
-			if ( tmp ) IP = GET_CELL( machine, IP );
-			else IP+=4;
-			break;			
 		case opJUMP_EQ_ZERO:
 			tmp = datastack[ DP-1 ];
 			DP--;
