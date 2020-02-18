@@ -422,13 +422,13 @@ forth-wordlist set-current
   bl bl (parse)
 ;
 
+internals definitions
+: ^word-buffer [fake-variable] ;
+here SIZE_INPUT_BUFFER allot ^word-buffer !
+forth-wordlist definitions
+
 : word																			\ \ CORE
-
-  \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
-  \ anything bigger than the size of the input buffer anyhow.
-  [ opBRANCH c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
-
-  >r
+  ^word-buffer @ >r
   bl (parse)
   dup r@ c!
   r@ 1+ swap move
@@ -717,14 +717,17 @@ forth-wordlist set-current
 	r> [literal]
 ; immediate
 
+internals definitions
+: ^s"-buffer [fake-variable] ;
+here SIZE_INPUT_BUFFER allot ^s"-buffer !
+forth-wordlist definitions
+
 : s"																			\ \ CORE / FILE-ACCESS
   state @ if
 	postpone c"
 	postpone count
   else
-	  \ makes a little buffer at compile time and gives me address at runtime. We can't parse 
-  	  \ anything bigger than the size of the input buffer anyhow.
-  	  [ opBRANCH c, here SIZE_INPUT_BUFFER + 4 + , here SIZE_INPUT_BUFFER allot ] literal
+	  ^s"-buffer @
       [char] " word count			\ tmp c-addr u --
       swap 2 pick 2 pick			\ tmp u c-addr tmp u --
 	  move
