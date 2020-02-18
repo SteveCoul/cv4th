@@ -14,28 +14,28 @@
 static int			input;
 static machine_t*	machine;
 
-#define SIZE_DATA_STACK			1024
-#define SIZE_RETURN_STACK		1024
-#define SIZE_FORTH				256*1024
-#define SIZE_INPUT_BUFFER		256
-#define SIZE_PICTURED_NUMERIC	64
-#define SIZE_ORDER				10
+#define SIZE_DATA_STACK					1024
+#define SIZE_RETURN_STACK				1024
+#define SIZE_FORTH						256*1024
+#define SIZE_INPUT_BUFFER				256
+#define SIZE_PICTURED_NUMERIC			64
+#define SIZE_ORDER						10
 
-#define	A_HERE				0
-#define A_FORTH_WORDLIST	4
-#define A_INTERNALS_WORDLIST	8
-#define A_LOCALS_WORDLIST	12
-#define A_QUIT				16
-#define A_BASE				20
-#define A_STATE				24
-#define A_TIB				28
-#define A_HASH_TIB			32
-#define A_TOIN				36	
-#define A_CURRENT			40
-#define A_ORDER				44
-#define A_PICTURED_NUMERIC	A_ORDER + ( SIZE_ORDER * 4 )
-#define A_INPUT_BUFFER	    A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
-#define START_HERE			A_INPUT_BUFFER+SIZE_INPUT_BUFFER
+#define	A_HERE							0
+#define A_FORTH_WORDLIST				4
+#define A_INTERNALS_WORDLIST			8
+#define A_LOCALS_WORDLIST				12
+#define A_QUIT							16
+#define A_BASE							20
+#define A_STATE							24
+#define A_TIB							28
+#define A_HASH_TIB						32
+#define A_TOIN							36	
+#define A_CURRENT						40
+#define A_ORDER							44
+#define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * 4 )
+#define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
+#define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER
 
 #define HERE 							GET_CELL( machine, A_HERE )
 #define FORTH_WORDLIST					GET_CELL( machine, A_FORTH_WORDLIST )
