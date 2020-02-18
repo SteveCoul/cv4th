@@ -320,9 +320,13 @@ forth-wordlist set-current
   -1 set-order
 ;
 
+get-order internals swap 1+ set-order
 : wordlist																		\ \ SEARCH-ORDER
+  A_LIST_OF_WORDLISTS @ ,
+  here A_LIST_OF_WORDLISTS !
   here 0 ,
 ;
+get-order nip 1- set-order
 
 : definitions																	\ \ SEARCH-ORDER
   get-order over set-current

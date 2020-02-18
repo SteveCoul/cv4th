@@ -22,17 +22,21 @@ static machine_t*	machine;
 #define SIZE_ORDER						10
 
 #define	A_HERE							0
-#define A_FORTH_WORDLIST				4
-#define A_INTERNALS_WORDLIST			8
-#define A_LOCALS_WORDLIST				12
-#define A_QUIT							16
-#define A_BASE							20
-#define A_STATE							24
-#define A_TIB							28
-#define A_HASH_TIB						32
-#define A_TOIN							36	
-#define A_CURRENT						40
-#define A_ORDER							44
+#define A_LIST_OF_WORDLISTS				4
+/* wid-link ptr for forth-wordlist 		8	*/
+#define A_FORTH_WORDLIST				12
+/* wid-link ptr for internals 			16	*/
+#define A_INTERNALS_WORDLIST			20
+/* wid-link ptr for locals 				24	*/
+#define A_LOCALS_WORDLIST				28
+#define A_QUIT							32
+#define A_BASE							36
+#define A_STATE							40
+#define A_TIB							44
+#define A_HASH_TIB						48
+#define A_TOIN							52	
+#define A_CURRENT						56
+#define A_ORDER							60
 #define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * 4 )
 #define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
 #define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER
@@ -179,9 +183,13 @@ int main( int argc, char** argv ) {
 
 	/** init user vars */
 	WRITE_CELL( machine, A_HERE, START_HERE );
+	WRITE_CELL( machine, A_FORTH_WORDLIST-4, 0 );
 	WRITE_CELL( machine, A_FORTH_WORDLIST, 0 );
+	WRITE_CELL( machine, A_INTERNALS_WORDLIST-4, A_FORTH_WORDLIST );
 	WRITE_CELL( machine, A_INTERNALS_WORDLIST, 0 );
+	WRITE_CELL( machine, A_LOCALS_WORDLIST-4, A_INTERNALS_WORDLIST );
 	WRITE_CELL( machine, A_LOCALS_WORDLIST, 0 );
+	WRITE_CELL( machine, A_LIST_OF_WORDLISTS, A_LOCALS_WORDLIST );
 	WRITE_CELL( machine, A_QUIT, 0 );
 	WRITE_CELL( machine, A_BASE, 10 );
 	WRITE_CELL( machine, A_STATE, 0 );
@@ -196,6 +204,7 @@ int main( int argc, char** argv ) {
 	CONSTANT( "forth-wordlist", A_FORTH_WORDLIST );		// this one is actually a forth word
 
 	INTERNALS_DEFINITIONS
+	VARIABLE( A_LIST_OF_WORDLISTS, "A_LIST_OF_WORDLISTS" );
 	CONSTANT( "locals-wordlist", A_LOCALS_WORDLIST );	
 
 	FORTH_DEFINITIONS
