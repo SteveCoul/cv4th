@@ -495,6 +495,21 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 		case opONEMINUS:
 			datastack[ DP-1 ]--;
 			break;
+		case opSM_SLASH_REM:
+			tmp = datastack[ DP - 1 ];
+			DP--;
+			{
+				int64_t v = datastack[ DP-1 ];
+				v<<=32;
+				v|=datastack[ DP-2 ];
+
+				int32_t a = (int32_t)(v / tmp);
+				int32_t b = (int32_t)(v % tmp);
+
+				datastack[ DP-2 ] = (uint32_t)b;
+				datastack[ DP-1 ] = (uint32_t)a;
+			}
+			break;
 		case opUM_SLASH_MOD:
 			tmp = datastack[ DP-1 ];		// divisor
 			DP--;

@@ -1444,18 +1444,19 @@ forth-wordlist set-current
 \ 
 \ ---------------------------------------------------------------------------------------------
 
+: s>d dup [ hex ] 80000000 [ decimal ] and if -1 else 0 then ;					\ \ CORE
+: / swap s>d rot sm/rem nip ;													\ \ CORE
+: 2* 2 * ;																		\ \ CORE
+: 2/ 2 / ;																		\ \ CORE
+
 : */ 1 abort" */ not implemented"; immediate									\ \ CORE
 : */MOD 1 abort" */MOD not implemented"; immediate								\ \ CORE
-: / 1 abort" / not implemented"; immediate										\ \ CORE
 : /MOD 1 abort" /MOD not implemented"; immediate								\ \ CORE
-: 2* 1 abort" 2* not implemented"; immediate									\ \ CORE
 : 2/ 1 abort" 2/ not implemented"; immediate									\ \ CORE
 : 2! 1 abort" 2! not implemented"; immediate									\ \ CORE
 : FM/MOD  1 abort" FM/MOD  not implemented"; immediate							\ \ CORE
 : M* 1 abort" M* not implemented"; immediate									\ \ CORE
 : MOD 1 abort" MOD not implemented"; immediate									\ \ CORE
-: S>D 1 abort" S>D not implemented"; immediate									\ \ CORE
-: SM/REM 1 abort" SM/REM not implemented"; immediate							\ \ CORE
 : UM* 1 abort" UM* not implemented"; immediate									\ \ CORE
 
 : 2@ 1 abort" 2@ not implemented"; immediate									\ \ CORE
@@ -1481,7 +1482,7 @@ get-order ENVIRONMENT-wid swap 1+ set-order definitions
 : /HOLD					SIZE_PICTURED_NUMERIC ;
 : /PAD					255 ;
 : ADDRESS-UNIT-BITS		32 ;
-: FLOORED				1 ;
+: FLOORED				0 ;
 : MAX-CHAR				255 ;
 : MAX-D					1 abort" max-d environment not done" ;
 : MAX-N					1 abort" max-n environment not done" ;

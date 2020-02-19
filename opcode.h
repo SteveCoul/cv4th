@@ -92,6 +92,7 @@ enum {
 	opRSPSTORE,
 
 	opSHORT_CALL,
+ 	opSM_SLASH_REM,
 	opSPFETCH,
 	opSPSTORE,
 	opSTORE,
