@@ -13,6 +13,7 @@ enum {
 	opAND,
 
 	opBRANCH,
+	opBRANCH16,
 	opBYE,
 
 	opCALL,
@@ -68,6 +69,7 @@ enum {
 	opPLUSSTORE,
 
 	opQBRANCH,
+	opQBRANCH16,
 
 	opREAD_FILE,
 	opRENAME_FILE,

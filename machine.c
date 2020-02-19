@@ -243,6 +243,27 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 		case opBRANCH:
 			IP=GET_CELL( machine, IP );
 			break;
+		case opQBRANCH16:
+			tmp = datastack[ DP-1 ];
+			DP--;
+			if ( tmp == 0 ) {
+				tmp = GET_WORD( machine, IP );
+				if ( tmp & 0x8000 ) tmp |= 0xFFFF0000;
+				int i = (int) tmp;	
+				printf("branch %08X %d\n", tmp, i );
+				IP=IP+2+i;
+			}
+			else IP+=2;
+			break;			
+		case opBRANCH16:
+			{
+				tmp = GET_WORD( machine, IP );
+				if ( tmp & 0x8000 ) tmp |= 0xFFFF0000;
+				int i = (int) tmp;	
+				printf("branch %08X %d\n", tmp, i );
+				IP=IP+2+i;
+			}
+			break;
 		case opSHORT_CALL:
 			returnstack[ RP ] = IP+2;
 			RP++;
