@@ -1,4 +1,6 @@
 
+#include "common.h"
+
 int cmp( const char* s1, const char* s2, int len ) {
 	int ret = 0;
 	if ( len == 0 ) return 0;
