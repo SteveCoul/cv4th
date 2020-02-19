@@ -321,7 +321,6 @@ int main( int argc, char** argv ) {
 	OPCONSTANT( opADD2 );
 	OPCONST_DB( opAND );
 	OPCONSTANT( opBRANCH );
-	OPCONSTANT( opBRANCH16 );
 	OPCONST_DB( opBYE );
 	OPCONSTANT( opCALL );
 	OPCONST_DB( opCFETCH );
@@ -365,7 +364,6 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opPLUS );
 	OPCONST_DB( opPLUSSTORE );
 	OPCONSTANT( opQBRANCH );
-	OPCONSTANT( opQBRANCH16 );
 	OPCONST_DB( opREAD_FILE );
 	OPCONST_DB( opRENAME_FILE );
 	OPCONST_DB( opREPOSITION_FILE );

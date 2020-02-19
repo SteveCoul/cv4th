@@ -195,9 +195,13 @@ forth-wordlist set-current
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
 internals set-current
-: resolv		\ a-addr --
+: resolv!		\ a-addr --
   here over - 2 - swap w!
 ;
+: resolv,
+  here - 2 - w,
+;
+
 forth-wordlist set-current
 
 : ahead																			\ \ PROGRAMMING-TOOLS
@@ -205,20 +209,20 @@ forth-wordlist set-current
 ; immediate
 
 : if																			\ \ CORE
-  opQBRANCH16 c,
+  opQBRANCH c,
   here 
   0 w,
 ; immediate
 
 : else																			\ \ CORE
-  opBRANCH16 c,
+  opBRANCH c,
   here
   0 w,
-  swap resolv
+  swap resolv!
 ; immediate
 
 : then																			\ \ CORE
-  resolv
+  resolv!
 ; immediate
 
 : begin																			\ \ CORE
@@ -226,20 +230,20 @@ forth-wordlist set-current
 ; immediate
 
 : until																			\ \ CORE
-  opQBRANCH16 c,
-  here - 2 - w,
+  opQBRANCH c,
+  resolv,
 ; immediate
 
 : while																			\ \ CORE
-  opQBRANCH16 c,
+  opQBRANCH c,
   here swap
   0 w,
 ; immediate
 
 : repeat																		\ \ CORE
-  opBRANCH16 c,
-  here - 2 - w,
-  resolv
+  opBRANCH c,
+  resolv,
+  resolv!
 ; immediate
 
 : get-order																		\ \ SEARCH-ORDER
@@ -1173,16 +1177,14 @@ internals set-current
 	dup c@ opDOLIT = 	    if 5 spaces ." | " dup 1+ @ .hex 5 + else
 	dup c@ opDOLIT_U8 =     if 5 spaces ." | " dup 1+ c@ .hex8 2 + else
 	dup c@ opRET = 		    if 5 spaces ." | " ." Ret" drop dup	else
-	dup c@ opBRANCH = 	    if 5 spaces ." | " ."  branch"   dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
-	dup c@ opQBRANCH = 	    if 5 spaces ." | " ." ?branch"	 dup 1+ @ [char] [ emit .hex32 [char] ] emit 5 + else
-	dup c@ opBRANCH16 = 	if 5 spaces ." | " ."  branch16" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
-	dup c@ opQBRANCH16 = 	if 5 spaces ." | " ." ?branch16" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
+	dup c@ opBRANCH =		if 5 spaces ." | " ."  branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
+	dup c@ opQBRANCH =		if 5 spaces ." | " ." ?branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
 
 	dup c@ .hex8 space dup c@ aschar emit space ." | " 
 
 	dup c@ opcodename ?dup if type 1+ else
 	dup ." code " c@ .hex 1+ 
-    then then then then then then then then then then
+    then then then then then then then then
   repeat
   2drop
 ;
@@ -1745,10 +1747,7 @@ forth-wordlist set-current
   bye	
 ; 
 
-see quit
-
 ' quit A_QUIT !	
 only definitions
-
 
 
