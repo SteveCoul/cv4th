@@ -25,7 +25,7 @@ extern void machine_set_endian( machine_t* machine, machine_endian_t which );
 #define ABS_PTR( mach, r_addr )			(void*)(((uint8_t*)(mach->memory))+r_addr)
 
 #define GET_BYTE(mach,r_addr)	 		((uint8_t*)( ((uint8_t*)(mach->memory) + r_addr) ))[0]
-#define WRITE_BYTE(mach,r_addr, value)	((uint8_t*)(mach->memory))[ r_addr ] = value
+#define WRITE_BYTE(mach,r_addr, value)	((uint8_t*)(mach->memory))[ r_addr ] = (uint8_t)value
 
 #define GET_CELL(mach,r_addr)	 		(mach->swap32(((uint32_t*)(((uint8_t*)(mach->memory) + r_addr)))[0]))
 #define WRITE_CELL(mach,r_addr, value) 	((uint32_t*)(((uint8_t*)(mach->memory) + r_addr)))[0] = mach->swap32(value)
