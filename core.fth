@@ -1259,9 +1259,8 @@ internals set-current
 : (evaluate)																	
   begin
     bl word 
-
-	dup c@ 0= if drop exit then
-
+    dup c@
+  while
 	find ?dup 0= if	
 		count
 	
@@ -1281,7 +1280,9 @@ internals set-current
 		\ ud c-addr u -- : R: multiplier --
 		?dup 0= if	
 			drop 
-			abort"	>number gave the interpreter a number too big for 1 cell and I don't handle that yet"
+			if \	>number gave the interpreter a number too big for 1 cell and I don't handle that yet"
+				-24 throw
+			then
 			r> *
 			state @ if
 				[literal] 
@@ -1302,7 +1303,8 @@ internals set-current
 			then
 		then
 	then
-  0 until
+  repeat
+  drop
 ;
 forth-wordlist set-current
 
@@ -1338,7 +1340,7 @@ forth-wordlist set-current
 ;
 
 : unused																		\ \ CORE-EXT
-	SIZE_FORTH here -
+  SIZE_FORTH here -
 ;
 
 internals set-current
@@ -1656,12 +1658,12 @@ variable save-tmp
 
 : (save-cell)		( ptr fd c-addr u -- ) 
   cr type space over @ hex . decimal
-  1 cells swap write-file drop ;
+  1 cells swap write-file if -75 throw then ;
 
 : save
   parse-name
-  0 create-file if
-	drop cr ." create fail"
+  0 create-file if 
+    -63 throw
   else
 	\ fd --
 	287454020 save-tmp !
@@ -1680,12 +1682,8 @@ variable save-tmp
 
 	A_QUIT over s" boot" (save-cell)
 
-	dup 0 here rot write-file if
-		cr ." write fail"
-	then
-	close-file if
-		cr ." close fail"
-	then
+	dup 0 here rot write-file if -75 throw then
+	close-file if -62 throw then
   then
 ; 
 
