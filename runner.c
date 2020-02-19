@@ -21,11 +21,12 @@ int main( int argc, char** argv ) {
 	machine_init( &machine );
 
 	machine_set_endian( &machine, ENDIAN_NATIVE );
-	(void)read( fd, &head, 4 );
-	(void)read( fd, &size, 4 );
-	(void)read( fd, &dstacksize, 4 );
-	(void)read( fd, &rstacksize, 4 );
-	(void)read( fd, &quit, 4 );
+	if ( read( fd, &head, 4 ) != 4 ) return 1;
+	if ( read( fd, &size, 4 ) != 4 ) return 1;
+	if ( read( fd, &dstacksize, 4 ) != 4 ) return 1;
+	if ( read( fd, &rstacksize, 4 ) != 4 ) return 1;
+	if ( read( fd, &quit, 4 ) != 4 ) return 1;
+
 	if ( head != 0x11223344 ) {
 		machine_set_endian( &machine, ENDIAN_SWAP );
 		size = machine.swap32( size );
@@ -38,7 +39,7 @@ int main( int argc, char** argv ) {
 	machine.datastack = malloc( dstacksize * 4 );
 	machine.returnstack = malloc( rstacksize * 4 );
 
-	read( fd, machine.memory, size );
+	if ( read( fd, machine.memory, size ) < 0 ) return 2;
 	machine_execute( &machine, quit );
 	return 0;
 }
