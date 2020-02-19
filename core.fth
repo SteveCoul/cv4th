@@ -201,7 +201,6 @@ internals set-current
 : resolv,
   here - 2 - w,
 ;
-
 forth-wordlist set-current
 
 : ahead																			\ \ PROGRAMMING-TOOLS
