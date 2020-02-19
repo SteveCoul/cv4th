@@ -317,7 +317,7 @@ internals set-current
 ;
 forth-wordlist set-current
 
-: exit end-locals opRET c, ; immediate										\ \ CORE
+: exit end-locals opRET c, ; immediate											\ \ CORE
 
 : ?dup dup 0= if exit then dup ;												\ \ CORE
 
@@ -1063,14 +1063,15 @@ forth-wordlist set-current
 : words																			\ \ SEARCH-ORDER
   cr
   get-current @		
-  ?dup 0= if exit then
-  begin
-    dup head>name ctype bl emit	
-    @
-    dup 0 =
-  until
-  drop
-  cr
+  ?dup if
+    begin
+      dup head>name ctype bl emit	
+      @
+      dup 0 =
+    until
+    drop
+    cr
+  then
 ;
 
 internals set-current
@@ -1110,10 +1111,10 @@ forth-wordlist set-current
 
 	16 0 do	
 		over i + over < if over i + c@ .hex8 bl emit else 3 spaces then
-		i 7 = if bl emit then
+		i 7 = if space then
 	loop
 
-	[char] | emit bl emit
+	[char] | emit space
 
 	16 0 do
 	    over i + over < if over i + c@ aschar emit then
@@ -1702,11 +1703,13 @@ forth-wordlist set-current
 	dup cr ." Exception #" . cr
 	endcase
   repeat 
+  source-id close-file drop
   restore-input
 ;
 
 : included																		\ \ FILE
-  r/o open-file if drop cr ." failed" else include-file then
+  r/o open-file if -69 throw then
+  include-file
 ;
 
 : include																		\ \ FILE
