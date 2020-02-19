@@ -354,7 +354,6 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opMOVE );
 	OPCONST_DB( opMULT );
 	OPCONST_DB( opNIP );
-	OPCONST_DB( opNOT );
 	OPCONST_DB( opONEMINUS );
 	OPCONST_DB( opONEPLUS );
 	OPCONST_DB( opOPEN_FILE );
