@@ -199,12 +199,12 @@ int ioReposition( int fd, int new_position ) {
 }
 
 int ioRename( const char* name, size_t namelen, const char* new_name, size_t new_namelen ) {
-	printf("\n%s()\n not implemented\n", __FUNCTION__ );
+	printf("\nioRename not implemented\n" );
 	return -ENOTSUP;
 }
 
 int ioDelete( const char* name, size_t namelen ) {
-	printf("\n%s()\n not implemented\n", __FUNCTION__ );
+	printf("\nioDelete not implemented\n" );
 	return -ENOTSUP;
 }
 

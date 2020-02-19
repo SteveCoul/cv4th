@@ -55,28 +55,24 @@ int f_position( int fd ) {
 
 static
 int f_resize( int fd, int new_size ) {
-	printf("\n%s()\n not implemented\n", __FUNCTION__ );
 	errno = ENOTSUP;
 	return -1;
 }
 
 static
 int f_reposition( int fd, int new_position ) {
-	printf("\n%s()\n not implemented\n", __FUNCTION__ );
 	errno = ENOTSUP;
 	return -1;
 }
 
 static
 int f_rename( const char* name, const char* new_name ) {
-	printf("\n%s()\n not implemented\n", __FUNCTION__ );
 	errno = ENOTSUP;
 	return -1;
 }
 
 static
 int f_rm( const char* name ) {
-	printf("\n%s()\n not implemented\n", __FUNCTION__ );
 	errno = ENOTSUP;
 	return -1;
 }
