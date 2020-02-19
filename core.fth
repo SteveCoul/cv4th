@@ -1446,20 +1446,21 @@ forth-wordlist set-current
 
 : s>d dup [ hex ] 80000000 [ decimal ] and if -1 else 0 then ;					\ \ CORE
 : / swap s>d rot sm/rem nip ;													\ \ CORE
+: mod swap s>d rot sm/rem drop ;												\ \ CORE
+: /mod swap s>d rot sm/rem ;													\ \ CORE
 : 2* 2 * ;																		\ \ CORE
 : 2/ 2 / ;																		\ \ CORE
 
 : max 2dup > if drop else nip then ;											\ \ CORE
 : min 2dup > if nip else drop then ;											\ \ CORE
 
+
 : */ 1 abort" */ not implemented"; immediate									\ \ CORE
 : */MOD 1 abort" */MOD not implemented"; immediate								\ \ CORE
-: /MOD 1 abort" /MOD not implemented"; immediate								\ \ CORE
 : 2/ 1 abort" 2/ not implemented"; immediate									\ \ CORE
 : 2! 1 abort" 2! not implemented"; immediate									\ \ CORE
 : FM/MOD  1 abort" FM/MOD  not implemented"; immediate							\ \ CORE
 : M* 1 abort" M* not implemented"; immediate									\ \ CORE
-: MOD 1 abort" MOD not implemented"; immediate									\ \ CORE
 : UM* 1 abort" UM* not implemented"; immediate									\ \ CORE
 
 : 2@ 1 abort" 2@ not implemented"; immediate									\ \ CORE
