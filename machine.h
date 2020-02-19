@@ -1,6 +1,8 @@
 #ifndef __machine_h__
 #define __machine_h__
 
+#include <stdint.h>
+
 typedef struct {
 	void*		memory;
 	uint32_t*	datastack;
