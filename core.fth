@@ -364,13 +364,17 @@ internals set-current
 : ctype count type ;		
 forth-wordlist set-current
 
-: literal 																		\ \ CORE
+internals set-current
+: [literal]																		
   dup 0 256 within if
-    opDOLIT_U8 c, c,
+	opDOLIT_U8 c, c,
   else
-    opDOLIT c, , 
+    opDOLIT c, ,
   then
-; immediate	
+;
+forth-wordlist set-current
+ 
+: literal [literal] ; immediate													\ \ CORE
 
 : abs dup 0< if negate then ;													\ \ CORE
 
@@ -451,16 +455,6 @@ forth-wordlist set-current
   then
 ;
 
-internals set-current
-: [literal]																		
-  dup 0 256 within if
-	opDOLIT_U8 c, c,
-  else
-    opDOLIT c, ,
-  then
-;
-forth-wordlist set-current
- 
 : [char] char [literal] ; immediate 											\ \ CORE
 
 : .																				\ \ CORE
