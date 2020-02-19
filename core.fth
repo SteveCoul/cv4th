@@ -725,10 +725,10 @@ forth-wordlist set-current
 	r> [literal]
 ; immediate
 
-internals definitions
+internals set-current
 : ^s"-buffer [fake-variable] ;
 here SIZE_INPUT_BUFFER allot ^s"-buffer !
-forth-wordlist definitions
+forth-wordlist set-current
 
 : s"																			\ \ CORE / FILE-ACCESS
   state @ if
@@ -786,20 +786,14 @@ forth-wordlist definitions
 	opDOLIT c,					\ get the resolv address at runtime N bytes on from here
 	here 14 + ,				\ depends on instruction count below!
 	opFETCH c,
-	\ 3 numbers to satisfy unloop after the jump (limit index, something random)
-	opDUP c, opTOR c,
+							\ limit idx jump-target --
+	opDUP c, opTOR c,		\ push 3 numbers to return stack for unloop
 	opSWAP c, opTOR c,
 	opSWAP c, opTOR c,	
     opTOR c, opRET c,		\ >r-ret == jump direct
 	
 	postpone then
-	opDOLIT c,
-	here				\ cs: here
-	0 ,
-	postpone >r			
-	postpone >r
-	postpone >r
-    postpone begin		\ cs: here whatever
+    postpone do
 ; immediate
 
 : unloop																		\ \ CORE
@@ -810,18 +804,20 @@ forth-wordlist definitions
   >r
 ;
 
-: +loop 																		\ \ CORE
-	postpone r>
-	postpone r>		\ N limit idx --
-    postpone rot	\ limit idx N --
-    postpone +		\ limit IDX --
-    postpone 2dup
-	postpone >
-	postpone 0=		\ limit IDX flag --
-    postpone swap
-	postpone >r
-	postpone swap
-	postpone >r
+internals set-current
+: (+loop)		\ N -- | R: exit-addr idx limit return --
+  r> swap			\ return N -- | exit-addr idx limit --
+  r> r>				\ return N limit idx -- | exit-addr --
+  rot +				\ return limit idx+N | exit-addr --
+  2dup > 0=			\ return limit idx+N flag | exit-addr --
+  swap >r			\ return limit flag | exit-addr idxN --
+  swap >r			\ return flag | exit-addr idxN limit --
+  swap >r			\ flag | exit-addr idxN limit flag --
+; 
+forth-wordlist set-current
+
+: +loop
+	postpone (+loop)
     postpone until
 	here swap !
 	postpone unloop
