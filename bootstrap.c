@@ -346,6 +346,16 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opIP );
 	OPCONSTANT( opIN );
 	OPCONST_DB( opLESS_THAN );
+	OPCONSTANT( opLITM1 );
+	OPCONSTANT( opLIT0 );
+	OPCONSTANT( opLIT1 );
+	OPCONSTANT( opLIT2 );
+	OPCONSTANT( opLIT3 );
+	OPCONSTANT( opLIT4 );
+	OPCONSTANT( opLIT5 );
+	OPCONSTANT( opLIT6 );
+	OPCONSTANT( opLIT7 );
+	OPCONSTANT( opLIT8 );
 	OPCONSTANT( opLPFETCH );
 	OPCONSTANT( opLPSTORE );
 	OPCONSTANT( opLFETCH );
@@ -488,7 +498,27 @@ rescan:
 					if ( tmp_word[0] == '-' ) v = 0- atoi( tmp_word+1 );
 					else v = atoi( tmp_word );
 					if ( STATE == 1 ) {
-						if ( ( v < 256 ) && ( v >= 0 ) ) {
+						if ( v == -1 ) {
+							C_COMMA( opLITM1 );
+						} else if ( v == 0 ) {
+							C_COMMA( opLIT0 );
+						} else if ( v == 1 ) {
+							C_COMMA( opLIT1 );
+						} else if ( v == 2 ) {
+							C_COMMA( opLIT2 );
+						} else if ( v == 3 ) {
+							C_COMMA( opLIT3 );
+						} else if ( v == 4 ) {
+							C_COMMA( opLIT4 );
+						} else if ( v == 5 ) {
+							C_COMMA( opLIT5 );
+						} else if ( v == 6 ) {
+							C_COMMA( opLIT6 );
+						} else if ( v == 7 ) {
+							C_COMMA( opLIT7 );
+						} else if ( v == 8 ) {
+							C_COMMA( opLIT8 );
+						} else if ( ( v < 256 ) && ( v >= 0 ) ) {
 							C_COMMA( opDOLIT_U8 );
 							C_COMMA( v );
 						} else {

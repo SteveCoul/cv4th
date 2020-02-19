@@ -366,11 +366,22 @@ forth-wordlist set-current
 
 internals set-current
 : [literal]																		
+  dup -1 = if	opLITM1 c, drop else
+  dup 0=  if	opLIT0 c, drop else
+  dup 1 = if	opLIT1 c, drop else
+  dup 2 = if	opLIT2 c, drop else
+  dup 3 = if	opLIT3 c, drop else
+  dup 4 = if	opLIT4 c, drop else
+  dup 5 = if	opLIT5 c, drop else
+  dup 6 = if	opLIT6 c, drop else
+  dup 7 = if	opLIT7 c, drop else
+  dup 8 = if	opLIT8 c, drop else
   dup 0 256 within if
-	opDOLIT_U8 c, c,
+    opDOLIT_U8 c, c,
   else
     opDOLIT c, ,
   then
+  then then then then then then then then then then 
 ;
 forth-wordlist set-current
  

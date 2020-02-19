@@ -58,6 +58,17 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 		opcode = GET_BYTE( machine, IP ); IP++;
 
 		switch( opcode ) {
+		/* literals */
+		case opLITM1: DP++; datastack[DP-1] = 0xFFFFFFFF; break;
+		case opLIT0: DP++; datastack[DP-1] = 0; break;
+		case opLIT1: DP++; datastack[DP-1] = 1; break;
+		case opLIT2: DP++; datastack[DP-1] = 2; break;
+		case opLIT3: DP++; datastack[DP-1] = 3; break;
+		case opLIT4: DP++; datastack[DP-1] = 4; break;
+		case opLIT5: DP++; datastack[DP-1] = 5; break;
+		case opLIT6: DP++; datastack[DP-1] = 6; break;
+		case opLIT7: DP++; datastack[DP-1] = 7; break;
+		case opLIT8: DP++; datastack[DP-1] = 8; break;
 		/* locals */
 		case opLPFETCH:
 			DP++;
