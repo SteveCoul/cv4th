@@ -430,10 +430,10 @@ forth-wordlist set-current
   bl bl (parse)
 ;
 
-internals definitions
+internals set-current
 : ^word-buffer [fake-variable] ;
 here SIZE_INPUT_BUFFER allot ^word-buffer !
-forth-wordlist definitions
+forth-wordlist set-current
 
 : word																			\ \ CORE
   ^word-buffer @ >r
