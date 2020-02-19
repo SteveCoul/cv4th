@@ -1449,6 +1449,9 @@ forth-wordlist set-current
 : 2* 2 * ;																		\ \ CORE
 : 2/ 2 / ;																		\ \ CORE
 
+: max 2dup > if drop else nip then ;											\ \ CORE
+: min 2dup > if nip else drop then ;											\ \ CORE
+
 : */ 1 abort" */ not implemented"; immediate									\ \ CORE
 : */MOD 1 abort" */MOD not implemented"; immediate								\ \ CORE
 : /MOD 1 abort" /MOD not implemented"; immediate								\ \ CORE
@@ -1463,8 +1466,6 @@ forth-wordlist set-current
 
 : INVERT 1 abort" INVERT not implemented"; immediate							\ \ CORE
 : LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
-: MAX 1 abort" MAX not implemented"; immediate									\ \ CORE
-: MIN 1 abort" MIN not implemented"; immediate									\ \ CORE
 : RSHIFT 1 abort" RSHIFT not implemented"; immediate							\ \ CORE
 : XOR 1 abort" XOR not implemented"; immediate									\ \ CORE
 
