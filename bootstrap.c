@@ -130,7 +130,7 @@ int refill( void ) {
 	WRITE_CELL( machine, A_HASH_TIB, 0 );
 	for (;;) {
 		char c;
-		(void)read( input, &c, 1 );
+		if ( read( input, &c, 1 ) != 1 ) break;
 		if ( c != '\r' ) {
 			if ( input != STDIN_FILENO ) {
 				putchar( c );
