@@ -478,6 +478,22 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			datastack[ DP-1 ] = tmp2;
 			datastack[ DP-2 ] = tmp3;
 			break;
+		case opUMULT2:
+			tmp2 = datastack[ DP-1 ];
+			tmp3 = datastack[ DP-2 ];
+			{
+				uint32_t v = tmp2;
+				uint32_t u = tmp3;
+				uint64_t V = v;
+				uint64_t U = u;
+				V*=U;
+				tmp3 = V & 0xFFFFFFFF;
+				V>>=32;
+				tmp2 = V & 0xFFFFFFFF;
+			}
+			datastack[ DP-1 ] = tmp2;
+			datastack[ DP-2 ] = tmp3;
+			break;
 		case opUMULT:
 			tmp = datastack[ DP-1 ];		
 			DP--;

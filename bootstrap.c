@@ -294,6 +294,7 @@ int main( int argc, char** argv ) {
 	OPWORD( opEMIT, "emit" );
 	OPWORD( opMULT, "*" );
 	OPWORD( opMULT2, "m*" );
+	OPWORD( opUMULT2, "um*" );
 	OPWORD( opMINUS, "-" );
 	OPWORD( opGREATER_THAN, ">" );
 	OPWORD( opLESS_THAN, "<" );
@@ -398,6 +399,7 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opU_GREATER_THAN );
 	OPCONST_DB( opU_LESS_THAN );
 	OPCONSTANT( opUMULT );
+	OPCONST_DB( opUMULT2 );
 	OPCONST_DB( opUM_SLASH_MOD );
 	OPCONST_DB( opWFETCH );
 	OPCONST_DB( opWRITE_FILE );

@@ -105,6 +105,7 @@ enum {
 	opU_GREATER_THAN,
 	opU_LESS_THAN,
 	opUMULT,
+	opUMULT2,
 	opUM_SLASH_MOD,
 
 	opWFETCH,
