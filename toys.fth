@@ -99,7 +99,7 @@ get-order internals swap 1+ set-order
 ;
 
 : (show)
-  cr 4 + 1 + count type
+  cr link>name count type
 ;
 
 : all-words ['] (show) for-each-word-in-order ;
@@ -115,7 +115,7 @@ variable print-over
   -1 line-counter +!
   last-word @ over - 	\ head total-size --
   over last-word !
-  over 4 + 1 + c@ 6 +	\ head total-size header-size
+  over link>name c@ 1 cells + 2 +	\ head total-size header-size
   2dup -				\ head total-size header-size code-size
   dup print-over @ > if
           line-counter @ 0= if
@@ -125,7 +125,7 @@ variable print-over
 		  cr rot 
 		  dup total-s +! 10 .r space 
 		  swap dup header-s +! 10 .r space 
-		  dup code-s +! 10 .r space 4 + 1 + count type
+		  dup code-s +! 10 .r space link>name ctype
   else
 		  rot 
 		  total-s +! 
