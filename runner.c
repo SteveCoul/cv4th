@@ -9,11 +9,11 @@
 int main( int argc, char** argv ) {
 	machine_t machine;
 	int fd;
-	uint32_t size;
-	uint32_t dstacksize;
-	uint32_t rstacksize;
-	uint32_t quit;
-	uint32_t head;
+	cell_t size;
+	cell_t dstacksize;
+	cell_t rstacksize;
+	cell_t quit;
+	cell_t head;
 
 	fd = open( argv[1], O_RDONLY );
 	if (fd <0 ) { printf("failed to open\n"); exit(0); }
@@ -27,12 +27,12 @@ int main( int argc, char** argv ) {
 	if ( read( fd, &rstacksize, 4 ) != 4 ) return 1;
 	if ( read( fd, &quit, 4 ) != 4 ) return 1;
 
-	if ( head != 0x11223344 ) {
+	if ( head != HEADER_ID ) {
 		machine_set_endian( &machine, ENDIAN_SWAP );
-		size = machine.swap32( size );
-		dstacksize = machine.swap32( dstacksize );
-		rstacksize = machine.swap32( rstacksize );
-		quit = machine.swap32( quit );
+		size = machine.swapCELL( size );
+		dstacksize = machine.swapCELL( dstacksize );
+		rstacksize = machine.swapCELL( rstacksize );
+		quit = machine.swapCELL( quit );
 	}
 
 	machine.memory = malloc( size );

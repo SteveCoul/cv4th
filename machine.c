@@ -13,9 +13,9 @@
 #include "opcode.h"
 
 static uint16_t swap16( uint16_t v ) { return ((v>>8)&0xFF)|((v<<8)&0xFF00); }
-static uint32_t swap32( uint32_t v ) { return ((v>>24)&0xFF)|((v>>8)&0xFF00)|((v<<8)&0xFF0000)|((v<<24)&0xFF000000); }
+static cell_t swapCELL( cell_t v ) { return ((v>>24)&0xFF)|((v>>8)&0xFF00)|((v<<8)&0xFF0000)|((v<<24)&0xFF000000); }
 static uint16_t noswap16( uint16_t v ) { return v; }
-static uint32_t noswap32( uint32_t v ) { return v; }
+static cell_t noswapCELL( cell_t v ) { return v; }
 
 void machine_init( machine_t* machine ) {
 	ioInit();
@@ -26,28 +26,28 @@ void machine_init( machine_t* machine ) {
 }
 
 void machine_set_endian( machine_t* machine, machine_endian_t which ) {
-	uint32_t value = 0x11223344;
+	cell_t value = HEADER_ID;
 	uint8_t* p = (uint8_t*)&value;
-	machine_endian_t me = (p[0] == 0x11) ? ENDIAN_BIG : ENDIAN_LITTLE;
+	machine_endian_t me = (p[3] == (HEADER_ID & 255)) ? ENDIAN_BIG : ENDIAN_LITTLE;
 	if ( ( me == which ) || ( which == ENDIAN_NATIVE ) ) {
 		machine->swap16 = noswap16;
-		machine->swap32 = noswap32;
+		machine->swapCELL = noswapCELL;
 	} else {
 		machine->swap16 = swap16;
-		machine->swap32 = swap32;
+		machine->swapCELL = swapCELL;
 	}
 }
 
-void machine_execute( machine_t* machine, uint32_t xt ) {
+void machine_execute( machine_t* machine, cell_t xt ) {
 
-	uint32_t tmp;
-	uint32_t tmp2;
-	uint32_t tmp3;
-	uint32_t tmp4;
+	cell_t tmp;
+	cell_t tmp2;
+	cell_t tmp3;
+	cell_t tmp4;
 
-	uint32_t IP=xt;
-	uint32_t* datastack = machine->datastack;
-	uint32_t* returnstack = machine->returnstack;
+	cell_t IP=xt;
+	cell_t* datastack = machine->datastack;
+	cell_t* returnstack = machine->returnstack;
 #define DP machine->DP
 #define RP machine->RP
 #define LP machine->LP
@@ -93,20 +93,20 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 		/* files */
 		case opDELETE_FILE:
 			tmp = datastack[ DP-1 ]; DP--;
-			datastack[DP-1] = (uint32_t)ioDelete( ABS_PTR(machine,datastack[DP-1]), tmp );
+			datastack[DP-1] = (cell_t)ioDelete( ABS_PTR(machine,datastack[DP-1]), tmp );
 			break;
 		case opRENAME_FILE:
 			tmp = datastack[DP-1]; DP--;		// tmp = newlen
 			tmp2 = datastack[DP-1]; DP--;		// tmp2 = newname
 			tmp3 = datastack[DP-1]; DP--;		// tmp3 = len
-			datastack[DP-1] = (uint32_t)ioRename( ABS_PTR(machine,datastack[DP-1]), tmp3, ABS_PTR(machine,tmp2), tmp );
+			datastack[DP-1] = (cell_t)ioRename( ABS_PTR(machine,datastack[DP-1]), tmp3, ABS_PTR(machine,tmp2), tmp );
 			break;
 		case opREPOSITION_FILE:
 			/* assuming 31bit file length */
 			{
 				int i = ioReposition( (int)datastack[ DP-1 ], (int)datastack[ DP-3 ] );
 				DP-=2;
-				datastack[ DP-1 ] = (uint32_t)i;
+				datastack[ DP-1 ] = (cell_t)i;
 			}
 			break;
 		case opRESIZE_FILE:
@@ -114,7 +114,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			{
 				int i = ioResize( (int)datastack[ DP-1 ], (int)datastack[ DP-3 ] );
 				DP-=2;
-				datastack[ DP-1 ] = (uint32_t)i;
+				datastack[ DP-1 ] = (cell_t)i;
 			}
 			break;
 		case opFILE_POSITION:		/* note, I'm not doing 64bit, never having files that big */
@@ -123,9 +123,9 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				if ( i < 0 ) {
 					datastack[ DP-1 ] = 0; 
 					DP++; datastack[ DP-1 ] = 0;
-					DP++; datastack[ DP-1 ] = (uint32_t)i;
+					DP++; datastack[ DP-1 ] = (cell_t)i;
 				} else {
-					datastack[ DP-1 ] = (uint32_t)i;
+					datastack[ DP-1 ] = (cell_t)i;
 					DP++; datastack[ DP-1 ] = 0;
 					DP++; datastack[ DP-1 ] = 0;
 				}
@@ -137,9 +137,9 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				if ( i < 0 ) {
 					datastack[ DP-1 ] = 0; 
 					DP++; datastack[ DP-1 ] = 0;
-					DP++; datastack[ DP-1 ] = (uint32_t)i;
+					DP++; datastack[ DP-1 ] = (cell_t)i;
 				} else {
-					datastack[ DP-1 ] = (uint32_t)i;
+					datastack[ DP-1 ] = (cell_t)i;
 					DP++; datastack[ DP-1 ] = 0;
 					DP++; datastack[ DP-1 ] = 0;
 				}
@@ -156,7 +156,7 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			tmp3 = datastack[ DP-1 ];			// tmp3 is pointer
 			{
 				int i = ioWrite( (int)tmp, ABS_PTR( machine, tmp3 ), tmp2 );
-				if ( i < 0 ) datastack[ DP-1 ] = (uint32_t) i;
+				if ( i < 0 ) datastack[ DP-1 ] = (cell_t) i;
 				else		 datastack[ DP-1 ] = 0;
 			}
 			break;
@@ -168,9 +168,9 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				int i = ioRead( (int)tmp, ABS_PTR(machine,tmp3), tmp2 );
 				if ( i < 0 ) {
 					datastack[ DP-2 ] = 0;				// bytes read
-					datastack[ DP-1 ] = (uint32_t)i;
+					datastack[ DP-1 ] = (cell_t)i;
 				} else {
-					datastack[ DP-2 ] = (uint32_t)i;
+					datastack[ DP-2 ] = (cell_t)i;
 					datastack[ DP-1 ] = 0;		
 				}
 			}
@@ -183,9 +183,9 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				int i = ioOpen( ABS_PTR( machine, tmp3 ), tmp2, tmp );
 				if ( i < 0 ) {
 					datastack[ DP-2 ] = 0;
-					datastack[ DP-1 ] = (uint32_t)i;
+					datastack[ DP-1 ] = (cell_t)i;
 				} else {
-					datastack[ DP-2 ] = (uint32_t)i;
+					datastack[ DP-2 ] = (cell_t)i;
 					datastack[ DP-1 ] = 0;
 				}
 			}
@@ -198,18 +198,18 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				int i = ioCreate( ABS_PTR( machine, tmp3 ), tmp2, tmp );
 				if ( i < 0 ) {
 					datastack[ DP-2 ] = 0;
-					datastack[ DP-1 ] = (uint32_t)i;
+					datastack[ DP-1 ] = (cell_t)i;
 				} else {
-					datastack[ DP-2 ] = (uint32_t)i;
+					datastack[ DP-2 ] = (cell_t)i;
 					datastack[ DP-1 ] = 0;
 				}
 			}
 			break;
 		case opFLUSH_FILE:
-			datastack[DP-1] = (uint32_t)ioFlush( (int)datastack[ DP-1 ] );
+			datastack[DP-1] = (cell_t)ioFlush( (int)datastack[ DP-1 ] );
 			break;
 		case opCLOSE_FILE:
-			datastack[DP-1] = (uint32_t)ioClose( (int)datastack[ DP-1 ] );
+			datastack[DP-1] = (cell_t)ioClose( (int)datastack[ DP-1 ] );
 			break;
 		/* internal magic */
 		case opNONE:
@@ -482,8 +482,8 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 			tmp2 = datastack[ DP-1 ];
 			tmp3 = datastack[ DP-2 ];
 			{
-				uint32_t v = tmp2;
-				uint32_t u = tmp3;
+				cell_t v = tmp2;
+				cell_t u = tmp3;
 				uint64_t V = v;
 				uint64_t U = u;
 				V*=U;
@@ -538,8 +538,8 @@ void machine_execute( machine_t* machine, uint32_t xt ) {
 				int32_t a = (int32_t)(v / tmp);
 				int32_t b = (int32_t)(v % tmp);
 
-				datastack[ DP-2 ] = (uint32_t)b;
-				datastack[ DP-1 ] = (uint32_t)a;
+				datastack[ DP-2 ] = (cell_t)b;
+				datastack[ DP-1 ] = (cell_t)a;
 			}
 			break;
 		case opUM_SLASH_MOD:

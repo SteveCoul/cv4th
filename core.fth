@@ -63,6 +63,7 @@
 \ INTERNALS																		\ \ INTERNAL
 \ A_LIST_OF_WORDLISTS															\ \ INTERNAL
 \ locals-wordlist																\ \ INTERNAL
+\ IMAGE_HEADER_ID																\ \ INTERNAL
 \ SIZE_DATA_STACK																\ \ INTERNAL
 \ SIZE_RETURN_STACK																\ \ INTERNAL
 \ SIZE_FORTH																	\ \ INTERNAL
@@ -1182,10 +1183,34 @@ forth-wordlist set-current
   cr
 ;
 
+: .r																			\ \ CORE-EXT
+  swap dup >r abs 0 <# #s r> sign #> 
+  \ width c-addr u --
+  rot over - 
+  spaces type
+;
+
+: .s 																			\ \ PROGRAMMING-TOOLS
+  depth
+  ?dup 0= if 
+	cr 10 spaces ." (empty)" 
+  else
+    cr 13 spaces ." top"
+    0 begin
+      2dup <>
+    while
+      dup 2 + pick cr 16 .r
+  	1+
+    repeat
+    2drop
+  then
+;
+
+
 internals set-current
 
 : isconstantdef		\ head -- flag
-  >name count +	\ ptr
+  link>name count +	\ ptr
   dup c@ opDOLIT = if
 	1+ cell+
 	c@ opRET = 
@@ -1201,15 +1226,15 @@ internals set-current
 
 : opcodename 		\ value -- caddr u | -- 0
   internals
-  begin
+  begin				\ value link --
     @ ?dup
-  while
-    dup >name
-    dup c@ 2 > if
+  while					
+    dup link>name										\ value link name
+    dup c@ 2 > if									
 		dup 1+ c@ [char] o = if	
-			dup 2 + c@ [char] p = if	
-				over isconstantdef if  	\ value head name --
-					dup count + execute	\ value head name constant-value --
+		dup	2 + c@ [char] p = if			
+				over isconstantdef if			
+					over link>xt execute		
 					3 pick = if
 						nip nip count exit
 					then
@@ -1232,8 +1257,8 @@ internals set-current
     cr dup .hex32 ." : " 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if (disprefix) dup 1+ w@ >name ctype 3 +	else
-	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1 + cell+ + else
-	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 1+ cell+ + else
+	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1 + cell+ else
+	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 1+ cell+ else
 	dup c@ opDOLIT_U8 =     if (disprefix) dup 1+ c@ .hex8 2 + else
 	dup c@ opRET = 		    if (disprefix) ." Ret" drop dup	else
 	dup c@ opBRANCH =		if (disprefix) ."  branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
@@ -1251,34 +1276,11 @@ forth-wordlist set-current
 
 : see bl word find if 20000 dis then ;											\ \ PROGRAMMING-TOOLS
 
-: .r																			\ \ CORE-EXT
-  swap dup >r abs 0 <# #s r> sign #> 
-  \ width c-addr u --
-  rot over - 
-  spaces type
-;
-
 : u.r																			\ \ CORE-EXT
   swap 0 <# #s #> 
   \ width c-addr u --
   rot over - 
   spaces type
-;
-
-: .s 																			\ \ PROGRAMMING-TOOLS
-  depth
-  ?dup 0= if 
-	cr 10 spaces ." (empty)" 
-  else
-    cr 13 spaces ." top"
-    0 begin
-      2dup <>
-    while
-      dup 2 + pick cr 16 .r
-  	1+
-    repeat
-    2drop
-  then
 ;
 
 internals set-current
@@ -1722,7 +1724,7 @@ variable save-tmp
     -63 throw
   else
 	\ fd --
-	287454020 save-tmp !
+	IMAGE_HEADER_ID save-tmp !		
 	save-tmp over s" HDR" (save-cell)
 
 	here unused + save-tmp ! 

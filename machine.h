@@ -3,15 +3,18 @@
 
 #include <stdint.h>
 
+#define HEADER_ID 0x11223344
+typedef uint32_t cell_t;
+
 typedef struct {
 	void*		memory;
-	uint32_t*	datastack;
-	uint32_t*	returnstack;
-	uint32_t	DP;
-	uint32_t	RP;
-	uint32_t	LP;
-	uint16_t(*swap16)( uint16_t v );
-	uint32_t(*swap32)( uint32_t v );
+	cell_t*		datastack;
+	cell_t*		returnstack;
+	cell_t		DP;
+	cell_t		RP;
+	cell_t		LP;
+	uint16_t	(*swap16)( uint16_t v );
+	cell_t		(*swapCELL)( cell_t v );
 } machine_t;
 
 typedef enum {
@@ -29,12 +32,12 @@ extern void machine_set_endian( machine_t* machine, machine_endian_t which );
 #define GET_BYTE(mach,r_addr)	 		((uint8_t*)( ((uint8_t*)(mach->memory) + r_addr) ))[0]
 #define WRITE_BYTE(mach,r_addr, value)	((uint8_t*)(mach->memory))[ r_addr ] = (uint8_t)value
 
-#define GET_CELL(mach,r_addr)	 		(mach->swap32(((uint32_t*)(((uint8_t*)(mach->memory) + r_addr)))[0]))
-#define WRITE_CELL(mach,r_addr, value) 	((uint32_t*)(((uint8_t*)(mach->memory) + r_addr)))[0] = mach->swap32(value)
+#define GET_CELL(mach,r_addr)	 		(mach->swapCELL(((cell_t*)(((uint8_t*)(mach->memory) + r_addr)))[0]))
+#define WRITE_CELL(mach,r_addr, value) 	((cell_t*)(((uint8_t*)(mach->memory) + r_addr)))[0] = mach->swapCELL(value)
 #define GET_WORD(mach,r_addr)	 		(mach->swap16(((uint16_t*)(((uint8_t*)(mach->memory) + r_addr)))[0]))
 #define WRITE_WORD(mach,r_addr, value) 	((uint16_t*)(((uint8_t*)(mach->memory) + r_addr)))[0] = mach->swap16(value)
 
-extern void machine_execute( machine_t* machine, uint32_t xt );
+extern void machine_execute( machine_t* machine, cell_t xt );
 
 #endif
 
