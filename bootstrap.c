@@ -303,6 +303,9 @@ int main( int argc, char** argv ) {
 	OPWORD( opSWAP, "swap" );
 	OPWORD( opUM_SLASH_MOD, "um/mod" );
 	OPWORD( opSM_SLASH_REM, "sm/rem" );
+	LAY_HEADER( opNONE, "cells" );
+	C_COMMA( opLIT4 ); C_COMMA( opMULT ); C_COMMA( opRET );
+
 	// DO NOT embed opcode for execute or we can't run it from the bootstrap interpreter ( I think? maybe try one day )
 	LAY_HEADER( opNONE, "execute" );
 	C_COMMA( opEXECUTE ); C_COMMA( opRET );

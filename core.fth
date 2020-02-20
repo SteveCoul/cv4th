@@ -3,6 +3,7 @@
 
 \ These words are defined in the native wrapper 
 
+\ cells																			\ \ CORE
 \ here																			\ \ CORE
 \ state																			\ \ CORE
 \ >in																			\ \ CORE
@@ -105,13 +106,20 @@
   A_CURRENT !
 ;
 
+: 1- 1 - ;																		\ \ CORE
+: 1+ 1 + ;																		\ \ CORE
+
+: cell+ 1 cells + ;																\ \ CORE
+
 internals set-current
-: >flag				4 + ;														
+: link>flag			cell+ ;														
+: link>name			link>flag 1 + ;													
+: link>xt			link>name dup c@ + 1+ ;
 forth-wordlist set-current
 
 : immediate																		\ \ CORE
   opIMMEDIATE
-  get-current @ >flag
+  get-current @ link>flag
   c!
 ;
 
@@ -127,11 +135,6 @@ forth-wordlist set-current
 : decimal 10 base ! ;															\ \ CORE
 : hex 16 base ! ;																\ \ CORE-EXT
 
-: 1- 1 - ;																		\ \ CORE
-: 1+ 1 + ;																		\ \ CORE
-
-: cells 4 * ;																	\ \ CORE
-: cell+ 1 cells + ;																\ \ CORE
 : chars ;																		\ \ CORE
 : char+ 1+ ;																	\ \ CORE
 
@@ -152,7 +155,7 @@ forth-wordlist set-current
     opRFROM c, 
     opSWAP c, 
 	opTOR c, ]
-; opRFROM get-current @ >flag c!			\ set compile time behavior to lay opcode
+; opRFROM get-current @ link>flag c!			\ set compile time behavior to lay opcode
 
 : 2r>																			\ \ CORE EXT
   [ opRFROM c, 
@@ -173,7 +176,7 @@ forth-wordlist set-current
     opSWAP c,
 	opTOR c,
   ]
-; opRFETCH get-current @ >flag c!
+; opRFETCH get-current @ link>flag c!
 
 : >r																			\ \ CORE
   [
@@ -182,7 +185,7 @@ forth-wordlist set-current
 	opTOR c,	
 	opTOR c,	
   ]
-; opTOR get-current @ >flag c!
+; opTOR get-current @ link>flag c!
 
 : 2>r
   [	
@@ -319,7 +322,7 @@ get-order internals swap 1+ set-order
 internals set-current
 
 : [fake-variable]
-  opCALL c, here 8 + , 0 , opRFROM c,
+  opCALL c, here 2 cells + , 0 , opRFROM c,
 ; immediate
 
 : locals-count [fake-variable] ;
@@ -558,26 +561,22 @@ forth-wordlist set-current
   [char] ) word ctype
 ; immediate
 
-internals set-current
-: head>name			>flag 1 + ;													
-forth-wordlist set-current
-
 : search-wordlist	\ c-addr u wid -- 0 | xt 1 | xt -1 							\ \ SEARCH-ORDER
 	@	
 	?dup 0= if 2drop 0 exit then
 
 	begin					
-		over over head>name c@ =				
+		over over link>name c@ =				
 		if
 			2 pick 2 pick						
-			2 pick head>name 1 + swap				
+			2 pick link>name 1 + swap				
 			[ opCOMPARE c, ]
 			0= if 
 														\ c-addr u link --
 				nip nip
 				dup 
-				head>name count + 						
-				swap >flag c@ opIMMEDIATE = if
+				link>xt 
+				swap link>flag c@ opIMMEDIATE = if
 					1
 				else
 					-1
@@ -627,22 +626,26 @@ internals set-current
   r> drop 
 ;
 
-: >head																			
+: flag>link 1 cells - ;
+: name>flag 1- ;
+
+: >link
   >name
-  1-
-  1 cells -
+  name>flag
+  flag>link
 ;
+
 forth-wordlist set-current
 
 : compile,																		\ \ CORE-EXT
-  dup >head >flag c@ dup opIMMEDIATE = swap opNONE = or if
+  dup >link link>flag c@ dup opIMMEDIATE = swap opNONE = or if
 	dup 65536 < if
 		opSHORT_CALL c, w,
 	else
 	  	opCALL c, ,
 	then
   else
-    >head >flag c@ c,
+    >link link>flag c@ c,
   then
 ;
 
@@ -840,9 +843,9 @@ forth-wordlist set-current
 	postpone if
 	
 	opDOLIT c,					\ get the resolv address at runtime N bytes on from here
-	here 14 + ,				\ depends on instruction count below!
+	here cell+ 9 + ,			\ depends on instruction count below!
+
 	opFETCH c,
-							\ limit idx jump-target --
 	opDUP c, opTOR c,		\ push 3 numbers to return stack for unloop
 	opSWAP c, opTOR c,
 	opSWAP c, opTOR c,	
@@ -1022,14 +1025,16 @@ forth-wordlist set-current
 
 internals set-current
 : (does>)																		
-  get-current @ cell+ 1+ count + 1+ cell+ 1+ !	
+  get-current @ link>xt 
+  1+ cell+ 1+		\ skip DOLIT val, opDOLIST (see create above)
+  !					\ and patch the call target ( the lit pushed as >r ret jump )
 ;
 forth-wordlist set-current
 
 : does>																			\ \ CORE
   end-locals
-  \ the '10' is the DOLIT and a CALL, we cannot let postpone use SHORT_CALL (via compile,)
-  opDOLIT c, here 10 + ,
+  opDOLIT c, 
+  here cell+ 1+ cell+ 1+  ,		\ HERE + lit + CALL + address + RET
   opCALL c, ['] (does>) , 	\ *was* postpone (does>), see above
   opRET c,
 ; immediate
@@ -1116,7 +1121,7 @@ forth-wordlist set-current
   get-current @		
   ?dup if
     begin
-      dup head>name ctype bl emit	
+      dup link>name ctype bl emit	
       @
       dup 0 =
     until
@@ -1180,9 +1185,9 @@ forth-wordlist set-current
 internals set-current
 
 : isconstantdef		\ head -- flag
-  4 + 1 + count +	\ ptr
+  >name count +	\ ptr
   dup c@ opDOLIT = if
-	5 +
+	1+ cell+
 	c@ opRET = 
   else
     dup c@ opDOLIT_U8 = if 
@@ -1199,7 +1204,7 @@ internals set-current
   begin
     @ ?dup
   while
-    dup 4 + 1 +			\ value head name --
+    dup >name
     dup c@ 2 > if
 		dup 1+ c@ [char] o = if	
 			dup 2 + c@ [char] p = if	
@@ -1227,8 +1232,8 @@ internals set-current
     cr dup .hex32 ." : " 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if (disprefix) dup 1+ w@ >name ctype 3 +	else
-	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 5 + else
-	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 5 + else
+	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1 + cell+ + else
+	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 1+ cell+ + else
 	dup c@ opDOLIT_U8 =     if (disprefix) dup 1+ c@ .hex8 2 + else
 	dup c@ opRET = 		    if (disprefix) ." Ret" drop dup	else
 	dup c@ opBRANCH =		if (disprefix) ."  branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
@@ -1529,8 +1534,8 @@ get-order ENVIRONMENT-wid swap 1+ set-order definitions
 
 : /COUNTED_STRING		255 ;
 : /HOLD					SIZE_PICTURED_NUMERIC ;
-: /PAD					255 ;
-: ADDRESS-UNIT-BITS		32 ;
+: /PAD					255 ;										\ FIXME should be a bootstrap const. see alsoPAD
+: ADDRESS-UNIT-BITS		1 cells 8 * ;									
 : FLOORED				0 ;
 : MAX-CHAR				255 ;
 : MAX-D					1 abort" max-d environment not done" ;
