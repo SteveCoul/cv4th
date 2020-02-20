@@ -78,8 +78,8 @@ static machine_t*	machine;
 
 #define OPCONSTANT( name ) CONSTANT( #name, name )
 
-#define OPCONST_DB( name ) {}
-//#define OPCONST_DB OPCONSTANT
+//#define OPCONST_DB( name ) {}
+#define OPCONST_DB OPCONSTANT
 
 #define INTERNALS_DEFINITIONS			WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST );
 #define FORTH_DEFINITIONS				WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST );
