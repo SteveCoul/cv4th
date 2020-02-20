@@ -64,6 +64,7 @@ enum {
 	opMINUS,
 	opMOVE,
 	opMULT,
+	opMULT2,
 
 	opNIP,
 

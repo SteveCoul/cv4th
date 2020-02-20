@@ -293,6 +293,7 @@ int main( int argc, char** argv ) {
 	OPWORD( opDROP, "drop" );
 	OPWORD( opEMIT, "emit" );
 	OPWORD( opMULT, "*" );
+	OPWORD( opMULT2, "m*" );
 	OPWORD( opMINUS, "-" );
 	OPWORD( opGREATER_THAN, ">" );
 	OPWORD( opLESS_THAN, "<" );
@@ -365,6 +366,7 @@ int main( int argc, char** argv ) {
 	OPCONST_DB( opMINUS );
 	OPCONST_DB( opMOVE );
 	OPCONST_DB( opMULT );
+	OPCONST_DB( opMULT2 );
 	OPCONST_DB( opNIP );
 	OPCONST_DB( opONEMINUS );
 	OPCONST_DB( opONEPLUS );
