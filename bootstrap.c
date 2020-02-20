@@ -154,6 +154,7 @@ int main( int argc, char** argv ) {
 	machine_endian_t	endian = ENDIAN_NATIVE;
 	uint32_t			word_colon = 0;
 	uint32_t			word_semicolon = 0;
+	uint32_t			word_fslash = 0;
 	const char*			include_file = NULL;
 	const char*			post_action = NULL;
 	int					i;
@@ -470,11 +471,22 @@ rescan:
 				// If we are executing ";" and have not yet defined both colon and semicolon in forth
 				// we'll do a naive version and then scan to see if we've got the two forth words yet.
 				if ( ( strcmp( tmp_word, ";" ) == 0 ) && ( ( word_colon == 0 ) || ( word_semicolon == 0 ) ) ) {
+					// relink to wordlist to make visible
 					WRITE_CELL( machine, A_STATE, 0 );
 					C_COMMA( opRET );
 					if ( word_colon == 0 ) 		{ word_colon = find(":"); if ( word_colon ) printf("now have :\n"); }
 					if ( word_semicolon == 0 )  { word_semicolon = find(";"); if ( word_semicolon ) printf("now have ;\n" ); }
 					goto rescan;
+				}
+
+				if ( word_fslash == 0 ) {
+					if ( strcmp( tmp_word, "\\" ) == 0 ) {
+						word_fslash = find("\\");
+						if ( word_fslash == 0 ) {
+							WRITE_CELL( machine, A_TOIN, HASH_TIB );
+							goto rescan;
+						}
+					}
 				}
 
 				uint32_t v;
