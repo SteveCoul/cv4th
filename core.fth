@@ -144,6 +144,7 @@ forth-wordlist set-current
 ;
 
 : c, here 1 allot c!  ;															\ \ CORE
+
 internals set-current
 : w,																			
   here 2 allot w!

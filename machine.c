@@ -59,7 +59,7 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 
 		switch( opcode ) {
 		/* literals */
-		case opLITM1: DP++; datastack[DP-1] = 0xFFFFFFFF; break;
+		case opLITM1: DP++; datastack[DP-1] = -1; break;
 		case opLIT0: DP++; datastack[DP-1] = 0; break;
 		case opLIT1: DP++; datastack[DP-1] = 1; break;
 		case opLIT2: DP++; datastack[DP-1] = 2; break;
@@ -270,7 +270,7 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			IP = GET_WORD( machine, IP );
 			break;
 		case opCALL:
-			returnstack[ RP ] = IP+4;
+			returnstack[ RP ] = IP+CELL_SIZE;
 			RP++;
 			IP = GET_CELL( machine, IP );
 			break;
@@ -303,7 +303,7 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			DP--;
 			if ( tmp ) {
 				tmp2 = datastack[ DP-1-tmp ];
-				memmove( datastack+DP-1-tmp, datastack+DP-tmp, tmp*4 );
+				memmove( datastack+DP-1-tmp, datastack+DP-tmp, tmp*CELL_SIZE );
 				datastack[ DP-1 ] = tmp2;
 			}
 			break;
@@ -582,7 +582,7 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 		case opDOLIT:
 			datastack[ DP ] = GET_CELL( machine, IP );
 			DP++;
-			IP+=4;
+			IP+=CELL_SIZE;
 			break;
 		case opDOLIT_U8:
 			datastack[ DP ] = GET_BYTE( machine, IP );

@@ -16,7 +16,7 @@ static machine_t*	machine;
 
 #define SIZE_DATA_STACK					256
 #define SIZE_RETURN_STACK				256
-#define SIZE_FORTH						256*1024
+#define SIZE_FORTH						32*1024
 #define SIZE_INPUT_BUFFER				128
 #define SIZE_PICTURED_NUMERIC			64
 #define SIZE_ORDER						10
@@ -37,7 +37,7 @@ static machine_t*	machine;
 #define A_TOIN							52	
 #define A_CURRENT						56
 #define A_ORDER							60
-#define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * 4 )
+#define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * CELL_SIZE )
 #define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
 #define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER
 
@@ -49,18 +49,18 @@ static machine_t*	machine;
 #define TOIN							GET_CELL( machine, A_TOIN )
 #define STATE							GET_CELL( machine, A_STATE )
 
-#define COMMA( value )					{ WRITE_CELL( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + 4 ); }
+#define COMMA( value )					{ WRITE_CELL( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + CELL_SIZE ); }
 #define W_COMMA( value )				{ WRITE_WORD( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + 2 ); }
 #define C_COMMA( value )				{ WRITE_BYTE( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + 1 ); }
 #define S_COMMA( text )					C_COMMA( strlen(text) ); { unsigned int i; for ( i = 0; text[i] != 0; i++ ) C_COMMA( text[i] ); }
 
 #define LAY_HEADER( type, name )		COMMA( GET_CELL( machine, GET_CELL( machine, A_CURRENT ) ) ); \
 										C_COMMA( type ); 											  \
-										WRITE_CELL( machine, GET_CELL( machine, A_CURRENT ), HERE - 5 ); 	\
+										WRITE_CELL( machine, GET_CELL( machine, A_CURRENT ), HERE - CELL_SIZE - 1 ); 	\
 										S_COMMA( name )
 
-#define TO_XT( r_address )				r_address + GET_BYTE( machine, r_address+5 ) + 6
-#define TO_NAME( r_address )			r_address + 5
+#define TO_XT( r_address )				r_address + GET_BYTE( machine, r_address+1+CELL_SIZE ) + CELL_SIZE + 2
+#define TO_NAME( r_address )			r_address + 1 + CELL_SIZE
 
 #define VARIABLE( r_address, name )	LAY_HEADER( opNONE, name ); C_COMMA( opDOLIT ); COMMA( r_address ); C_COMMA( opRET )
 #define OPWORD( opcode, name ) LAY_HEADER( opcode, name ); C_COMMA( opcode ); C_COMMA( opRET )
@@ -89,7 +89,7 @@ uint32_t find( const char* name ) {
 	uint32_t wids[ SIZE_ORDER + 1 ];
 	wids[0] = LOCALS_WORDLIST;
 	for ( i = 0; i < SIZE_ORDER; i++ ) {
-		wids[i+1] = GET_CELL( machine, A_ORDER + (i*4) );
+		wids[i+1] = GET_CELL( machine, A_ORDER + (i*CELL_SIZE) );
 	}
 	
 	for ( i = 0; i < SIZE_ORDER+1; i++ ) {
@@ -198,11 +198,11 @@ int main( int argc, char** argv ) {
 
 	/** init user vars */
 	WRITE_CELL( machine, A_HERE, START_HERE );
-	WRITE_CELL( machine, A_FORTH_WORDLIST-4, 0 );
+	WRITE_CELL( machine, A_FORTH_WORDLIST-CELL_SIZE, 0 );
 	WRITE_CELL( machine, A_FORTH_WORDLIST, 0 );
-	WRITE_CELL( machine, A_INTERNALS_WORDLIST-4, A_FORTH_WORDLIST );
+	WRITE_CELL( machine, A_INTERNALS_WORDLIST-CELL_SIZE, A_FORTH_WORDLIST );
 	WRITE_CELL( machine, A_INTERNALS_WORDLIST, 0 );
-	WRITE_CELL( machine, A_LOCALS_WORDLIST-4, A_INTERNALS_WORDLIST );
+	WRITE_CELL( machine, A_LOCALS_WORDLIST-CELL_SIZE, A_INTERNALS_WORDLIST );
 	WRITE_CELL( machine, A_LOCALS_WORDLIST, 0 );
 	WRITE_CELL( machine, A_LIST_OF_WORDLISTS, A_LOCALS_WORDLIST );
 	WRITE_CELL( machine, A_QUIT, 0 );
@@ -213,7 +213,7 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_TOIN, 0 );
 	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST );
 	WRITE_CELL( machine, A_ORDER, A_INTERNALS_WORDLIST );
-	WRITE_CELL( machine, A_ORDER +4, A_FORTH_WORDLIST );
+	WRITE_CELL( machine, A_ORDER +CELL_SIZE, A_FORTH_WORDLIST );
 
 	CONSTANT( "INTERNALS", A_INTERNALS_WORDLIST );		
 	CONSTANT( "forth-wordlist", A_FORTH_WORDLIST );		// this one is actually a forth word
@@ -305,7 +305,14 @@ int main( int argc, char** argv ) {
 	OPWORD( opUM_SLASH_MOD, "um/mod" );
 	OPWORD( opSM_SLASH_REM, "sm/rem" );
 	LAY_HEADER( opNONE, "cells" );
-	C_COMMA( opLIT4 ); C_COMMA( opMULT ); C_COMMA( opRET );
+	if ( CELL_SIZE == 4 ) {
+		C_COMMA( opLIT4 ); C_COMMA( opMULT ); C_COMMA( opRET );
+	} else if ( CELL_SIZE == 2 ) {
+		C_COMMA( opLIT2 ); C_COMMA( opMULT ); C_COMMA( opRET );
+	} else {	
+		printf("bug - only 16 and 32bit builds allowed\n");
+		exit(0);
+	}
 
 	// DO NOT embed opcode for execute or we can't run it from the bootstrap interpreter ( I think? maybe try one day )
 	LAY_HEADER( opNONE, "execute" );
@@ -556,7 +563,7 @@ rescan:
 
 					if ( ( STATE == 0 ) || ( header[4] == opIMMEDIATE ) ) {
 						machine_execute( machine, xt );
-					} else if ( header[4] == opNONE ) {
+					} else if ( header[CELL_SIZE] == opNONE ) {
 						if ( xt < 65536 ) {
 							C_COMMA( opSHORT_CALL );
 							W_COMMA( xt );
@@ -565,7 +572,7 @@ rescan:
 							COMMA( xt );
 						}
 					} else {
-						C_COMMA( header[4] );
+						C_COMMA( header[CELL_SIZE] );
 					}
 				}
 			}

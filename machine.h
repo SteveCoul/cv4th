@@ -3,8 +3,13 @@
 
 #include <stdint.h>
 
+#if 1
 #define HEADER_ID 0x11223344
 typedef uint32_t cell_t;
+#else
+#define HEADER_ID 0x3344
+typedef uint16_t cell_t;
+#endif
 
 typedef struct {
 	void*		memory;
@@ -27,6 +32,7 @@ typedef enum {
 extern void machine_init( machine_t* machine );
 extern void machine_set_endian( machine_t* machine, machine_endian_t which );
 
+#define CELL_SIZE						sizeof(cell_t)
 #define ABS_PTR( mach, r_addr )			(void*)(((uint8_t*)(mach->memory))+r_addr)
 
 #define GET_BYTE(mach,r_addr)	 		((uint8_t*)( ((uint8_t*)(mach->memory) + r_addr) ))[0]
