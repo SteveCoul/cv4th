@@ -393,23 +393,46 @@ internals set-current
 forth-wordlist set-current
 
 internals set-current
-: [literal]																		
-  dup -1 = if	opLITM1 c, drop else
-  dup 0=  if	opLIT0 c, drop else
-  dup 1 = if	opLIT1 c, drop else
-  dup 2 = if	opLIT2 c, drop else
-  dup 3 = if	opLIT3 c, drop else
-  dup 4 = if	opLIT4 c, drop else
-  dup 5 = if	opLIT5 c, drop else
-  dup 6 = if	opLIT6 c, drop else
-  dup 7 = if	opLIT7 c, drop else
-  dup 8 = if	opLIT8 c, drop else
+: known-literal-opcodes 
+  opLITM1 -1
+  opLIT0 0
+  opLIT1 1
+  opLIT2 2
+  opLIT3 3
+  opLIT4 4
+  opLIT5 5
+  opLIT6 6
+  opLIT7 7
+  opLIT8 8
+  10
+;
+
+: [literal]
+  >r known-literal-opcodes 
+  begin
+    ?dup 
+  while					\ pairs count -- | R: lookfor --
+    1- rot rot r@ =	
+	if 
+		c,
+		begin
+		  ?dup
+		while
+		  nip nip
+		  1-
+		repeat
+		r> drop
+		exit
+   else
+	 drop
+   then
+  repeat
+  r>
   dup 0 256 within if
     opDOLIT_U8 c, c,
   else
     opDOLIT c, ,
   then
-  then then then then then then then then then then 
 ;
 forth-wordlist set-current
  
