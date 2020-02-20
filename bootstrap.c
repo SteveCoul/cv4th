@@ -14,8 +14,8 @@
 static int			input;
 static machine_t*	machine;
 
-#define SIZE_DATA_STACK					1024
-#define SIZE_RETURN_STACK				1024
+#define SIZE_DATA_STACK					256
+#define SIZE_RETURN_STACK				256
 #define SIZE_FORTH						256*1024
 #define SIZE_INPUT_BUFFER				128
 #define SIZE_PICTURED_NUMERIC			64
@@ -189,8 +189,8 @@ int main( int argc, char** argv ) {
 
 	machine_init( machine );
 	machine->memory = malloc( SIZE_FORTH );
-	machine->datastack = malloc( SIZE_DATA_STACK/4 );
-	machine->returnstack = malloc( SIZE_RETURN_STACK/4 );
+	machine->datastack = malloc( SIZE_DATA_STACK );
+	machine->returnstack = malloc( SIZE_RETURN_STACK );
 
 	machine_set_endian( machine, endian );
 
