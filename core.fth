@@ -1,81 +1,97 @@
 
-: >flag				4 + ;														
-
-: \
-  #tib @ >in !
-; 
-opIMMEDIATE forth-wordlist @ >flag c!
-\ Apologies for the above magic, it makes the comment word immediate so I can use it
-
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
 
-\ NATIVE: open-file																\ \ FILE
-\ NATIVE: create-file															\ \ FILE
-\ NATIVE: close-file															\ \ FILE
-\ NATIVE: read-file																\ \ FILE
-\ NATIVE: write-file															\ \ FILE
-\ NATIVE: write-file															\ \ FILE
-\ NATIVE: delete-file															\ \ FILE
-\ NATIVE: file-position															\ \ FILE
-\ NATIVE: file-size																\ \ FILE
-\ NATIVE: file-status															\ \ FILE
-\ NATIVE: flush-file															\ \ FILE
-\ NATIVE: resize-file															\ \ FILE
-\ NATIVE: rename-file															\ \ FILE
-\ NATIVE: r/o																	\ \ FILE
-\ NATIVE: w/o																	\ \ FILE
-\ NATIVE: r/w																	\ \ FILE
-\ NATIVE: nip																	\ \ CORE-EXT
-\ NATIVE: rot																	\ \ CORE
-\ NATIVE: tuck																	\ \ CORE-EXT
-\ NATIVE: roll																	\ \ CORE-EXT
-\ NATIVE: 2dup																	\ \ CORE
-\ NATIVE: 2drop																	\ \ CORE
-\ NATIVE: 2over																	\ \ CORE
-\ NATIVE: 2swap																	\ \ CORE
-\ NATIVE: forth-wordlist														\ \ SEARCH-ORDER
-\ NATIVE: INTERNALS																
-\ NATIVE: w@																	
-\ NATIVE: w!																	
-\ NATIVE: BYE																	
-\ NATIVE: sp@ 																	
-\ NATIVE: sp! 																	
-\ NATIVE: rsp@ 																	
-\ NATIVE: rsp! 																	
-\ NATIVE: here																	\ \ CORE
-\ NATIVE: state																	\ \ CORE
-\ NATIVE: tib																	\ \ DEAD?
-\ NATIVE: #tib																	\ \ DEAD?
-\ NATIVE: >in																	\ \ CORE
-\ NATIVE: base																	\ \ CORE
-\ NATIVE: move																	\ \ CORE
-\ NATIVE: depth																	\ \ CORE
-\ NATIVE: over																	\ \ CORE
-\ NATIVE: dup																	\ \ CORE
-\ NATIVE: pick																	\ \ CORE-EXT
-\ NATIVE: @																		\ \ CORE
-\ NATIVE: =																		\ \ CORE
-\ NATIVE: !																		\ \ CORE
-\ NATIVE: 0=																	\ \ ???
-\ NATIVE: or																	\ \ CORE
-\ NATIVE: and																	\ \ CORE
-\ NATIVE: c!																	\ \ CORE
-\ NATIVE: c@																	\ \ CORE
-\ NATIVE: drop																	\ \ CORE
-\ NATIVE: emit																	\ \ CORE
-\ NATIVE: *																		\ \ CORE
-\ NATIVE: -																		\ \ CORE
-\ NATIVE: >																		\ \ CORE
-\ NATIVE: <																		\ \ CORE
-\ NATIVE: +																		\ \ CORE
-\ NATIVE: +!																	\ \ CORE
-\ NATIVE: swap																	\ \ CORE
-\ NATIVE: um/mod																\ \ CORE
-\ NATIVE: execute																\ \ CORE
-\ NATIVE: u< 																	\ \ CORE
-\ NATIVE: u> 																	\ \ CORE-EXT
+\ here																			\ \ CORE
+\ state																			\ \ CORE
+\ >in																			\ \ CORE
+\ base																			\ \ CORE
+\ u<																			\ \ CORE
+\ rot																			\ \ CORE
+\ 2dup																			\ \ CORE
+\ 2drop																			\ \ CORE
+\ 2swap																			\ \ CORE
+\ move																			\ \ CORE
+\ depth																			\ \ CORE
+\ over																			\ \ CORE
+\ dup																			\ \ CORE
+\ @																				\ \ CORE
+\ =																				\ \ CORE
+\ !																				\ \ CORE
+\ <																				\ \ CORE
+\ +																				\ \ CORE
+\ +!																			\ \ CORE
+\ swap																			\ \ CORE
+\ um/mod																		\ \ CORE
+\ sm/rem																		\ \ CORE
+\ execute																		\ \ CORE
+\ 0= 																			\ \ CORE
+\ or																			\ \ CORE
+\ and																			\ \ CORE
+\ c!																			\ \ CORE
+\ c@																			\ \ CORE
+\ drop																			\ \ CORE
+\ emit																			\ \ CORE
+\ *																				\ \ CORE
+\ -																				\ \ CORE
+\ >																				\ \ CORE
+\ tuck																			\ \ CORE-EXT
+\ u>																			\ \ CORE-EXT
+\ nip																			\ \ CORE-EXT
+\ roll																			\ \ CORE-EXT
+\ pick																			\ \ CORE-EXT
+\ r/o																			\ \ FILE
+\ w/o																			\ \ FILE
+\ r/w																			\ \ FILE
+\ open-file																		\ \ FILE
+\ close-file																	\ \ FILE
+\ create-file																	\ \ FILE
+\ read-file																		\ \ FILE
+\ write-file																	\ \ FILE
+\ delete-file																	\ \ FILE
+\ file-position																	\ \ FILE
+\ file-size																		\ \ FILE
+\ file-status																	\ \ FILE
+\ flush-file																	\ \ FILE
+\ resize-file																	\ \ FILE
+\ rename-file																	\ \ FILE
+\ reposition-file																\ \ FILE
+\ INTERNALS																		\ \ INTERNAL
+\ A_LIST_OF_WORDLISTS															\ \ INTERNAL
+\ locals-wordlist																\ \ INTERNAL
+\ SIZE_DATA_STACK																\ \ INTERNAL
+\ SIZE_RETURN_STACK																\ \ INTERNAL
+\ SIZE_FORTH																	\ \ INTERNAL
+\ SIZE_INPUT_BUFFER																\ \ INTERNAL
+\ SIZE_PICTURED_NUMERIC															\ \ INTERNAL
+\ SIZE_ORDER																	\ \ INTERNAL
+\ A_HERE																		\ \ INTERNAL
+\ A_QUIT																		\ \ INTERNAL
+\ A_CURRENT																		\ \ INTERNAL
+\ A_ORDER																		\ \ INTERNAL
+\ A_PICTURED_NUMERIC															\ \ INTERNAL
+\ A_INPUT_BUFFER																\ \ INTERNAL
+\ rsp@																			\ \ INTERNAL
+\ rsp!																			\ \ INTERNAL 
+\ sp@																			\ \ INTERNAL
+\ sp!																			\ \ INTERNAL
+\ w@																			\ \ INTERNAL
+\ w!																			\ \ INTERNAL
+\ bye																			\ \ INTERNAL
+\ forth-wordlist																\ \ SEARCH-ORDER
+\ tib																			\ \ 
+\ #tib																			\ \ 
+
+\ and in the INTERNALS various VM opcodes op?????? words, by default only the ones actually
+\ used in this file are exported.
+
+\ The bootstrap interpreter also has invisible implementations of the following words
+\ which it will stop using as soon as it sees a good FORTH implementation below
+
+\ \																				\ \ CORE
+\ :																				\ \ CORE
+\ ;																				\ \ CORE
 
 \ ---------------------------------------------------------------------------------------------
 
@@ -87,12 +103,22 @@ opIMMEDIATE forth-wordlist @ >flag c!
   A_CURRENT !
 ;
 
+internals set-current
+: >flag				4 + ;														
+forth-wordlist set-current
+
 : immediate																		\ \ CORE
   opIMMEDIATE
   get-current @ >flag
   c!
 ;
 
+\ Don't put this comment on line below yet. bootstrap interpreter makes word
+\ visible on colon rather than on semicolon. I'll fix it.						\ \ CORE
+: \																				
+  #tib @ >in !
+; immediate
+ 
 : [ 0 state !  ; immediate														\ \ CORE
 : ] 1 state !  ;																\ \ CORE
 
