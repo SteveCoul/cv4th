@@ -3,12 +3,12 @@
 
 #include <stdint.h>
 
-#if 0
-#define HEADER_ID 0x11223344
-typedef uint32_t cell_t;
-#else
+#ifdef VM_16BIT
 #define HEADER_ID 0x3344
 typedef uint16_t cell_t;
+#else
+#define HEADER_ID 0x11223344
+typedef uint32_t cell_t;
 #endif
 
 typedef struct {

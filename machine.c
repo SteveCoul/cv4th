@@ -13,7 +13,11 @@
 #include "opcode.h"
 
 static uint16_t swap16( uint16_t v ) { return ((v>>8)&0xFF)|((v<<8)&0xFF00); }
+#ifdef VM_16BIT
+static uint16_t swapCELL( uint16_t v ) { return ((v>>8)&0xFF)|((v<<8)&0xFF00); }
+#else
 static cell_t swapCELL( cell_t v ) { return ((v>>24)&0xFF)|((v>>8)&0xFF00)|((v<<8)&0xFF0000)|((v<<24)&0xFF000000); }
+#endif
 static uint16_t noswap16( uint16_t v ) { return v; }
 static cell_t noswapCELL( cell_t v ) { return v; }
 
