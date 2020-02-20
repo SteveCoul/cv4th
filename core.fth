@@ -1480,16 +1480,14 @@ forth-wordlist set-current
 : max 2dup > if drop else nip then ;											\ \ CORE
 : min 2dup > if nip else drop then ;											\ \ CORE
 
+: 2@ dup cell+ @ swap @ ;														\ \ CORE
+: 2! swap over ! cell+ ! ;														\ \ CORE
 
 : */ 1 abort" */ not implemented"; immediate									\ \ CORE
 : */MOD 1 abort" */MOD not implemented"; immediate								\ \ CORE
-: 2/ 1 abort" 2/ not implemented"; immediate									\ \ CORE
-: 2! 1 abort" 2! not implemented"; immediate									\ \ CORE
 : FM/MOD  1 abort" FM/MOD  not implemented"; immediate							\ \ CORE
 : M* 1 abort" M* not implemented"; immediate									\ \ CORE
 : UM* 1 abort" UM* not implemented"; immediate									\ \ CORE
-
-: 2@ 1 abort" 2@ not implemented"; immediate									\ \ CORE
 
 : INVERT 1 abort" INVERT not implemented"; immediate							\ \ CORE
 : LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
