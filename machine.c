@@ -216,10 +216,6 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			datastack[DP-1] = (cell_t)ioClose( (int)datastack[ DP-1 ] );
 			break;
 		/* internal magic */
-		case opNONE:
-			printf("Bang\n"); 
-			exit(0);
-			break;			
 		case opBYE:
 			exit(0);
 			break;
@@ -592,6 +588,8 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			datastack[ DP ] = GET_BYTE( machine, IP );
 			DP++;
 			IP+=1;
+			break;
+		case opNONE:
 			break;
 		default:
 			printf("Illegal opcode [%x]\n", opcode );
