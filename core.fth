@@ -129,7 +129,7 @@ forth-wordlist set-current
 : \																				
   #tib @ >in !
 ; immediate
- 
+
 : [ 0 state !  ; immediate														\ \ CORE
 : ] 1 state !  ;																\ \ CORE
 

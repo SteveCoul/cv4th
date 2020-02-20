@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#if 1
+#if 0
 #define HEADER_ID 0x11223344
 typedef uint32_t cell_t;
 #else

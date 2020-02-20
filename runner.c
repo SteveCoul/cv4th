@@ -21,11 +21,11 @@ int main( int argc, char** argv ) {
 	machine_init( &machine );
 
 	machine_set_endian( &machine, ENDIAN_NATIVE );
-	if ( read( fd, &head, 4 ) != 4 ) return 1;
-	if ( read( fd, &size, 4 ) != 4 ) return 1;
-	if ( read( fd, &dstacksize, 4 ) != 4 ) return 1;
-	if ( read( fd, &rstacksize, 4 ) != 4 ) return 1;
-	if ( read( fd, &quit, 4 ) != 4 ) return 1;
+	if ( read( fd, &head, CELL_SIZE ) != CELL_SIZE ) return 1;
+	if ( read( fd, &size, CELL_SIZE ) != CELL_SIZE ) return 1;
+	if ( read( fd, &dstacksize, CELL_SIZE ) != CELL_SIZE ) return 1;
+	if ( read( fd, &rstacksize, CELL_SIZE ) != CELL_SIZE ) return 1;
+	if ( read( fd, &quit, CELL_SIZE ) != CELL_SIZE ) return 1;
 
 	if ( head != HEADER_ID ) {
 		machine_set_endian( &machine, ENDIAN_SWAP );
@@ -36,8 +36,8 @@ int main( int argc, char** argv ) {
 	}
 
 	machine.memory = malloc( size );
-	machine.datastack = malloc( dstacksize * 4 );
-	machine.returnstack = malloc( rstacksize * 4 );
+	machine.datastack = malloc( dstacksize * CELL_SIZE );
+	machine.returnstack = malloc( rstacksize * CELL_SIZE );
 
 	if ( read( fd, machine.memory, size ) < 0 ) return 2;
 	machine_execute( &machine, quit );

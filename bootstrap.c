@@ -22,21 +22,21 @@ static machine_t*	machine;
 #define SIZE_ORDER						10
 
 #define	A_HERE							0
-#define A_LIST_OF_WORDLISTS				4
-/* wid-link ptr for forth-wordlist 		8	*/
-#define A_FORTH_WORDLIST				12
-/* wid-link ptr for internals 			16	*/
-#define A_INTERNALS_WORDLIST			20
-/* wid-link ptr for locals 				24	*/
-#define A_LOCALS_WORDLIST				28
-#define A_QUIT							32
-#define A_BASE							36
-#define A_STATE							40
-#define A_TIB							44
-#define A_HASH_TIB						48
-#define A_TOIN							52	
-#define A_CURRENT						56
-#define A_ORDER							60
+#define A_LIST_OF_WORDLISTS				1*CELL_SIZE
+/* wid-link ptr for forth-wordlist */
+#define A_FORTH_WORDLIST				3*CELL_SIZE
+/* wid-link ptr for internals */
+#define A_INTERNALS_WORDLIST			5*CELL_SIZE
+/* wid-link ptr for locals 	*/
+#define A_LOCALS_WORDLIST				7*CELL_SIZE
+#define A_QUIT							8*CELL_SIZE
+#define A_BASE							9*CELL_SIZE
+#define A_STATE							10*CELL_SIZE
+#define A_TIB							11*CELL_SIZE
+#define A_HASH_TIB						12*CELL_SIZE
+#define A_TOIN							13*CELL_SIZE
+#define A_CURRENT						14*CELL_SIZE
+#define A_ORDER							15*CELL_SIZE
 #define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * CELL_SIZE )
 #define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
 #define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER
@@ -500,7 +500,7 @@ rescan:
 						if ( word_fslash == 0 ) {
 							WRITE_CELL( machine, A_TOIN, HASH_TIB );
 							goto rescan;
-						}
+						} 
 					}
 				}
 
@@ -561,7 +561,7 @@ rescan:
 					uint32_t xt = TO_XT( v );
 					uint8_t* header = ((uint8_t*)(machine->memory))+v;
 
-					if ( ( STATE == 0 ) || ( header[4] == opIMMEDIATE ) ) {
+					if ( ( STATE == 0 ) || ( header[ CELL_SIZE ] == opIMMEDIATE ) ) {
 						machine_execute( machine, xt );
 					} else if ( header[CELL_SIZE] == opNONE ) {
 						if ( xt < 65536 ) {
