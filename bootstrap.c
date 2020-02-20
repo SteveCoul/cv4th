@@ -17,7 +17,7 @@ static machine_t*	machine;
 #define SIZE_DATA_STACK					1024
 #define SIZE_RETURN_STACK				1024
 #define SIZE_FORTH						256*1024
-#define SIZE_INPUT_BUFFER				256
+#define SIZE_INPUT_BUFFER				128
 #define SIZE_PICTURED_NUMERIC			64
 #define SIZE_ORDER						10
 
