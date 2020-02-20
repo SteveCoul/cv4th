@@ -352,7 +352,7 @@ forth-wordlist set-current
 
 : exit end-locals opRET c, ; immediate											\ \ CORE
 
-: ?dup dup 0= if exit then dup ;												\ \ CORE
+: ?dup dup 0<> if dup then ;													\ \ CORE
 
 : also																			\ \ SEARCH-ORDER
   get-order over swap 1+ set-order
@@ -540,12 +540,12 @@ forth-wordlist set-current
   drop
 	
   \ ( num-items on return stack )
-  ?dup 0= if exit then
   begin
+	?dup
+  while
 	r> emit
     1-
-    ?dup 0=
-  until
+  repeat
 ;
 
 : order																			\ \ SEARCH-ORDER
@@ -564,31 +564,29 @@ forth-wordlist set-current
 ; immediate
 
 : search-wordlist	\ c-addr u wid -- 0 | xt 1 | xt -1 							\ \ SEARCH-ORDER
-	@	
-	?dup 0= if 2drop 0 exit then
-
-	begin					
-		over over link>name c@ =				
-		if
-			2 pick 2 pick						
-			2 pick link>name 1 + swap				
-			[ opCOMPARE c, ]
-			0= if 
-														\ c-addr u link --
-				nip nip
-				dup 
-				link>xt 
-				swap link>flag c@ opIMMEDIATE = if
-					1
-				else
-					-1
-				then
-				exit
-			then
+  begin
+    ?dup
+  while
+    over over link>name c@ =				
+	if
+	  2 pick 2 pick						
+	  2 pick link>name 1 + swap				
+	  [ opCOMPARE c, ]
+	  0= if \ c-addr u link --
+        nip nip
+		dup 
+		link>xt 
+		swap link>flag c@ opIMMEDIATE = if
+		  1
+		else
+	      -1
 		then
-	  @
-	?dup 0= until
-	2drop 0
+	    exit
+	  then
+	then
+	@
+  repeat
+  2drop 0
 ;
 
 internals set-current
