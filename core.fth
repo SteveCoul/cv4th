@@ -1514,9 +1514,19 @@ forth-wordlist set-current
 : 2@ dup cell+ @ swap @ ;														\ \ CORE
 : 2! swap over ! cell+ ! ;														\ \ CORE
 
+: fm/mod																		\ \ CORE
+  dup >r sm/rem		
+  over dup 0< swap 0> -
+  r@   dup 0< swap 0> -
+  negate = if
+	1- swap r> + swap
+  else
+    r> drop
+  then
+;
+
 : */ 1 abort" */ not implemented"; immediate									\ \ CORE
 : */MOD 1 abort" */MOD not implemented"; immediate								\ \ CORE
-: FM/MOD  1 abort" FM/MOD  not implemented"; immediate							\ \ CORE
 
 : INVERT 1 abort" INVERT not implemented"; immediate							\ \ CORE
 : LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
