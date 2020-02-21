@@ -1590,6 +1590,66 @@ internals forth-wordlist 2 set-order definitions
   then
 ;
 
+: -trailing																		\ \ STRING
+  begin
+    dup 0= if exit then
+    2dup 1- + c@ bl <> if exit then
+	1-
+  again
+;
+
+: /string																		\ \ STRING
+  ?dup if
+    tuck - rot rot + swap
+  then
+;
+
+: blank bl fill ;																\ \ STRING
+
+: cmove 																		\ \ STRING
+  begin
+    ?dup 0>
+  while
+    \ a1 a2 l --
+    2 pick c@ 2 pick c!
+	1- rot 1+ rot 1+ rot
+  repeat
+  2drop
+;
+
+: cmove>																		\ \ STRING
+  ?dup if
+    		\ a1 a2 l --
+    rot over + 1-		\ a2 l A1 --
+    rot	2 pick + 1-		\ l A1 A2 --
+    rot
+	begin
+	  ?dup 0>
+    while
+      2 pick c@ 2 pick c!
+  	  1- rot 1- rot 1- rot
+    repeat
+	2drop
+  else
+    2drop
+  then
+;
+
+: sliteral																		\ \ STRING
+  2>r
+  postpone AHEAD
+  2r>
+  dup >r
+  here >r
+  dup allot
+  r@ swap move
+  postpone then
+  r> [literal]
+  r> [literal]
+; immediate
+
+: search 1 abort" search not implemented" ; immediate							\ \ STRING
+
 \ ---------------------------------------------------------------------------------------------
 \ ---------------------------------------------------------------------------------------------
 
