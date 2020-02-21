@@ -112,6 +112,9 @@ enum {
 	opWFETCH,
 	opWRITE_FILE,
 	opWSTORE,
+
+	opXOR,
+
 	opZEROEQ,
 	opIMMEDIATE };
 

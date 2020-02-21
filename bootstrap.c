@@ -308,6 +308,7 @@ int main( int argc, char** argv ) {
 	opword( opZEROEQ, "0=" );
 	opword( opOR, "or" );
 	opword( opAND, "and" );
+	opword( opXOR, "xor" );
 	opword( opCSTORE, "c!" );
 	opword( opCFETCH, "c@" );
 	opword( opDROP, "drop" );
@@ -437,6 +438,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opWFETCH );
 	opconst_db( opWRITE_FILE );
 	opconst_db( opWSTORE );
+	opconst_db( opXOR );
 	opconst_db( opZEROEQ );
 	opconstant( opIMMEDIATE );
 

@@ -569,6 +569,10 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 		case opZEROEQ:
 			datastack[ DP-1 ] = datastack[ DP-1 ] ? 0 : 1;
 			break;
+		case opXOR:	
+			DP--;
+			datastack[ DP-1 ] = datastack[ DP-1 ] ^ datastack[ DP ];
+			break;
 		case opOR:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] | datastack[ DP ];

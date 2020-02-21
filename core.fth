@@ -4,6 +4,7 @@
 \ These words are defined in the native wrapper 
 
 \ cells																			\ \ CORE
+\ xor																			\ \ CORE
 \ here																			\ \ CORE
 \ state																			\ \ CORE
 \ >in																			\ \ CORE
@@ -1545,7 +1546,6 @@ forth-wordlist set-current
 
 : LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
 : RSHIFT 1 abort" RSHIFT not implemented"; immediate							\ \ CORE
-: XOR 1 abort" XOR not implemented"; immediate									\ \ CORE
 
 \ ---------------------------------------------------------------------------------------------
 \ environment support
