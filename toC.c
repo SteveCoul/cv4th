@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define MAX_LINE 80
+#define MAX_LINE 100
 static int total_in = 0;
 static int total = 0;
 static int line = MAX_LINE;
@@ -17,13 +17,13 @@ static void outchar( unsigned char c, int is_last ) {
 }
 
 int main( int argc, char** argv ) {
-	int pad = 32768;
+	int pad = 0;
 	
 	// TODO if we want pad we should read the file, determine 16/32 bit and endian, get the size and set it
 	int last_char = -1;
 	int count = 0;
 
-	printf("unsigned char* image_data = {\\");
+	printf("const unsigned char image_data[] = {\\");
 
 	for (;;) {
 		unsigned char c;
@@ -54,7 +54,8 @@ int main( int argc, char** argv ) {
 		}
 	}
 
-	printf("};\nunsigned int image_data_len = %d; /* %d */ \n", total, total_in );
+	printf("};\nconst unsigned int image_data_len = %d; /* %d */ \n", total, total_in );
+	printf("\n");
 	return 0;
 }
 

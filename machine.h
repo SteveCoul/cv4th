@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #ifdef VM_16BIT
-#define HEADER_ID 0x3344
+#define HEADER_ID 0x1144
 typedef uint16_t cell_t;
 #else
 #define HEADER_ID 0x11223344

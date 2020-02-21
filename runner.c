@@ -1,31 +1,24 @@
-
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
 
 #include "machine.h"
 
+extern const unsigned char image_data[];
+extern const unsigned int image_data_len;
+
 int main( int argc, char** argv ) {
 	machine_t machine;
-	int fd;
-	cell_t size;
-	cell_t dstacksize;
-	cell_t rstacksize;
-	cell_t quit;
-	cell_t head;
+	cell_t* p = (cell_t*)image_data;
 
-	fd = open( argv[1], O_RDONLY );
-	if (fd <0 ) { printf("failed to open\n"); exit(0); }
+	cell_t head			=	p[0];
+	cell_t size			=	p[1];
+	cell_t dstacksize	=	p[2];
+	cell_t rstacksize	=	p[3];
+	cell_t quit			=	p[4];
 
 	machine_init( &machine );
-
 	machine_set_endian( &machine, ENDIAN_NATIVE );
-	if ( read( fd, &head, CELL_SIZE ) != CELL_SIZE ) return 1;
-	if ( read( fd, &size, CELL_SIZE ) != CELL_SIZE ) return 1;
-	if ( read( fd, &dstacksize, CELL_SIZE ) != CELL_SIZE ) return 1;
-	if ( read( fd, &rstacksize, CELL_SIZE ) != CELL_SIZE ) return 1;
-	if ( read( fd, &quit, CELL_SIZE ) != CELL_SIZE ) return 1;
 
 	if ( head != HEADER_ID ) {
 		machine_set_endian( &machine, ENDIAN_SWAP );
@@ -39,7 +32,8 @@ int main( int argc, char** argv ) {
 	machine.datastack = malloc( dstacksize * CELL_SIZE );
 	machine.returnstack = malloc( rstacksize * CELL_SIZE );
 
-	if ( read( fd, machine.memory, size ) < 0 ) return 2;
+	memset( machine.memory, 0, size );
+	memmove( machine.memory, image_data+(5*CELL_SIZE), image_data_len-(5*CELL_SIZE) );
 	machine_execute( &machine, quit );
 	return 0;
 }
