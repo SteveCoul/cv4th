@@ -65,11 +65,22 @@ void ioRegister( ioSubsystem* ios ) {
 
 static
 ior_t parse( const char* name, size_t name_len, char** p_type, char** p_path ) {
-	static char path_buffer[ 1024 ];
-	static char type_buffer[ 32 ];
+#define NUM_BUFFERS 2
+#define SIZE_PATH_BUFFER	255
+#define SIZE_TYPE_BUFFER	11
+	static int  which = 0;
+	static char _path_buffer[NUM_BUFFERS][ SIZE_PATH_BUFFER+1 ];
+	static char _type_buffer[NUM_BUFFERS][ SIZE_TYPE_BUFFER+1 ];
+	char* path_buffer;
+	char* type_buffer;
 	int i;
 
-	if ( name_len >= sizeof(path_buffer)-1 ) return IOR_UNKNOWN;
+	path_buffer = _path_buffer[ which ];
+	type_buffer = _type_buffer[ which ];
+	which++;
+	if ( which == NUM_BUFFERS ) which = 0;
+
+	if ( name_len >= SIZE_PATH_BUFFER ) return IOR_UNKNOWN;
 
 	memmove( path_buffer, name, name_len );
 	path_buffer[name_len] = 0;
@@ -77,7 +88,7 @@ ior_t parse( const char* name, size_t name_len, char** p_type, char** p_path ) {
 	for ( i = 0; i < name_len-1; i++ ) {
 		if ( ( name[i] == ':' ) && ( name[i+1] == '/' ) ) {
 			int len;
-			if ( i >= sizeof(type_buffer) ) return IOR_UNKNOWN;
+			if ( i >= SIZE_TYPE_BUFFER ) return IOR_UNKNOWN;
 			memmove( type_buffer, name, i );
 			type_buffer[i] = 0;
 			i++;		
