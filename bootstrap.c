@@ -215,7 +215,7 @@ int main( int argc, char** argv ) {
 
 	memset( machine->memory, 0, SIZE_FORTH );
 
-	/** init user vars */
+	/** init vars */
 	WRITE_CELL( machine, A_HERE, START_HERE );
 	WRITE_CELL( machine, A_FORTH_WORDLIST-CELL_SIZE, 0 );
 	WRITE_CELL( machine, A_FORTH_WORDLIST, 0 );
