@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "common.h"
+#include "io.h"
 #include "machine.h"
 #include "opcode.h"
 
@@ -252,9 +253,9 @@ int main( int argc, char** argv ) {
 	variable( A_HASH_TIB, "#tib" );
 	variable( A_TOIN, ">in" );
 	variable( A_BASE, "base" );
-	constant( "r/o", O_RDONLY );
-	constant( "w/o", O_WRONLY );
-	constant( "r/w", O_RDWR );
+	constant( "r/o", IO_RDONLY );
+	constant( "w/o", IO_WRONLY );
+	constant( "r/w", IO_RDWR );
 
 	internals_definitions();
 	constant( "IMAGE_HEADER_ID", HEADER_ID );

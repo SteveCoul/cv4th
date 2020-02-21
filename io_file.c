@@ -20,6 +20,13 @@ static ior_t f_size( int fd, unsigned long int* size ) { return IOR_NOT_SUPPORTE
 
 static
 ior_t f_open( const char* name, unsigned int mode, int* pfd ) {
+	switch( mode ) {
+	case IO_RDONLY: mode = O_RDONLY; break;
+	case IO_WRONLY: mode = O_WRONLY; break;
+	case IO_RDWR: mode = O_RDWR; break;
+	default: mode = O_RDONLY; break;
+	}
+
 	pfd[0] = open( name, mode );
 	if ( pfd[0] >= 0 ) return IOR_OK;
 	return IOR_UNKNOWN;

@@ -6,6 +6,10 @@
 
 extern void ioInit( void );
 
+#define IO_RDONLY 1
+#define IO_WRONLY 2
+#define IO_RDWR	  4
+
 typedef enum {
 	IOR_OK=0,
 	IOR_NOT_SUPPORTED,
