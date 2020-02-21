@@ -49,40 +49,58 @@ static machine_t*	machine;
 #define TOIN							GET_CELL( machine, A_TOIN )
 #define STATE							GET_CELL( machine, A_STATE )
 
-#define COMMA( value )					{ WRITE_CELL( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + CELL_SIZE ); }
-#define W_COMMA( value )				{ WRITE_WORD( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + 2 ); }
-#define C_COMMA( value )				{ WRITE_BYTE( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + 1 ); }
-#define S_COMMA( text )					C_COMMA( strlen(text) ); { unsigned int i; for ( i = 0; text[i] != 0; i++ ) C_COMMA( text[i] ); }
+static void comma( cell_t value ) { WRITE_CELL( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + CELL_SIZE ); }
+static void w_comma( uint16_t value ) { WRITE_WORD( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + 2 ); }
+static void c_comma( uint8_t value ) { WRITE_BYTE( machine, HERE, value ); WRITE_CELL( machine, A_HERE, HERE + 1 ); }
 
-#define LAY_HEADER( type, name )		COMMA( GET_CELL( machine, GET_CELL( machine, A_CURRENT ) ) ); \
-										C_COMMA( type ); 											  \
-										WRITE_CELL( machine, GET_CELL( machine, A_CURRENT ), HERE - CELL_SIZE - 1 ); 	\
-										S_COMMA( name )
+static void s_comma( const char* text ) {
+    unsigned int i; 
+	c_comma( (uint8_t)strlen( text ) );
+    for ( i = 0; text[i] != 0; i++ ) 
+		c_comma( (uint8_t)text[i] );
+}
 
-#define TO_XT( r_address )				r_address + GET_BYTE( machine, r_address+1+CELL_SIZE ) + CELL_SIZE + 2
-#define TO_NAME( r_address )			r_address + 1 + CELL_SIZE
+static void lay_header( uint8_t type, const char* name ) {
+	comma( GET_CELL( machine, GET_CELL( machine, A_CURRENT ) ) );
+	c_comma( type );
+	WRITE_CELL( machine, GET_CELL( machine, A_CURRENT ), HERE - CELL_SIZE - 1 );
+	s_comma( name );
+}
 
-#define VARIABLE( r_address, name )	LAY_HEADER( opNONE, name ); C_COMMA( opDOLIT ); COMMA( r_address ); C_COMMA( opRET )
-#define OPWORD( opcode, name ) LAY_HEADER( opcode, name ); C_COMMA( opcode ); C_COMMA( opRET )
+static cell_t to_xt( cell_t link ) { return link + GET_BYTE( machine, link+CELL_SIZE+1 ) + CELL_SIZE + 2; }
+static cell_t to_name( cell_t link ) { return link + CELL_SIZE + 1; }
 
-#define CONSTANT( name, value ) 	\
-									LAY_HEADER( opNONE, name ); 	 \
-									if ( value < 256 ) { \
-										C_COMMA( opDOLIT_U8 ); \
-										C_COMMA( value ); \
-									} else { \
-										C_COMMA( opDOLIT );  \
-										COMMA( value );  \
-									} \
-									C_COMMA( opRET )
+static void variable( cell_t address, const char* name ) {
+	lay_header( opNONE, name );
+	c_comma( opDOLIT ); comma( address ); c_comma( opRET );
+}
 
-#define OPCONSTANT( name ) CONSTANT( #name, name )
+static void opword( uint8_t opcode, const char* name ) {
+	lay_header( opcode, name );
+	c_comma( opcode );
+	c_comma( opRET );
+}
 
-//#define OPCONST_DB( name ) {}
-#define OPCONST_DB OPCONSTANT
+static void constant( const char* name, cell_t value ) {
+	lay_header( opNONE, name );
+	// TOO literal constants which have opcodes.
+	if ( value < 256 ) {
+		c_comma( opDOLIT_U8 );
+		c_comma( value & 255 );
+	} else {
+		c_comma( opDOLIT );
+		comma( value );
+	}
+	c_comma( opRET );
+}
 
-#define INTERNALS_DEFINITIONS			WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST );
-#define FORTH_DEFINITIONS				WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST );
+#define opconstant( name ) constant( #name, name )
+
+//#define opconst_db( name ) {}
+#define opconst_db( name ) constant( #name, name )
+
+static void internals_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST ); }
+static void forth_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST ); }
 
 uint32_t find( const char* name ) {
 	uint32_t i = 0;	
@@ -95,7 +113,7 @@ uint32_t find( const char* name ) {
 	for ( i = 0; i < SIZE_ORDER+1; i++ ) {
 		uint32_t p = wids[i];
 		while ( p != 0 ) {
-			uint32_t s = TO_NAME( p );
+			uint32_t s = to_name( p );
 			if ( GET_BYTE( machine, s ) == strlen(name) ) {
 				if ( cmp( name, ABS_PTR( machine, s+1 ), strlen(name) ) == 0 ) {
 					return p;
@@ -215,210 +233,210 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_ORDER, A_INTERNALS_WORDLIST );
 	WRITE_CELL( machine, A_ORDER +CELL_SIZE, A_FORTH_WORDLIST );
 
-	CONSTANT( "INTERNALS", A_INTERNALS_WORDLIST );		
-	CONSTANT( "forth-wordlist", A_FORTH_WORDLIST );		// this one is actually a forth word
+	constant( "INTERNALS", A_INTERNALS_WORDLIST );		
+	constant( "forth-wordlist", A_FORTH_WORDLIST );		// this one is actually a forth word
 
-	INTERNALS_DEFINITIONS
-	VARIABLE( A_LIST_OF_WORDLISTS, "A_LIST_OF_WORDLISTS" );
-	CONSTANT( "locals-wordlist", A_LOCALS_WORDLIST );	
+	internals_definitions();
+	variable( A_LIST_OF_WORDLISTS, "A_LIST_OF_WORDLISTS" );
+	constant( "locals-wordlist", A_LOCALS_WORDLIST );	
 
-	FORTH_DEFINITIONS
-	LAY_HEADER( opNONE, "here" );	// in forth code here is not a variable
-	C_COMMA( opDOLIT );
-	COMMA( A_HERE );
-	C_COMMA( opFETCH );
-	C_COMMA( opRET );
+	forth_definitions();
+	lay_header( opNONE, "here" );	// in forth code here is not a variable
+	c_comma( opDOLIT );
+	comma( A_HERE );
+	c_comma( opFETCH );
+	c_comma( opRET );
 
-	VARIABLE( A_STATE, "state" );
-	VARIABLE( A_TIB, "tib" );
-	VARIABLE( A_HASH_TIB, "#tib" );
-	VARIABLE( A_TOIN, ">in" );
-	VARIABLE( A_BASE, "base" );
-	CONSTANT( "r/o", O_RDONLY );
-	CONSTANT( "w/o", O_WRONLY );
-	CONSTANT( "r/w", O_RDWR );
+	variable( A_STATE, "state" );
+	variable( A_TIB, "tib" );
+	variable( A_HASH_TIB, "#tib" );
+	variable( A_TOIN, ">in" );
+	variable( A_BASE, "base" );
+	constant( "r/o", O_RDONLY );
+	constant( "w/o", O_WRONLY );
+	constant( "r/w", O_RDWR );
 
-	INTERNALS_DEFINITIONS
-	CONSTANT( "IMAGE_HEADER_ID", HEADER_ID );
-	CONSTANT( "SIZE_DATA_STACK", SIZE_DATA_STACK );
-	CONSTANT( "SIZE_RETURN_STACK", SIZE_RETURN_STACK );
-	CONSTANT( "SIZE_FORTH", SIZE_FORTH );
-	CONSTANT( "SIZE_INPUT_BUFFER", SIZE_INPUT_BUFFER );
-	CONSTANT( "SIZE_PICTURED_NUMERIC", SIZE_PICTURED_NUMERIC );
-	CONSTANT( "SIZE_ORDER", SIZE_ORDER );
-	CONSTANT( "A_HERE", A_HERE );
-	CONSTANT( "A_QUIT", A_QUIT );
-	CONSTANT( "A_CURRENT", A_CURRENT );
-	CONSTANT( "A_ORDER", A_ORDER );
-	CONSTANT( "A_PICTURED_NUMERIC", A_PICTURED_NUMERIC );
-	CONSTANT( "A_INPUT_BUFFER", A_INPUT_BUFFER );
+	internals_definitions();
+	constant( "IMAGE_HEADER_ID", HEADER_ID );
+	constant( "SIZE_DATA_STACK", SIZE_DATA_STACK );
+	constant( "SIZE_RETURN_STACK", SIZE_RETURN_STACK );
+	constant( "SIZE_FORTH", SIZE_FORTH );
+	constant( "SIZE_INPUT_BUFFER", SIZE_INPUT_BUFFER );
+	constant( "SIZE_PICTURED_NUMERIC", SIZE_PICTURED_NUMERIC );
+	constant( "SIZE_ORDER", SIZE_ORDER );
+	constant( "A_HERE", A_HERE );
+	constant( "A_QUIT", A_QUIT );
+	constant( "A_CURRENT", A_CURRENT );
+	constant( "A_ORDER", A_ORDER );
+	constant( "A_PICTURED_NUMERIC", A_PICTURED_NUMERIC );
+	constant( "A_INPUT_BUFFER", A_INPUT_BUFFER );
 
 	/** Forth definitions that map to a single opcode */
-	FORTH_DEFINITIONS
-	OPWORD( opOPEN_FILE, "open-file" );
-	OPWORD( opCLOSE_FILE, "close-file" );
-	OPWORD( opCREATE_FILE, "create-file" );
-	OPWORD( opREAD_FILE, "read-file" );
-	OPWORD( opWRITE_FILE, "write-file" );
-	OPWORD( opDELETE_FILE, "delete-file" );
-	OPWORD( opFILE_POSITION, "file-position" );
-	OPWORD( opFILE_SIZE, "file-size" );
-	OPWORD( opFILE_STATUS, "file-status" );
-	OPWORD( opFLUSH_FILE, "flush-file" );
-	OPWORD( opRESIZE_FILE, "resize-file" );
-	OPWORD( opRENAME_FILE, "rename-file" );
-	OPWORD( opREPOSITION_FILE, "reposition-file" );
-	OPWORD( opU_GREATER_THAN, "u>" );
-	OPWORD( opU_LESS_THAN, "u<" );
-	OPWORD( opNIP, "nip" );
-	OPWORD( opROT, "rot" );
-	OPWORD( opTUCK, "tuck" );
-	OPWORD( opROLL, "roll" );
-	OPWORD( op2DUP, "2dup" );
-	OPWORD( op2DROP, "2drop" );
-	OPWORD( op2OVER, "2over" );
-	OPWORD( op2SWAP, "2swap" );
-	OPWORD( opMOVE, "move" );
-	OPWORD( opDEPTH, "depth" );
-	OPWORD( opOVER, "over" );
-	OPWORD( opDUP, "dup" );
-	OPWORD( opPICK, "pick" );
-	OPWORD( opFETCH, "@" );
-	OPWORD( opEQUALS, "=" );
-	OPWORD( opSTORE, "!" );
-	OPWORD( opZEROEQ, "0=" );
-	OPWORD( opOR, "or" );
-	OPWORD( opAND, "and" );
-	OPWORD( opCSTORE, "c!" );
-	OPWORD( opCFETCH, "c@" );
-	OPWORD( opDROP, "drop" );
-	OPWORD( opEMIT, "emit" );
-	OPWORD( opMULT, "*" );
-	OPWORD( opMULT2, "m*" );
-	OPWORD( opUMULT2, "um*" );
-	OPWORD( opMINUS, "-" );
-	OPWORD( opGREATER_THAN, ">" );
-	OPWORD( opLESS_THAN, "<" );
-	OPWORD( opPLUS, "+" );
-	OPWORD( opPLUSSTORE, "+!" );
-	OPWORD( opSWAP, "swap" );
-	OPWORD( opUM_SLASH_MOD, "um/mod" );
-	OPWORD( opSM_SLASH_REM, "sm/rem" );
-	LAY_HEADER( opNONE, "cells" );
+	forth_definitions();
+	opword( opOPEN_FILE, "open-file" );
+	opword( opCLOSE_FILE, "close-file" );
+	opword( opCREATE_FILE, "create-file" );
+	opword( opREAD_FILE, "read-file" );
+	opword( opWRITE_FILE, "write-file" );
+	opword( opDELETE_FILE, "delete-file" );
+	opword( opFILE_POSITION, "file-position" );
+	opword( opFILE_SIZE, "file-size" );
+	opword( opFILE_STATUS, "file-status" );
+	opword( opFLUSH_FILE, "flush-file" );
+	opword( opRESIZE_FILE, "resize-file" );
+	opword( opRENAME_FILE, "rename-file" );
+	opword( opREPOSITION_FILE, "reposition-file" );
+	opword( opU_GREATER_THAN, "u>" );
+	opword( opU_LESS_THAN, "u<" );
+	opword( opNIP, "nip" );
+	opword( opROT, "rot" );
+	opword( opTUCK, "tuck" );
+	opword( opROLL, "roll" );
+	opword( op2DUP, "2dup" );
+	opword( op2DROP, "2drop" );
+	opword( op2OVER, "2over" );
+	opword( op2SWAP, "2swap" );
+	opword( opMOVE, "move" );
+	opword( opDEPTH, "depth" );
+	opword( opOVER, "over" );
+	opword( opDUP, "dup" );
+	opword( opPICK, "pick" );
+	opword( opFETCH, "@" );
+	opword( opEQUALS, "=" );
+	opword( opSTORE, "!" );
+	opword( opZEROEQ, "0=" );
+	opword( opOR, "or" );
+	opword( opAND, "and" );
+	opword( opCSTORE, "c!" );
+	opword( opCFETCH, "c@" );
+	opword( opDROP, "drop" );
+	opword( opEMIT, "emit" );
+	opword( opMULT, "*" );
+	opword( opMULT2, "m*" );
+	opword( opUMULT2, "um*" );
+	opword( opMINUS, "-" );
+	opword( opGREATER_THAN, ">" );
+	opword( opLESS_THAN, "<" );
+	opword( opPLUS, "+" );
+	opword( opPLUSSTORE, "+!" );
+	opword( opSWAP, "swap" );
+	opword( opUM_SLASH_MOD, "um/mod" );
+	opword( opSM_SLASH_REM, "sm/rem" );
+	lay_header( opNONE, "cells" );
 	if ( CELL_SIZE == 4 ) {
-		C_COMMA( opLIT4 ); C_COMMA( opMULT ); C_COMMA( opRET );
+		c_comma( opLIT4 ); c_comma( opMULT ); c_comma( opRET );
 	} else if ( CELL_SIZE == 2 ) {
-		C_COMMA( opLIT2 ); C_COMMA( opMULT ); C_COMMA( opRET );
+		c_comma( opLIT2 ); c_comma( opMULT ); c_comma( opRET );
 	} else {	
 		printf("bug - only 16 and 32bit builds allowed\n");
 		exit(0);
 	}
 
 	// DO NOT embed opcode for execute or we can't run it from the bootstrap interpreter ( I think? maybe try one day )
-	LAY_HEADER( opNONE, "execute" );
-	C_COMMA( opEXECUTE ); C_COMMA( opRET );
+	lay_header( opNONE, "execute" );
+	c_comma( opEXECUTE ); c_comma( opRET );
 	// Do not make the r> >r r@ words here because compiling the opcode behavior as above doesn't work if you ' execute etc.
 
-	INTERNALS_DEFINITIONS
-	OPWORD( opRSPFETCH, "rsp@" );
-	OPWORD( opRSPSTORE, "rsp!" );
-	OPWORD( opSPFETCH, "sp@" );
-	OPWORD( opSPSTORE, "sp!" );
-	OPWORD( opWFETCH, "w@" );
-	OPWORD( opWSTORE, "w!" );
-	OPWORD( opBYE, "bye" );
+	internals_definitions();
+	opword( opRSPFETCH, "rsp@" );
+	opword( opRSPSTORE, "rsp!" );
+	opword( opSPFETCH, "sp@" );
+	opword( opSPSTORE, "sp!" );
+	opword( opWFETCH, "w@" );
+	opword( opWSTORE, "w!" );
+	opword( opBYE, "bye" );
 
-	OPCONSTANT( opNONE );
-	OPCONST_DB( op2DROP );
-	OPCONST_DB( op2DUP );
-	OPCONST_DB( op2OVER );
-	OPCONST_DB( op2SWAP );
-	OPCONSTANT( opADD2 );
-	OPCONST_DB( opAND );
-	OPCONSTANT( opBRANCH );
-	OPCONST_DB( opBYE );
-	OPCONSTANT( opCALL );
-	OPCONST_DB( opCFETCH );
-	OPCONST_DB( opCLOSE_FILE );
-	OPCONSTANT( opCOMPARE );
-	OPCONST_DB( opCREATE_FILE );
-	OPCONST_DB( opCSTORE );
-	OPCONST_DB( opDELETE_FILE );
-	OPCONST_DB( opDEPTH );
-	OPCONSTANT( opDOLIT );
-	OPCONSTANT( opDOLIT_U8 );
-	OPCONST_DB( opDROP );
-	OPCONSTANT( opDUP );
-	OPCONST_DB( opEMIT );
-	OPCONST_DB( opEQUALS );
-	OPCONST_DB( opEXECUTE );
-	OPCONSTANT( opFETCH );
-	OPCONST_DB( opFILE_POSITION );
-	OPCONST_DB( opFILE_SIZE );
-	OPCONST_DB( opFILE_STATUS );
-	OPCONST_DB( opFLUSH_FILE );
-	OPCONST_DB( opGREATER_THAN );
-	OPCONST_DB( opIP );
-	OPCONSTANT( opIN );
-	OPCONST_DB( opLESS_THAN );
-	OPCONSTANT( opLITM1 );
-	OPCONSTANT( opLIT0 );
-	OPCONSTANT( opLIT1 );
-	OPCONSTANT( opLIT2 );
-	OPCONSTANT( opLIT3 );
-	OPCONSTANT( opLIT4 );
-	OPCONSTANT( opLIT5 );
-	OPCONSTANT( opLIT6 );
-	OPCONSTANT( opLIT7 );
-	OPCONSTANT( opLIT8 );
-	OPCONSTANT( opLPFETCH );
-	OPCONSTANT( opLPSTORE );
-	OPCONSTANT( opLFETCH );
-	OPCONSTANT( opLSTORE );
-	OPCONST_DB( opMINUS );
-	OPCONST_DB( opMOVE );
-	OPCONST_DB( opMULT );
-	OPCONST_DB( opMULT2 );
-	OPCONST_DB( opNIP );
-	OPCONST_DB( opONEMINUS );
-	OPCONST_DB( opONEPLUS );
-	OPCONST_DB( opOPEN_FILE );
-	OPCONST_DB( opOR );
-	OPCONST_DB( opOVER );
-	OPCONST_DB( opPICK );
-	OPCONST_DB( opPLUS );
-	OPCONST_DB( opPLUSSTORE );
-	OPCONSTANT( opQBRANCH );
-	OPCONST_DB( opREAD_FILE );
-	OPCONST_DB( opRENAME_FILE );
-	OPCONST_DB( opREPOSITION_FILE );
-	OPCONST_DB( opRESIZE_FILE );
-	OPCONSTANT( opRET );
-	OPCONSTANT( opRFETCH );
-	OPCONSTANT( opRFROM );
-	OPCONSTANT( opROT );
-	OPCONST_DB( opROLL );
-	OPCONSTANT( opRSPFETCH );
-	OPCONSTANT( opRSPSTORE );
-	OPCONSTANT( opSHORT_CALL );
-	OPCONST_DB( opSPFETCH );
-	OPCONST_DB( opSPSTORE );
-	OPCONST_DB( opSTORE );
-	OPCONSTANT( opSWAP );
-	OPCONSTANT( opTOR );
-	OPCONST_DB( opTUCK );
-	OPCONST_DB( opU_GREATER_THAN );
-	OPCONST_DB( opU_LESS_THAN );
-	OPCONSTANT( opUMULT );
-	OPCONST_DB( opUMULT2 );
-	OPCONST_DB( opUM_SLASH_MOD );
-	OPCONST_DB( opWFETCH );
-	OPCONST_DB( opWRITE_FILE );
-	OPCONST_DB( opWSTORE );
-	OPCONST_DB( opZEROEQ );
-	OPCONSTANT( opIMMEDIATE );
+	opconstant( opNONE );
+	opconst_db( op2DROP );
+	opconst_db( op2DUP );
+	opconst_db( op2OVER );
+	opconst_db( op2SWAP );
+	opconstant( opADD2 );
+	opconst_db( opAND );
+	opconstant( opBRANCH );
+	opconst_db( opBYE );
+	opconstant( opCALL );
+	opconst_db( opCFETCH );
+	opconst_db( opCLOSE_FILE );
+	opconstant( opCOMPARE );
+	opconst_db( opCREATE_FILE );
+	opconst_db( opCSTORE );
+	opconst_db( opDELETE_FILE );
+	opconst_db( opDEPTH );
+	opconstant( opDOLIT );
+	opconstant( opDOLIT_U8 );
+	opconst_db( opDROP );
+	opconstant( opDUP );
+	opconst_db( opEMIT );
+	opconst_db( opEQUALS );
+	opconst_db( opEXECUTE );
+	opconstant( opFETCH );
+	opconst_db( opFILE_POSITION );
+	opconst_db( opFILE_SIZE );
+	opconst_db( opFILE_STATUS );
+	opconst_db( opFLUSH_FILE );
+	opconst_db( opGREATER_THAN );
+	opconst_db( opIP );
+	opconstant( opIN );
+	opconst_db( opLESS_THAN );
+	opconstant( opLITM1 );
+	opconstant( opLIT0 );
+	opconstant( opLIT1 );
+	opconstant( opLIT2 );
+	opconstant( opLIT3 );
+	opconstant( opLIT4 );
+	opconstant( opLIT5 );
+	opconstant( opLIT6 );
+	opconstant( opLIT7 );
+	opconstant( opLIT8 );
+	opconstant( opLPFETCH );
+	opconstant( opLPSTORE );
+	opconstant( opLFETCH );
+	opconstant( opLSTORE );
+	opconst_db( opMINUS );
+	opconst_db( opMOVE );
+	opconst_db( opMULT );
+	opconst_db( opMULT2 );
+	opconst_db( opNIP );
+	opconst_db( opONEMINUS );
+	opconst_db( opONEPLUS );
+	opconst_db( opOPEN_FILE );
+	opconst_db( opOR );
+	opconst_db( opOVER );
+	opconst_db( opPICK );
+	opconst_db( opPLUS );
+	opconst_db( opPLUSSTORE );
+	opconstant( opQBRANCH );
+	opconst_db( opREAD_FILE );
+	opconst_db( opRENAME_FILE );
+	opconst_db( opREPOSITION_FILE );
+	opconst_db( opRESIZE_FILE );
+	opconstant( opRET );
+	opconstant( opRFETCH );
+	opconstant( opRFROM );
+	opconstant( opROT );
+	opconst_db( opROLL );
+	opconstant( opRSPFETCH );
+	opconstant( opRSPSTORE );
+	opconstant( opSHORT_CALL );
+	opconst_db( opSPFETCH );
+	opconst_db( opSPSTORE );
+	opconst_db( opSTORE );
+	opconstant( opSWAP );
+	opconstant( opTOR );
+	opconst_db( opTUCK );
+	opconst_db( opU_GREATER_THAN );
+	opconst_db( opU_LESS_THAN );
+	opconstant( opUMULT );
+	opconst_db( opUMULT2 );
+	opconst_db( opUM_SLASH_MOD );
+	opconst_db( opWFETCH );
+	opconst_db( opWRITE_FILE );
+	opconst_db( opWSTORE );
+	opconst_db( opZEROEQ );
+	opconstant( opIMMEDIATE );
 
-	FORTH_DEFINITIONS
+	forth_definitions();
 	/**
  	 */
 	if ( include_file )
@@ -471,7 +489,7 @@ rescan:
 				WRITE_CELL( machine, A_TOIN, (GET_CELL( machine, A_TOIN )) + i );
 
 				if ( next_word_is_colon_name ) {
-					LAY_HEADER( opNONE, tmp_word );
+					lay_header( opNONE, tmp_word );
 					WRITE_CELL( machine, A_STATE, 1 );
 					next_word_is_colon_name = 0;
 					goto rescan;
@@ -488,7 +506,7 @@ rescan:
 				if ( ( strcmp( tmp_word, ";" ) == 0 ) && ( ( word_colon == 0 ) || ( word_semicolon == 0 ) ) ) {
 					// relink to wordlist to make visible
 					WRITE_CELL( machine, A_STATE, 0 );
-					C_COMMA( opRET );
+					c_comma( opRET );
 					if ( word_colon == 0 ) 		{ word_colon = find(":"); if ( word_colon ) printf("now have :\n"); }
 					if ( word_semicolon == 0 )  { word_semicolon = find(";"); if ( word_semicolon ) printf("now have ;\n" ); }
 					goto rescan;
@@ -527,52 +545,52 @@ rescan:
 					else v = atoi( tmp_word );
 					if ( STATE == 1 ) {
 						if ( v == -1 ) {
-							C_COMMA( opLITM1 );
+							c_comma( opLITM1 );
 						} else if ( v == 0 ) {
-							C_COMMA( opLIT0 );
+							c_comma( opLIT0 );
 						} else if ( v == 1 ) {
-							C_COMMA( opLIT1 );
+							c_comma( opLIT1 );
 						} else if ( v == 2 ) {
-							C_COMMA( opLIT2 );
+							c_comma( opLIT2 );
 						} else if ( v == 3 ) {
-							C_COMMA( opLIT3 );
+							c_comma( opLIT3 );
 						} else if ( v == 4 ) {
-							C_COMMA( opLIT4 );
+							c_comma( opLIT4 );
 						} else if ( v == 5 ) {
-							C_COMMA( opLIT5 );
+							c_comma( opLIT5 );
 						} else if ( v == 6 ) {
-							C_COMMA( opLIT6 );
+							c_comma( opLIT6 );
 						} else if ( v == 7 ) {
-							C_COMMA( opLIT7 );
+							c_comma( opLIT7 );
 						} else if ( v == 8 ) {
-							C_COMMA( opLIT8 );
+							c_comma( opLIT8 );
 						} else if ( ( v < 256 ) && ( v >= 0 ) ) {
-							C_COMMA( opDOLIT_U8 );
-							C_COMMA( v );
+							c_comma( opDOLIT_U8 );
+							c_comma( v );
 						} else {
-							C_COMMA( opDOLIT );
-							COMMA( v );
+							c_comma( opDOLIT );
+							comma( v );
 						}
 					} else {
 						machine->datastack[ machine->DP ] = v;
 						machine->DP++;
 					}				
 				} else {
-					uint32_t xt = TO_XT( v );
+					uint32_t xt = to_xt( v );
 					uint8_t* header = ((uint8_t*)(machine->memory))+v;
 
 					if ( ( STATE == 0 ) || ( header[ CELL_SIZE ] == opIMMEDIATE ) ) {
 						machine_execute( machine, xt );
 					} else if ( header[CELL_SIZE] == opNONE ) {
 						if ( xt < 65536 ) {
-							C_COMMA( opSHORT_CALL );
-							W_COMMA( xt );
+							c_comma( opSHORT_CALL );
+							w_comma( xt );
 						} else {
-							C_COMMA( opCALL );
-							COMMA( xt );
+							c_comma( opCALL );
+							comma( xt );
 						}
 					} else {
-						C_COMMA( header[CELL_SIZE] );
+						c_comma( header[CELL_SIZE] );
 					}
 				}
 			}
