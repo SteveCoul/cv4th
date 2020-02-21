@@ -794,9 +794,23 @@ forth-wordlist set-current
 	r> [literal]
 ; immediate
 
+\ fuck
+
 internals set-current
-: ^s"-buffer [fake-variable] ;
-here SIZE_INPUT_BUFFER allot ^s"-buffer !
+: the-s"buffer [fake-variable] ;
+here SIZE_INPUT_BUFFER 3 * allot the-s"buffer !
+: which-s"buffer [fake-variable] ;
+0 which-s"buffer !
+
+: ^s"-buffer 
+  the-s"buffer @ which-s"buffer @ SIZE_INPUT_BUFFER * +
+  which-s"buffer @ 1+
+  dup 3 = if
+    drop 0
+  then
+  which-s"buffer !
+;
+
 forth-wordlist set-current
 
 : s"																			\ \ CORE / FILE-ACCESS
@@ -804,7 +818,7 @@ forth-wordlist set-current
 	postpone c"
 	postpone count
   else
-	  ^s"-buffer @
+	  ^s"-buffer 
       [char] " word count			\ tmp c-addr u --
       swap 2 pick 2 pick			\ tmp u c-addr tmp u --
 	  move
