@@ -515,17 +515,15 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			datastack[ DP-1 ]--;
 			break;
 		case opSM_SLASH_REM:
-			tmp = datastack[ DP - 1 ];
-			DP--;
 			{
+				int32_t n = (int32_t)datastack[ DP - 1 ];
 				int32_t a, b;
-				int64_t v = datastack[ DP-1 ];
+				int64_t v = datastack[ DP-2 ];
 				v<<=32;
-				v|=datastack[ DP-2 ];
-
-				a = (int32_t)(v / tmp);
-				b = (int32_t)(v % tmp);
-
+				v|=datastack[ DP-3 ];
+				a = (int32_t)(v / n);
+				b = (int32_t)(v % n);
+				DP--;
 				datastack[ DP-2 ] = (cell_t)b;
 				datastack[ DP-1 ] = (cell_t)a;
 			}
