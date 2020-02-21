@@ -290,6 +290,8 @@ int main( int argc, char** argv ) {
 	opword( opU_GREATER_THAN, "u>" );
 	opword( opU_LESS_THAN, "u<" );
 	opword( opNIP, "nip" );
+	opword( opLSHIFT, "lshift" );
+	opword( opRSHIFT, "rshift" );
 	opword( opROT, "rot" );
 	opword( opTUCK, "tuck" );
 	opword( opROLL, "roll" );
@@ -397,6 +399,7 @@ int main( int argc, char** argv ) {
 	opconstant( opLPFETCH );
 	opconstant( opLPSTORE );
 	opconstant( opLFETCH );
+	opconst_db( opLSHIFT );
 	opconstant( opLSTORE );
 	opconst_db( opMINUS );
 	opconst_db( opMOVE );
@@ -421,6 +424,7 @@ int main( int argc, char** argv ) {
 	opconstant( opRFROM );
 	opconstant( opROT );
 	opconst_db( opROLL );
+	opconst_db( opRSHIFT );
 	opconstant( opRSPFETCH );
 	opconstant( opRSPSTORE );
 	opconstant( opSHORT_CALL );

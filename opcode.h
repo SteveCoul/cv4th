@@ -60,6 +60,7 @@ enum {
 	opLPFETCH,
 	opLPSTORE,
 	opLFETCH,
+    opLSHIFT,
 	opLSTORE,
 
 	opMINUS,
@@ -90,6 +91,7 @@ enum {
 	opRFROM,
 	opROT,
 	opROLL,
+	opRSHIFT,
 	opRSPFETCH,
 	opRSPSTORE,
 

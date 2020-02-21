@@ -4,6 +4,8 @@
 \ These words are defined in the native wrapper 
 
 \ cells																			\ \ CORE
+\ lshift																		\ \ CORE
+\ rshift																		\ \ CORE
 \ xor																			\ \ CORE
 \ here																			\ \ CORE
 \ state																			\ \ CORE
@@ -1543,9 +1545,6 @@ forth-wordlist set-current
 
 : */  >r m* r> sm/rem nip ;														\ \ CORE
 : */mod >r m* r> sm/rem ;														\ \ CORE
-
-: LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
-: RSHIFT 1 abort" RSHIFT not implemented"; immediate							\ \ CORE
 
 \ ---------------------------------------------------------------------------------------------
 \ environment support

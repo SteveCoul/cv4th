@@ -553,6 +553,12 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			DP--;
 			break;
 		/* logic */
+		case opLSHIFT:
+			datastack[ DP-1 ] = datastack[DP-1] << 1;
+			break;
+		case opRSHIFT:
+			datastack[ DP-1 ] = datastack[DP-1] >> 1;
+			break;
 		case opINVERT:
 			{
 				tmp = datastack[ DP-1 ];
