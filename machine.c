@@ -41,7 +41,7 @@ void machine_set_endian( machine_t* machine, machine_endian_t which ) {
 	}
 }
 
-void machine_execute( machine_t* machine, cell_t xt ) {
+void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_once ) {
 
 	cell_t tmp;
 	cell_t tmp2;
@@ -142,7 +142,6 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 				datastack[ DP-1 ] = (cell_t)ioWrite( (int)tmp, ABS_PTR( machine, tmp3 ), tmp2 );
 			}
 			break;
-
 		case opDELETE_FILE:
 			tmp = datastack[ DP-1 ]; DP--;
 			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
@@ -255,10 +254,17 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			break;
 		case opRET:
 			if ( RP == 0 ) {
-				return;
+				if ( run_once )
+					return;			/* run a single word from boot strap interpreter */
+				/* stack underflow */
+				printf("return stack underflow\n");
+				DP++;
+				datastack[ DP-1 ] = -6;
+				IP=GET_CELL( machine, a_throw );
+			} else {
+				RP--;
+				IP=returnstack[ RP ];
 			}
-			RP--;
-			IP=returnstack[ RP ];
 			break;
 		/* stackrobatics */
 		case opDEPTH:
@@ -601,8 +607,9 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 		case opNONE:
 			break;
 		default:
-			printf("Illegal opcode [%x]\n", opcode );
-			exit(0);
+			DP++;
+			datastack[ DP-1 ] = -9;
+			IP=GET_CELL( machine, a_throw );
 			break;
 		}
 	}		

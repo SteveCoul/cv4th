@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "forth.h"
 #include "machine.h"
 
 extern const unsigned char image_data[];
@@ -34,7 +35,7 @@ int main( int argc, char** argv ) {
 
 	memset( machine.memory, 0, size );
 	memmove( machine.memory, image_data+(5*CELL_SIZE), image_data_len-(5*CELL_SIZE) );
-	machine_execute( &machine, quit );
+	machine_execute( &machine, quit, A_THROW, 0 );
 	return 0;
 }
 

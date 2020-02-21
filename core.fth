@@ -719,6 +719,8 @@ forth-wordlist set-current
 	then
 ; 
 
+' throw A_THROW !
+
 : <#																			\ \ CORE
   0
   A_PICTURED_NUMERIC SIZE_PICTURED_NUMERIC

@@ -9,38 +9,12 @@
 
 #include "common.h"
 #include "io.h"
+#include "forth.h"
 #include "machine.h"
 #include "opcode.h"
 
 static int			input;
 static machine_t*	machine;
-
-#define SIZE_DATA_STACK					256
-#define SIZE_RETURN_STACK				256
-#define SIZE_FORTH						32*1024
-#define SIZE_INPUT_BUFFER				128
-#define SIZE_PICTURED_NUMERIC			64
-#define SIZE_ORDER						10
-
-#define	A_HERE							0
-#define A_LIST_OF_WORDLISTS				1*CELL_SIZE
-/* wid-link ptr for forth-wordlist */
-#define A_FORTH_WORDLIST				3*CELL_SIZE
-/* wid-link ptr for internals */
-#define A_INTERNALS_WORDLIST			5*CELL_SIZE
-/* wid-link ptr for locals 	*/
-#define A_LOCALS_WORDLIST				7*CELL_SIZE
-#define A_QUIT							8*CELL_SIZE
-#define A_BASE							9*CELL_SIZE
-#define A_STATE							10*CELL_SIZE
-#define A_TIB							11*CELL_SIZE
-#define A_HASH_TIB						12*CELL_SIZE
-#define A_TOIN							13*CELL_SIZE
-#define A_CURRENT						14*CELL_SIZE
-#define A_ORDER							15*CELL_SIZE
-#define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * CELL_SIZE )
-#define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
-#define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER
 
 #define HERE 							GET_CELL( machine, A_HERE )
 #define FORTH_WORDLIST					GET_CELL( machine, A_FORTH_WORDLIST )
@@ -231,6 +205,7 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_HASH_TIB, 0 );
 	WRITE_CELL( machine, A_TOIN, 0 );
 	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST );
+	WRITE_CELL( machine, A_THROW, 0 );
 	WRITE_CELL( machine, A_ORDER, A_INTERNALS_WORDLIST );
 	WRITE_CELL( machine, A_ORDER +CELL_SIZE, A_FORTH_WORDLIST );
 
@@ -268,6 +243,7 @@ int main( int argc, char** argv ) {
 	constant( "A_HERE", A_HERE );
 	constant( "A_QUIT", A_QUIT );
 	constant( "A_CURRENT", A_CURRENT );
+	constant( "A_THROW", A_THROW );
 	constant( "A_ORDER", A_ORDER );
 	constant( "A_PICTURED_NUMERIC", A_PICTURED_NUMERIC );
 	constant( "A_INPUT_BUFFER", A_INPUT_BUFFER );
@@ -468,7 +444,9 @@ aborted:
 			} else if ( GET_CELL( machine, A_QUIT ) == 0 ) {
 				/* just drop into bootstrap interpreter */
 			} else {
-				machine_execute( machine, GET_CELL( machine, A_QUIT ) );
+				/* TODO report any exception? */
+				for (;;)
+					machine_execute( machine, GET_CELL( machine, A_QUIT ), A_THROW, 1 );
 				exit(0);
 			}
 		}
@@ -590,7 +568,8 @@ rescan:
 					uint8_t* header = ((uint8_t*)(machine->memory))+v;
 
 					if ( ( STATE == 0 ) || ( header[ CELL_SIZE ] == opIMMEDIATE ) ) {
-						machine_execute( machine, xt );
+						machine_execute( machine, xt, A_THROW, 1 );
+						/* TODO report any exception? */
 					} else if ( header[CELL_SIZE] == opNONE ) {
 						if ( xt < 65536 ) {
 							c_comma( opSHORT_CALL );

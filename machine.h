@@ -47,7 +47,7 @@ extern void machine_set_endian( machine_t* machine, machine_endian_t which );
 #define GET_WORD(mach,r_addr)	 		(mach->swap16(((uint16_t*)(((uint8_t*)(mach->memory) + r_addr)))[0]))
 #define WRITE_WORD(mach,r_addr, value) 	((uint16_t*)(((uint8_t*)(mach->memory) + r_addr)))[0] = mach->swap16(value)
 
-extern void machine_execute( machine_t* machine, cell_t xt );
+extern void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_once );
 
 #endif
 
