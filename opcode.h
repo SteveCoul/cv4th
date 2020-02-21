@@ -81,6 +81,7 @@ enum {
 	opPLUSSTORE,
 
 	opQBRANCH,
+    opQTHROW,
 
 	opREAD_FILE,
 	opRENAME_FILE,

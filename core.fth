@@ -233,10 +233,14 @@ forth-wordlist set-current
 
 internals set-current
 : resolv!		\ a-addr --
-  here over - 2 - swap w!
+  here over - 2 - 
+  dup -32768 < over 32767 > or -100 swap [ opQTHROW c, ]
+  swap w!
 ;
 : resolv,
-  here - 2 - w,
+  here - 2 - 
+  dup -32768 < over 32767 > or -100 swap [ opQTHROW c, ]
+  w,
 ;
 forth-wordlist set-current
 
@@ -692,7 +696,7 @@ forth-wordlist set-current
 			cr here ctype 
 			(abort)
 		then
-		cr [char] # emit . 
+		cr [char] # dup emit emit . 
 		(abort)
 	then
 

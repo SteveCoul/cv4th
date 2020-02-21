@@ -604,6 +604,19 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			DP++;
 			IP+=1;
 			break;
+		case opQTHROW:
+			tmp = datastack[ DP-1 ];
+			DP--;
+			if ( tmp ) {
+				IP=GET_CELL( machine, a_throw );
+				if ( IP == 0 ) {
+					printf("\n\nQTHROW and no forth handler - what to do?\n\n");
+					exit(0);
+				}
+			} else {
+				DP--;
+			}
+			break;
 		case opNONE:
 			break;
 		default:

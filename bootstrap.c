@@ -391,6 +391,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opPLUS );
 	opconst_db( opPLUSSTORE );
 	opconstant( opQBRANCH );
+	opconstant( opQTHROW );
 	opconst_db( opREAD_FILE );
 	opconst_db( opRENAME_FILE );
 	opconst_db( opREPOSITION_FILE );
