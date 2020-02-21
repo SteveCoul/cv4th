@@ -566,9 +566,9 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		case opINVERT:
 			{
+				cell_t v = 1;
 				tmp = datastack[ DP-1 ];
 				tmp2 = 0;
-				cell_t v = 1;
 				int i;
 				for ( i = 0; i < CELL_BITS; i++ ) {
 					if ( ( tmp & v ) == 0 ) tmp2|=v;
