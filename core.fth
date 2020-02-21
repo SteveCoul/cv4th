@@ -16,6 +16,7 @@
 \ move																			\ \ CORE
 \ depth																			\ \ CORE
 \ over																			\ \ CORE
+\ invert																		\ \ CORE
 \ dup																			\ \ CORE
 \ @																				\ \ CORE
 \ =																				\ \ CORE
@@ -1542,7 +1543,6 @@ forth-wordlist set-current
 : */  >r m* r> sm/rem nip ;														\ \ CORE
 : */mod >r m* r> sm/rem ;														\ \ CORE
 
-: INVERT 1 abort" INVERT not implemented"; immediate							\ \ CORE
 : LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
 : RSHIFT 1 abort" RSHIFT not implemented"; immediate							\ \ CORE
 : XOR 1 abort" XOR not implemented"; immediate									\ \ CORE

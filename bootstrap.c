@@ -323,6 +323,8 @@ int main( int argc, char** argv ) {
 	opword( opSWAP, "swap" );
 	opword( opUM_SLASH_MOD, "um/mod" );
 	opword( opSM_SLASH_REM, "sm/rem" );
+    opword( opINVERT, "invert" );
+
 	lay_header( opNONE, "cells" );
 	if ( CELL_SIZE == 4 ) {
 		c_comma( opLIT4 ); c_comma( opMULT ); c_comma( opRET );
@@ -377,6 +379,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opFILE_STATUS );
 	opconst_db( opFLUSH_FILE );
 	opconst_db( opGREATER_THAN );
+	opconst_db( opINVERT );
 	opconst_db( opIP );
 	opconstant( opIN );
 	opconst_db( opLESS_THAN );

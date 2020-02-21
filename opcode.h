@@ -41,6 +41,7 @@ enum {
 
 	opGREATER_THAN,
 
+	opINVERT,
 	opIP,
 
 	opIN,
