@@ -1,10 +1,7 @@
 
-#include <errno.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "common.h"
 #include "io.h"
@@ -18,7 +15,8 @@ static ioSubsystem*	list = NULL;
 
 static
 int freeslot( void ) {
-	for ( int i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
+	int i;
+	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
 		if ( myfiles[i].native_fd == -1 ) 
 			return i;
 	return -1;
@@ -37,7 +35,8 @@ ioSubsystem* getSubsystem( const char* name ) {
 
 static
 void dropfile( int fd ) {
-	for ( int i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
+	int i;
+	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
 		if ( myfiles[i].native_fd == fd ) {
 			myfiles[i].native_fd = -1;
 			return;
@@ -46,14 +45,16 @@ void dropfile( int fd ) {
 
 static
 ioSubsystem* getfile( int fd ) {
-	for ( int i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
+	int i;
+	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
 		if ( myfiles[i].native_fd == fd ) 
 			return myfiles[i].p;
 	return NULL;
 }
 
 void ioInit( void ) {
-	for ( int i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
+	int i;
+	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
 		myfiles[i].native_fd = -1;
 }
 
@@ -63,22 +64,24 @@ void ioRegister( ioSubsystem* ios ) {
 }
 
 static
-int parse( const char* name, size_t name_len, char** p_type, char** p_path ) {
+ior_t parse( const char* name, size_t name_len, char** p_type, char** p_path ) {
 	static char path_buffer[ 1024 ];
 	static char type_buffer[ 32 ];
-	if ( name_len >= sizeof(path_buffer)-1 ) return -ENAMETOOLONG;
+	int i;
+
+	if ( name_len >= sizeof(path_buffer)-1 ) return IOR_UNKNOWN;
 
 	memmove( path_buffer, name, name_len );
 	path_buffer[name_len] = 0;
 	strcpy( type_buffer, "file" );	/* default */
-	int i;
 	for ( i = 0; i < name_len-1; i++ ) {
 		if ( ( name[i] == ':' ) && ( name[i+1] == '/' ) ) {
-			if ( i >= sizeof(type_buffer) ) return -ENAMETOOLONG;
+			int len;
+			if ( i >= sizeof(type_buffer) ) return IOR_UNKNOWN;
 			memmove( type_buffer, name, i );
 			type_buffer[i] = 0;
 			i++;		
-			int len = name_len - i;
+			len = name_len - i;
 			memmove( path_buffer, name+i, len );
 			path_buffer[len] = 0;
 			break;
@@ -91,27 +94,24 @@ int parse( const char* name, size_t name_len, char** p_type, char** p_path ) {
 	return 0;
 }
 
-int ioOpen( const char* name, size_t name_len, unsigned int mode ) {
+ior_t ioOpen( const char* name, size_t name_len, unsigned int mode, int* pfd ) {
 	char* c_type;
 	char* c_path;
-	int rc;
+	ior_t rc;
 	rc = parse( name, name_len, &c_type, &c_path );
 	if ( rc == 0 ) {
 		ioSubsystem* ios = getSubsystem( c_type );
 		if ( ios == NULL ) {
-			rc = -EOPNOTSUPP;
+			rc = IOR_UNKNOWN;
 		} else {
 			int i = freeslot();
 			if ( i < 0 ) {
-				rc = -EMFILE;
+				rc = IOR_UNKNOWN;
 			} else {
-				int fd = ios->open( c_path, mode );
-				if ( fd < 0 ) {
-					rc = -errno;
-				} else {
-					myfiles[i].native_fd = fd;
+				rc = ios->open( c_path, mode, pfd );
+				if ( rc == IOR_OK ) {
+					myfiles[i].native_fd = pfd[0];
 					myfiles[i].p = ios;
-					rc = fd;
 				}
 			}
 		}
@@ -119,27 +119,24 @@ int ioOpen( const char* name, size_t name_len, unsigned int mode ) {
 	return rc;
 }
 
-int ioCreate( const char* name, size_t name_len, unsigned int mode ) {
+ior_t ioCreate( const char* name, size_t name_len, unsigned int mode, int* pfd ) {
 	char* c_type;
 	char* c_path;
-	int rc;
+	ior_t rc;
 	rc = parse( name, name_len, &c_type, &c_path );
 	if ( rc == 0 ) {
 		ioSubsystem* ios = getSubsystem( c_type );
 		if ( ios == NULL ) {
-			rc = -EOPNOTSUPP;
+			rc = IOR_UNKNOWN;
 		} else {
 			int i = freeslot();
 			if ( i < 0 ) {
-				rc = -EMFILE;
+				rc = IOR_UNKNOWN;
 			} else {
-				int fd = ios->create( c_path, mode );
-				if ( fd < 0 ) {
-					rc = -errno;
-				} else {
-					myfiles[i].native_fd = fd;
+				rc = ios->create( c_path, mode, pfd );
+				if ( rc == IOR_OK ) {
+					myfiles[i].native_fd = pfd[0];
 					myfiles[i].p = ios;
-					rc = fd;
 				}
 			}
 		}
@@ -147,64 +144,36 @@ int ioCreate( const char* name, size_t name_len, unsigned int mode ) {
 	return rc;
 }
 
-int ioClose( int fd ) {
-	int rc;
+ior_t ioClose( int fd ) {
+	ior_t rc;
 	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
+	if ( i == NULL ) return IOR_UNKNOWN;
 	rc = i->close( fd );
 	dropfile( fd );
 	return rc;
 }
 
-int ioFlush( int fd ) {
+ior_t ioRead( int fd, void* buffer, unsigned int length ) {
 	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
-	return i->flush( fd );
-}
-
-int ioRead( int fd, void* buffer, unsigned int length ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
+	if ( i == NULL ) return IOR_UNKNOWN;
 	return i->read( fd, buffer, length );
 }
 
-int ioWrite( int fd, void* buffer, unsigned int length ) {
+ior_t ioWrite( int fd, void* buffer, unsigned int length ) {
 	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
+	if ( i == NULL ) return IOR_UNKNOWN;
 	return i->write( fd, buffer, length );
 }
 
-int ioSize( int fd ) {
+ior_t ioPosition( int fd, unsigned long int* position ) {
 	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
-	return i->size( fd );
+	if ( i == NULL ) return IOR_UNKNOWN;
+	return i->position( fd, position );
 }
 
-int ioPosition( int fd ) {
+ior_t ioSize( int fd, unsigned long int* size ) {
 	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
-	return i->position( fd );
-}
-
-int ioResize( int fd, int new_size ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
-	return i->resize( fd, new_size );
-}
-
-int ioReposition( int fd, int new_position ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return -EBADF;
-	return i->reposition( fd, new_position );
-}
-
-int ioRename( const char* name, size_t namelen, const char* new_name, size_t new_namelen ) {
-	printf("\nioRename not implemented\n" );
-	return -ENOTSUP;
-}
-
-int ioDelete( const char* name, size_t namelen ) {
-	printf("\nioDelete not implemented\n" );
-	return -ENOTSUP;
+	if ( i == NULL ) return IOR_UNKNOWN;
+	return i->size( fd, size );
 }
 

@@ -6,9 +6,13 @@
 #ifdef VM_16BIT
 #define HEADER_ID 0x1144
 typedef uint16_t cell_t;
+#define CELL_MASK 0xFFFF
+#define CELL_BITS 16
 #else
 #define HEADER_ID 0x11223344
 typedef uint32_t cell_t;
+#define CELL_MASK 0xFFFFFFFF
+#define CELL_BITS 32
 #endif
 
 typedef struct {

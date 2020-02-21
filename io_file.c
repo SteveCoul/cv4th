@@ -1,94 +1,77 @@
 
-#include <errno.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-
 #include "io_file.h"
 
+#ifdef NO_FILE
+
+
+static ior_t f_open( const char* name, unsigned int mode, int* pfd ) { return IOR_NOT_SUPPORTED; }
+static ior_t f_create( const char* name, unsigned int mode, int* pfd ) { return IOR_NOT_SUPPORTED; }
+static ior_t f_close( int fd ) { return IOR_NOT_SUPPORTED; }
+static ior_t f_read( int fd, void* buffer, unsigned int length ) { return IOR_NOT_SUPPORTED; }
+static ior_t f_write( int fd, void* buffer, unsigned int length ) { return IOR_NOT_SUPPORTED; }
+static ior_t f_position( int fd, unsigned long int* position ) { return IOR_NOT_SUPPORTED; }
+static ior_t f_size( int fd, unsigned long int* size ) { return IOR_NOT_SUPPORTED; }
+
+#else
+#include <fcntl.h>
+#include <unistd.h>
+
 static
-int f_open( const char* name, unsigned int mode ) {
-	return open( name, mode );
+ior_t f_open( const char* name, unsigned int mode, int* pfd ) {
+	pfd[0] = open( name, mode );
+	if ( pfd[0] >= 0 ) return IOR_OK;
+	return IOR_UNKNOWN;
 }
 
 static
-int f_create( const char* name, unsigned int mode ) {
-	// mode is implementation defined, ignore it, if you create a file I'll assume you want r/w
-	int rc = open( name, O_RDWR | O_CREAT | O_TRUNC, 0666 );
-	return rc;
+ior_t f_create( const char* name, unsigned int mode, int* pfd ) {
+	/* mode is implementation defined, ignore it, if you create a file I'll assume you want r/w */
+	pfd[0] = open( name, O_RDWR | O_CREAT | O_TRUNC, 0666 );
+	if ( pfd[0] >= 0 ) return IOR_OK;
+	return IOR_UNKNOWN;
 }
 
 static
-int f_close( int fd ) {
+ior_t f_close( int fd ) {
 	(void)close( fd );
-	return 0;
+	return IOR_OK;
 }
 
 static
-int f_flush( int fd ) {
-	return 0;
+ior_t f_read( int fd, void* buffer, unsigned int length ) {
+	if ( read( fd, buffer, length ) < 0 ) return IOR_UNKNOWN;
+	return IOR_OK;
 }
 
 static
-int f_read( int fd, void* buffer, unsigned int length ) {
-	return read( fd, buffer, length );
+ior_t f_write( int fd, void* buffer, unsigned int length ) {
+	if ( write( fd, buffer, length ) < 0 ) return IOR_UNKNOWN;
+	return IOR_OK;
 }
 
-static
-int f_write( int fd, void* buffer, unsigned int length ) {
-	return write( fd, buffer, length );
+static ior_t f_position( int fd, unsigned long int* position ) {
+	position[0] = lseek( fd, 0, SEEK_CUR );
+	return IOR_OK;
 }
 
-static
-int f_size( int fd ) {
-	long l = lseek( fd, 0, SEEK_CUR );
-	long s = lseek( fd, 0, SEEK_END );
-	(void)lseek( fd, l, SEEK_SET );
-	return (int)s;
+static ior_t f_size( int fd, unsigned long int* size ) {
+	unsigned position = lseek( fd, 0, SEEK_CUR );
+	size[0] = lseek( fd, 0, SEEK_END );
+	position = lseek( fd, position, SEEK_SET );
+	return IOR_OK;
 }
 
-static
-int f_position( int fd ) {
-	return (int)lseek( fd, 0, SEEK_CUR );
-}
-
-static
-int f_resize( int fd, int new_size ) {
-	errno = ENOTSUP;
-	return -1;
-}
-
-static
-int f_reposition( int fd, int new_position ) {
-	errno = ENOTSUP;
-	return -1;
-}
-
-static
-int f_rename( const char* name, const char* new_name ) {
-	errno = ENOTSUP;
-	return -1;
-}
-
-static
-int f_rm( const char* name ) {
-	errno = ENOTSUP;
-	return -1;
-}
+#endif
 
 ioSubsystem io_file = {	NULL,
 						"file",
 						f_open,
 						f_create,
 						f_close,
-						f_flush,
 						f_read,
 						f_write,
-						f_size,
 						f_position,
-						f_resize,
-						f_reposition,
-						f_rename,
-						f_rm };
+						f_size };
 

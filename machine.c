@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <memory.h>
-#include <unistd.h>
+#include <string.h>
 
 #include "common.h"
 #include "io.h"
@@ -95,125 +94,103 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			returnstack[ tmp ] = tmp2;
 			break;
 		/* files */
-		case opDELETE_FILE:
-			tmp = datastack[ DP-1 ]; DP--;
-			datastack[DP-1] = (cell_t)ioDelete( ABS_PTR(machine,datastack[DP-1]), tmp );
-			break;
-		case opRENAME_FILE:
-			tmp = datastack[DP-1]; DP--;		// tmp = newlen
-			tmp2 = datastack[DP-1]; DP--;		// tmp2 = newname
-			tmp3 = datastack[DP-1]; DP--;		// tmp3 = len
-			datastack[DP-1] = (cell_t)ioRename( ABS_PTR(machine,datastack[DP-1]), tmp3, ABS_PTR(machine,tmp2), tmp );
-			break;
-		case opREPOSITION_FILE:
-			/* assuming 31bit file length */
+		case opCREATE_FILE:
+			tmp = datastack[ DP-1 ]; DP--;		
+			tmp2 = datastack[ DP-1 ];			
+			tmp3 = datastack[ DP-2 ];			
 			{
-				int i = ioReposition( (int)datastack[ DP-1 ], (int)datastack[ DP-3 ] );
-				DP-=2;
-				datastack[ DP-1 ] = (cell_t)i;
-			}
-			break;
-		case opRESIZE_FILE:
-			/* assuming 31bit file length */
-			{
-				int i = ioResize( (int)datastack[ DP-1 ], (int)datastack[ DP-3 ] );
-				DP-=2;
-				datastack[ DP-1 ] = (cell_t)i;
-			}
-			break;
-		case opFILE_POSITION:		/* note, I'm not doing 64bit, never having files that big */
-			{
-				int i = ioPosition( (int)datastack[DP-1] );
-				if ( i < 0 ) {
-					datastack[ DP-1 ] = 0; 
-					DP++; datastack[ DP-1 ] = 0;
-					DP++; datastack[ DP-1 ] = (cell_t)i;
-				} else {
-					datastack[ DP-1 ] = (cell_t)i;
-					DP++; datastack[ DP-1 ] = 0;
-					DP++; datastack[ DP-1 ] = 0;
-				}
-			}
-			break;
-		case opFILE_SIZE:		/* note, I'm not doing 64bit, never having files that big */
-			{
-				int i = ioSize( (int)datastack[DP-1] );
-				if ( i < 0 ) {
-					datastack[ DP-1 ] = 0; 
-					DP++; datastack[ DP-1 ] = 0;
-					DP++; datastack[ DP-1 ] = (cell_t)i;
-				} else {
-					datastack[ DP-1 ] = (cell_t)i;
-					DP++; datastack[ DP-1 ] = 0;
-					DP++; datastack[ DP-1 ] = 0;
-				}
-			}
-			break;
-		case opFILE_STATUS:
-			// cant really think of anything atm. I want to report.
-			datastack[ DP-2 ] = 0;
-			datastack[ DP-1 ] = 0;
-			break;
-		case opWRITE_FILE:
-			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'file-id'
-			tmp2 = datastack[ DP-1 ]; DP--;		// tmp2 is length
-			tmp3 = datastack[ DP-1 ];			// tmp3 is pointer
-			{
-				int i = ioWrite( (int)tmp, ABS_PTR( machine, tmp3 ), tmp2 );
-				if ( i < 0 ) datastack[ DP-1 ] = (cell_t) i;
-				else		 datastack[ DP-1 ] = 0;
-			}
-			break;
-		case opREAD_FILE:
-			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'file-id'
-			tmp2 = datastack[ DP-1 ];			// tmp2 is length
-			tmp3 = datastack[ DP-2 ];			// tmp3 is pointer
-			{
-				int i = ioRead( (int)tmp, ABS_PTR(machine,tmp3), tmp2 );
-				if ( i < 0 ) {
-					datastack[ DP-2 ] = 0;				// bytes read
-					datastack[ DP-1 ] = (cell_t)i;
-				} else {
-					datastack[ DP-2 ] = (cell_t)i;
-					datastack[ DP-1 ] = 0;		
-				}
+				int fd;
+				int ior = ioCreate( ABS_PTR( machine, tmp3 ), tmp2, tmp, &fd );
+				datastack[ DP-2 ] = (cell_t)fd;
+				datastack[ DP-1 ] = (cell_t)ior;
 			}
 			break;
 		case opOPEN_FILE:
-			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'fam'
-			tmp2 = datastack[ DP-1 ];			// tmp2 is length of name
-			tmp3 = datastack[ DP-2 ];			// tmp3 is name pointer
+			tmp = datastack[ DP-1 ]; DP--;		
+			tmp2 = datastack[ DP-1 ];			
+			tmp3 = datastack[ DP-2 ];			
 			{
-				int i = ioOpen( ABS_PTR( machine, tmp3 ), tmp2, tmp );
-				if ( i < 0 ) {
-					datastack[ DP-2 ] = 0;
-					datastack[ DP-1 ] = (cell_t)i;
-				} else {
-					datastack[ DP-2 ] = (cell_t)i;
-					datastack[ DP-1 ] = 0;
-				}
+				int fd;
+				int ior = ioOpen( ABS_PTR( machine, tmp3 ), tmp2, tmp, &fd );
+				datastack[ DP-2 ] = (cell_t)fd;
+				datastack[ DP-1 ] = (cell_t)ior;
 			}
-			break;
-		case opCREATE_FILE:
-			tmp = datastack[ DP-1 ]; DP--;		// tmp is 'fam'
-			tmp2 = datastack[ DP-1 ];			// tmp2 is length of name
-			tmp3 = datastack[ DP-2 ];			// tmp3 is name pointer
-			{
-				int i = ioCreate( ABS_PTR( machine, tmp3 ), tmp2, tmp );
-				if ( i < 0 ) {
-					datastack[ DP-2 ] = 0;
-					datastack[ DP-1 ] = (cell_t)i;
-				} else {
-					datastack[ DP-2 ] = (cell_t)i;
-					datastack[ DP-1 ] = 0;
-				}
-			}
-			break;
-		case opFLUSH_FILE:
-			datastack[DP-1] = (cell_t)ioFlush( (int)datastack[ DP-1 ] );
 			break;
 		case opCLOSE_FILE:
 			datastack[DP-1] = (cell_t)ioClose( (int)datastack[ DP-1 ] );
+			break;
+		case opREAD_FILE:
+			tmp = datastack[ DP-1 ]; DP--;		
+			tmp2 = datastack[ DP-1 ];			
+			tmp3 = datastack[ DP-2 ];			
+			{
+				int i = ioRead( (int)tmp, ABS_PTR(machine,tmp3), tmp2 );
+				if ( i < 0 ) {
+					datastack[ DP-2 ] = 0;
+					datastack[ DP-1 ] = (cell_t)i;
+				} else {
+					datastack[ DP-2 ] = (cell_t)i;
+					datastack[ DP-1 ] = IOR_OK;		
+				}
+			}
+			break;
+		case opWRITE_FILE:
+			tmp = datastack[ DP-1 ]; DP--;		
+			tmp2 = datastack[ DP-1 ]; DP--;		
+			tmp3 = datastack[ DP-1 ];			
+			{
+				datastack[ DP-1 ] = (cell_t)ioWrite( (int)tmp, ABS_PTR( machine, tmp3 ), tmp2 );
+			}
+			break;
+
+		case opDELETE_FILE:
+			tmp = datastack[ DP-1 ]; DP--;
+			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
+			break;
+		case opRENAME_FILE:
+			tmp = datastack[DP-1]; DP--;		
+			tmp2 = datastack[DP-1]; DP--;	
+			tmp3 = datastack[DP-1]; DP--;
+			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
+			break;
+		case opREPOSITION_FILE:
+			DP-=2;
+			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
+			break;
+		case opRESIZE_FILE:
+			DP-=2;
+			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
+			break;
+		case opFILE_POSITION:		
+			{
+				unsigned long int length;
+				ior_t ior = ioPosition( (int)datastack[ DP-1 ], &length );
+				if ( ior != IOR_OK ) length = 0;
+				DP+=2;
+				/* TODO check length fits and raise error if not */
+				datastack[ DP-3 ] = length & CELL_MASK;
+				datastack[ DP-2 ] = ( length >> CELL_BITS ) & CELL_MASK;
+				datastack[ DP-1 ] = (cell_t)ior;
+			}
+			break;
+		case opFILE_SIZE:	
+			{
+				unsigned long int length;
+				ior_t ior = ioSize( (int)datastack[ DP-1 ], &length );
+				if ( ior != IOR_OK ) length = 0;
+				DP+=2;
+				/* TODO check length fits and raise error if not */
+				datastack[ DP-3 ] = length & CELL_MASK;
+				datastack[ DP-2 ] = ( length >> CELL_BITS ) & CELL_MASK;
+				datastack[ DP-1 ] = (cell_t)ior;
+			}
+			break;
+		case opFILE_STATUS:
+			datastack[ DP-2 ] = 0;
+			datastack[ DP-1 ] = (cell_t)IOR_OK;
+			break;
+		case opFLUSH_FILE:
+			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
 			break;
 		/* internal magic */
 		case opBYE:
@@ -249,18 +226,20 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			tmp = datastack[ DP-1 ];
 			DP--;
 			if ( tmp == 0 ) {
+				int i;
 				tmp = GET_WORD( machine, IP );
 				if ( tmp & 0x8000 ) tmp |= 0xFFFF0000;
-				int i = (int) tmp;	
+				i = (int) tmp;	
 				IP=IP+2+i;
 			}
 			else IP+=2;
 			break;			
 		case opBRANCH:
 			{
+				int i;
 				tmp = GET_WORD( machine, IP );
 				if ( tmp & 0x8000 ) tmp |= 0xFFFF0000;
-				int i = (int) tmp;	
+				i = (int) tmp;	
 				IP=IP+2+i;
 			}
 			break;
@@ -363,18 +342,20 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			DP--;
 			break;
 		case opGREATER_THAN:
-			{
-				int b = datastack[ DP-1 ];
+			{	
+				int a,b;
+				b = datastack[ DP-1 ];
 				DP--;
-				int a = datastack[ DP-1 ];
+				a = datastack[ DP-1 ];
 				datastack[ DP-1 ] = ( a > b ) ? 1 : 0;
 			}
 			break;
 		case opLESS_THAN:
 			{
-				int b = datastack[ DP-1 ];
+				int a,b;
+				b = datastack[ DP-1 ];
 				DP--;
-				int a = datastack[ DP-1 ];
+				a = datastack[ DP-1 ];
 				datastack[ DP-1 ] = ( a < b ) ? 1 : 0;
 			}
 			break;
@@ -452,8 +433,9 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			tmp3 = datastack[ DP-1 ];
 			tmp4 = datastack[ DP-2 ];
 			{
-				uint64_t v = tmp; v<<=32; v|=tmp2;
-				uint64_t w = tmp3; w<<=32; w|=tmp4;
+				uint64_t v, w;
+				v = tmp; v<<=32; v|=tmp2;
+				w = tmp3; w<<=32; w|=tmp4;
 				w+=v;
 				tmp4 = w & 0xFFFFFFFF;
 				w>>=32;
@@ -466,10 +448,15 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			tmp2 = datastack[ DP-1 ];
 			tmp3 = datastack[ DP-2 ];
 			{
-				int32_t v = ((int32_t*)&tmp2)[0];
-				int32_t u = ((int32_t*)&tmp3)[0];
-				int64_t V = v;
-				int64_t U = u;
+				union {
+					int32_t i;
+					uint32_t u;
+				} v, u;
+				int64_t V, U;
+				v.u = tmp2;
+				u.u = tmp3;
+				V = v.i;
+				U = u.i;
 				V*=U;
 				tmp3 = V & 0xFFFFFFFF;
 				V>>=32;
@@ -531,19 +518,20 @@ void machine_execute( machine_t* machine, cell_t xt ) {
 			tmp = datastack[ DP - 1 ];
 			DP--;
 			{
+				int32_t a, b;
 				int64_t v = datastack[ DP-1 ];
 				v<<=32;
 				v|=datastack[ DP-2 ];
 
-				int32_t a = (int32_t)(v / tmp);
-				int32_t b = (int32_t)(v % tmp);
+				a = (int32_t)(v / tmp);
+				b = (int32_t)(v % tmp);
 
 				datastack[ DP-2 ] = (cell_t)b;
 				datastack[ DP-1 ] = (cell_t)a;
 			}
 			break;
 		case opUM_SLASH_MOD:
-			tmp = datastack[ DP-1 ];		// divisor
+			tmp = datastack[ DP-1 ];		
 			DP--;
 			{
 				uint64_t v = datastack[ DP-1 ];

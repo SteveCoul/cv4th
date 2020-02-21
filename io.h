@@ -6,36 +6,31 @@
 
 extern void ioInit( void );
 
+typedef enum {
+	IOR_OK=0,
+	IOR_NOT_SUPPORTED,
+	IOR_UNKNOWN
+} ior_t;
+
 typedef struct {
 	void* link;
 	const char*	name;
-	int (*open)( const char* name, unsigned int mode );
-	int (*create)( const char* name, unsigned int mode );
-	int (*close)( int fd );
-	int (*flush)( int fd );
-	int (*read)( int fd, void* buffer, unsigned int length );
-	int (*write)( int fd, void* buffer, unsigned int length );
-	int (*size)( int fd );
-	int (*position)( int fd );
-	int (*resize)( int fd, int new_size );
-	int (*reposition)( int fd, int new_position );
-	int (*rename)( const char* name, const char* new_name );
-	int (*rm)( const char* name );
+	ior_t (*open)( const char* name, unsigned int mode, int* fd );
+	ior_t (*create)( const char* name, unsigned int mode, int* fd );
+	ior_t (*close)( int fd );
+	ior_t (*read)( int fd, void* buffer, unsigned int length );
+	ior_t (*write)( int fd, void* buffer, unsigned int length );
+	ior_t (*position)( int fd, unsigned long int* position );
+	ior_t (*size)( int fd, unsigned long int* size );
 } ioSubsystem;
 
 extern void ioRegister( ioSubsystem* ios );
-extern int ioOpen( const char* name, size_t namelen, unsigned int mode );
-extern int ioCreate( const char* name, size_t namelen, unsigned int mode );
-extern int ioClose( int fd );
-extern int ioFlush( int fd );
-extern int ioRead( int fd, void* buffer, unsigned int length );
-extern int ioWrite( int fd, void* buffer, unsigned int length );
-extern int ioSize( int fd );
-extern int ioPosition( int fd );
-extern int ioResize( int fd, int new_size );
-extern int ioReposition( int fd, int new_position );
-extern int ioRename( const char* name, size_t namelen, const char* new_name, size_t new_namelen );
-extern int ioDelete( const char* name, size_t namelen );
-
+extern ior_t ioOpen( const char* name, size_t namelen, unsigned int mode, int* fd );
+extern ior_t ioCreate( const char* name, size_t namelen, unsigned int mode, int* fd );
+extern ior_t ioClose( int fd );
+extern ior_t ioRead( int fd, void* buffer, unsigned int length );
+extern ior_t ioWrite( int fd, void* buffer, unsigned int length );
+extern ior_t ioPosition( int fd, unsigned long int* position );
+extern ior_t ioSize( int fd, unsigned long int* size );
 #endif
 
