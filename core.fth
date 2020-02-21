@@ -1525,8 +1525,8 @@ forth-wordlist set-current
   then
 ;
 
-: */ 1 abort" */ not implemented"; immediate									\ \ CORE
-: */MOD 1 abort" */MOD not implemented"; immediate								\ \ CORE
+: */  >r m* r> sm/rem nip ;														\ \ CORE
+: */mod >r m* r> sm/rem ;														\ \ CORE
 
 : INVERT 1 abort" INVERT not implemented"; immediate							\ \ CORE
 : LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
