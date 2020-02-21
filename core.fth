@@ -970,9 +970,18 @@ forth-wordlist set-current
   until
 ;
 
+\ Really might be better to have the word linked on create but invisible until ;
+\ so I can do away with the extra flag on colon-sys and this variable.
+\ maybe setting high bit of the name could be used as making a work invisible?
+internals set-current
+: current-xt [fake-variable] ;		\ for recurse
+0 current-xt !
+forth-wordlist set-current
+
 : :noname																		\ \ CORE-EXT
   0 here 		
   1 state !
+  here current-xt !		\ for recurse
 ;
 
 : :																				\ \ CORE
@@ -984,6 +993,7 @@ forth-wordlist set-current
   here over allot		\ colon-sys c-addr u here --
   swap move
   1 state !
+  here current-xt !		\ for recurse
 ;
 
 : ; 																			\ \ CORE
@@ -996,6 +1006,10 @@ forth-wordlist set-current
   then
   0 state !
   forget-locals
+; immediate
+
+: recurse																		\ \ CORE
+  current-xt @ opCALL c, , 
 ; immediate
 
 \ From this point on the bootstrap interpreter is no longer performing : and ; words
@@ -1532,8 +1546,6 @@ forth-wordlist set-current
 : LSHIFT 1 abort" LSHIFT not implemented"; immediate							\ \ CORE
 : RSHIFT 1 abort" RSHIFT not implemented"; immediate							\ \ CORE
 : XOR 1 abort" XOR not implemented"; immediate									\ \ CORE
-
-: RECURSE 1 abort" RECURSE not implemented"; immediate							\ \ CORE
 
 \ ---------------------------------------------------------------------------------------------
 \ environment support
