@@ -105,6 +105,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		/* files */
 		case opCREATE_FILE:
+			ATHROW( DP<3, ;, -4 );
 			tmp = datastack[ DP-1 ]; DP--;		
 			tmp2 = datastack[ DP-1 ];			
 			tmp3 = datastack[ DP-2 ];			
@@ -116,6 +117,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			}
 			break;
 		case opOPEN_FILE:
+			ATHROW( DP<3, ;, -4 );
 			tmp = datastack[ DP-1 ]; DP--;		
 			tmp2 = datastack[ DP-1 ];			
 			tmp3 = datastack[ DP-2 ];			
@@ -127,9 +129,11 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			}
 			break;
 		case opCLOSE_FILE:
+			ATHROW( DP<1, ;, -4 );
 			datastack[DP-1] = (cell_t)ioClose( (int)datastack[ DP-1 ] );
 			break;
 		case opREAD_FILE:
+			ATHROW( DP<3, ;, -4 );
 			tmp = datastack[ DP-1 ]; DP--;		
 			tmp2 = datastack[ DP-1 ];			
 			tmp3 = datastack[ DP-2 ];			
@@ -145,6 +149,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			}
 			break;
 		case opWRITE_FILE:
+			ATHROW( DP<3, ;, -4 );
 			tmp = datastack[ DP-1 ]; DP--;		
 			tmp2 = datastack[ DP-1 ]; DP--;		
 			tmp3 = datastack[ DP-1 ];			
@@ -226,6 +231,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		/* calls, jumps etc */
 		case opEXECUTE:
+			ATHROW( DP<1, ;, -4 );
 			returnstack[ RP ] = IP;
 			RP++;
 			IP = datastack[ DP-1 ];
@@ -366,14 +372,17 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		/* comparisons */
 		case opU_GREATER_THAN:
+			ATHROW( DP<2, ;, -4 );
 			datastack[ DP-2 ] = datastack[ DP-2 ] > datastack[ DP-1 ] ? 1 : 0;
 			DP--;
 			break;
 		case opU_LESS_THAN:
+			ATHROW( DP<2, ;, -4 );
 			datastack[ DP-2 ] = datastack[ DP-2 ] < datastack[ DP-1 ] ? 1 : 0;
 			DP--;
 			break;
 		case opGREATER_THAN:
+			ATHROW( DP<2, ;, -4 );
 			{	
 				int a,b;
 				b = datastack[ DP-1 ];
@@ -383,6 +392,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			}
 			break;
 		case opDLESSTHAN:
+			ATHROW( DP<4, ;, -4 );
 			{
 				int64_t a,b;
 
@@ -400,6 +410,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			}
 			break;
 		case opLESS_THAN:
+			ATHROW( DP<2, ;, -4 );
 			{
 				s_cell_t a,b;
 				b = datastack[ DP-1 ];
@@ -409,36 +420,44 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			}
 			break;
 		case opEQUALS:	
+			ATHROW( DP<2, ;, -4 );
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] == datastack[ DP ] ? 1 : 0;
 			break;
 		/* fetch/store */
 		case opWFETCH:
+			ATHROW( DP<1, ;, -4 );
 			datastack[ DP-1 ] = GET_WORD( machine, datastack[ DP-1 ] );
 			break;
 		case opCFETCH:
+			ATHROW( DP<1, ;, -4 );
 			datastack[ DP-1 ] = GET_BYTE( machine, datastack[ DP-1 ] );
 			break;
 		case opFETCH:
+			ATHROW( DP<1, ;, -4 );
 			datastack[ DP-1 ] = GET_CELL( machine, datastack[ DP-1 ] );
 			break;
 		case opPLUSSTORE:
+			ATHROW( DP<2, ;, -4 );
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
 			DP-=2;
 			WRITE_CELL( machine, tmp, GET_CELL(machine, tmp) + tmp2 );
 			break;
 		case opWSTORE:
+			ATHROW( DP<2, ;, -4 );
 			tmp = datastack[ DP-1 ];
 			WRITE_WORD( machine, tmp, datastack[ DP-2 ] );
 			DP-=2;
 			break;
 		case opCSTORE:
+			ATHROW( DP<2, ;, -4 );
 			tmp = datastack[ DP-1 ];
 			WRITE_BYTE( machine, tmp, datastack[ DP-2 ] );
 			DP-=2;
 			break;
 		case opSTORE:
+			ATHROW( DP<2, ;, -4 );
 			tmp = datastack[ DP-1 ];
 			WRITE_CELL( machine, tmp, datastack[ DP-2 ] );
 			DP-=2;
@@ -449,6 +468,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			DP++;
 			break;
 		case opTOR:
+			ATHROW( DP<1, ;, -4 );
 			DP--;
 			returnstack[ RP ] = datastack[ DP ];
 			RP++;
