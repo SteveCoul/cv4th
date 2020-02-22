@@ -3,7 +3,7 @@
 
 enum {
 	opNONE						= 0,
-
+	
 	op2DROP,
 	op2DUP,
 	op2OVER,

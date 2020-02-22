@@ -40,6 +40,17 @@ void machine_set_endian( machine_t* machine, machine_endian_t which ) {
 	}
 }
 
+#define ATHROW( condition, todo, throw_code )	if (condition) {\
+													todo \
+													DP++; \
+													datastack[ DP-1 ] = throw_code; \
+													IP=GET_CELL( machine, a_throw );\
+													if ( IP == 0 ) { \
+														printf("Urk - no throw handler\n");\
+														exit(0); /* FIXME */ \
+													}\
+													break; \
+												}
 void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_once ) {
 
 	cell_t tmp;
@@ -271,10 +282,12 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			DP++;
 			break;
 		case opNIP:
+			ATHROW( DP<2, ;, -4 );
 			datastack[ DP-2 ] = datastack[ DP-1 ];
 			DP--;
 			break;
 		case opTUCK:	
+			ATHROW( DP<2, ;, -4 );
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
 			DP++;
@@ -283,44 +296,54 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			datastack[ DP-1 ] = tmp;
 			break;
 		case opROLL:
+			ATHROW( DP<1, ;, -4 );
 			tmp = datastack[ DP-1 ];
 			DP--;
 			if ( tmp ) {
+				ATHROW( DP<tmp, ;, -4 );
 				tmp2 = datastack[ DP-1-tmp ];
 				memmove( datastack+DP-1-tmp, datastack+DP-tmp, tmp*CELL_SIZE );
 				datastack[ DP-1 ] = tmp2;
 			}
 			break;
 		case opDUP:
+			ATHROW( DP<1, ;, -4 );
 			datastack[ DP ] = datastack[ DP-1 ];
 			DP++;
 			break;
 		case op2DUP:
+			ATHROW( DP<2, ;, -4 );
 			DP+=2;
 			datastack[ DP-2 ] = datastack[ DP-4 ];
 			datastack[ DP-1 ] = datastack[ DP-3 ];
 			break;
 		case opDROP:
+			ATHROW( DP<1, ;, -4 );
 			DP--;
 			break;
 		case op2DROP:
+			ATHROW( DP<2, ;, -4 );
 			DP-=2;
 			break;
 		case opOVER:
+			ATHROW( DP<2, ;, -4 );
 			datastack[ DP ] = datastack[ DP - 2 ];
 			DP++;
 			break;
 		case op2OVER: 	
+			ATHROW( DP<4, ;, -4 );
 			DP+=2;
 			datastack[ DP-2 ] = datastack[ DP-6 ];
 			datastack[ DP-1 ] = datastack[ DP-5 ];
 			break;
 		case opSWAP:
+			ATHROW( DP<2, ;, -4 );
 			tmp = datastack[ DP-2 ];
 			datastack[ DP-2 ] = datastack[ DP-1 ];
 			datastack[ DP-1 ] = tmp;
 			break;
 		case op2SWAP:	
+			ATHROW( DP<4, ;, -4 );
 			tmp = datastack[ DP-2 ];
 			tmp2 = datastack[ DP-1 ];
 			datastack[ DP-2 ] = datastack[ DP-4 ];
@@ -329,9 +352,13 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			datastack[ DP-3 ] = tmp2;
 			break;
 		case opPICK:
-			datastack[ DP-1 ] = datastack[ DP - datastack[ DP - 1 ] - 2 ];
+			ATHROW( DP<1, ;, -4 );
+			tmp = datastack[ DP-1 ];
+			ATHROW( DP<(tmp+2), ;, -4 );
+			datastack[ DP-1 ] = datastack[ DP - tmp - 2 ];
 			break;
 		case opROT:
+			ATHROW( DP<3, ;, -4 );
 			tmp = datastack[ DP-3 ];
 			datastack[ DP-3 ] = datastack[ DP-2 ];
 			datastack[ DP-2 ] = datastack[ DP-1 ];
@@ -641,26 +668,16 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		case opQTHROW:
 			tmp = datastack[ DP-1 ];
-			DP--;
-			if ( tmp ) {
-				IP=GET_CELL( machine, a_throw );
-				if ( IP == 0 ) {
-					printf("\n\nQTHROW and no forth handler - what to do?\n\n");
-					exit(0);
-				}
-			} else {
-				DP--;
-			}
+			tmp2 = datastack[ DP-2 ];
+			DP-=2;
+			ATHROW( tmp, ;, tmp2 );
 			break;
 		case opNONE:
 			break;
 		default:
-			DP++;
-			datastack[ DP-1 ] = -9;
-			IP=GET_CELL( machine, a_throw );
+			ATHROW( 1, ;, -9 );
 			break;
 		}
 	}		
 }
-
 

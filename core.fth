@@ -1100,6 +1100,9 @@ forth-wordlist set-current
 : variable create 0 , does> ;													\ \ CORE
 : buffer: create allot ;														\ \ CORE-EXT
 : value create , does> @ ;														\ \ CORE-EXT
+: 2constant create , , does> dup cell+ @ swap @ ;								\ \ DOUBLE
+: 2variable create 0 , 0 , ;													\ \ DOUBLE
+
 
 256 buffer: pad																	\ \ CORE-EXT
 
@@ -1574,15 +1577,9 @@ forth-wordlist set-current
 
 : erase	0 fill ;																\ \ CORE-EXT
 
-: s\" 																			\ \ CORE-EXT FILE
-  1 abort" s-slash-quote not implemented."
-; immediate
-
-\ ---------------------------------------------------------------------------------------------
-\ 
-\ ---------------------------------------------------------------------------------------------
-
+: d0< 0 0 d< ;																	\ \ DOUBLE
 : s>d dup [ hex ] 80000000 [ decimal ] and if -1 else 0 then ;					\ \ CORE
+: d>s drop ;																	\ \ DOUBLE
 : / swap s>d rot sm/rem nip ;													\ \ CORE
 : mod swap s>d rot sm/rem drop ;												\ \ CORE
 : /mod swap s>d rot sm/rem ;													\ \ CORE
@@ -1700,8 +1697,6 @@ internals forth-wordlist 2 set-order definitions
   r> [literal]
   r> [literal]
 ; immediate
-
-: search 1 abort" search not implemented" ; immediate							\ \ STRING
 
 \ ---------------------------------------------------------------------------------------------
 \ ---------------------------------------------------------------------------------------------
@@ -1907,6 +1902,42 @@ forth-wordlist set-current
 ;
 
 \ ---------------------------------------------------------------------------------------------
+\ 
+\ ---------------------------------------------------------------------------------------------
+
+internals set-current
+: stub:
+  create
+    immediate
+	get-current @ ,
+    parse-name 
+    dup c,
+    here over allot
+    swap move
+  does>
+	cr dup @ link>name ctype 
+    space [char] ( emit 
+    cell+ ctype 
+    ." ) not implemented." cr
+	-1 throw
+;
+forth-wordlist set-current
+
+stub: s\"	CORE-EXT,FILE
+stub: d. 	DOUBLE
+stub: d.r	DOUBLE
+stub: d0=	DOUBLE
+stub: d2*	DOUBLE
+stub: d2/	DOUBLE
+stub: d=	DOUBLE
+stub: dabs	DOUBLE
+stub: dmax	DOUBLE
+stub: dmin	DOUBLE
+stub: m*/	DOUBLE
+stub: m+	DOUBLE
+stub: search 	STRING
+
+\ ---------------------------------------------------------------------------------------------
 \
 \ Now we'll build a proper Forth interpreter and patch it in as entry point. 
 \
@@ -1939,9 +1970,6 @@ forth-wordlist set-current
   repeat
   bye	
 ; 
-
-: 2constant create , , does> dup cell+ @ swap @ ;								\ \ DOUBLE
-: 2variable create 0 , 0 , ;													\ \ DOUBLE
 
 ' quit A_QUIT !	
 only definitions
