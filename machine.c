@@ -355,6 +355,23 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 				datastack[ DP-1 ] = ( a > b ) ? 1 : 0;
 			}
 			break;
+		case opDLESSTHAN:
+			{
+				int64_t a,b;
+
+				a = (s_cell_t)datastack[DP-3]; 
+				a<<=CELL_BITS;
+				a|= datastack[DP-4];
+
+				b = (s_cell_t)datastack[DP-1]; 
+				b<<=CELL_BITS;
+				b|= datastack[DP-2];
+
+				DP-=3;
+	
+				datastack[DP-1] = ( a < b ) ? 1 : 0 ;
+			}
+			break;
 		case opLESS_THAN:
 			{
 				s_cell_t a,b;

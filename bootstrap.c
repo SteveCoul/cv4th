@@ -266,6 +266,8 @@ int main( int argc, char** argv ) {
 	opword( opU_GREATER_THAN, "u>" );
 	opword( opU_LESS_THAN, "u<" );
 	opword( opNIP, "nip" );
+	opword( opADD2, "d+" );
+	opword( opDLESSTHAN, "d<" );
 	opword( opLSHIFT, "lshift" );
 	opword( opRSHIFT, "rshift" );
 	opword( opROT, "rot" );
@@ -334,7 +336,7 @@ int main( int argc, char** argv ) {
 	opconst_db( op2DUP );
 	opconst_db( op2OVER );
 	opconst_db( op2SWAP );
-	opconstant( opADD2 );
+	opconst_db( opADD2 );
 	opconst_db( opAND );
 	opconstant( opBRANCH );
 	opconst_db( opBYE );
@@ -346,6 +348,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opCSTORE );
 	opconst_db( opDELETE_FILE );
 	opconst_db( opDEPTH );
+	opconst_db( opDLESSTHAN );
 	opconstant( opDOLIT );
 	opconstant( opDOLIT_U8 );
 	opconst_db( opDROP );

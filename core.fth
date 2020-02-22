@@ -3,7 +3,9 @@
 
 \ These words are defined in the native wrapper 
 
+\ d<																			\ \ DOUBLE
 \ d-																			\ \ DOUBLE
+\ d+																			\ \ DOUBLE
 \ cells																			\ \ CORE
 \ lshift																		\ \ CORE
 \ rshift																		\ \ CORE
@@ -232,31 +234,31 @@ forth-wordlist set-current
 
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
+: dnegate																		\ \ DOUBLE
+  0 0 2swap d-
+;
+
 internals set-current
+
 \ For now this will do nothing on 16bit vms because I need the double set
 \ to implement the range checking.
-: resolvok?			\ n -- n | throw
-  1 cells 2 <>
-  [ opQBRANCH c, here 0 w, ]
-
-  dup -32768 <		\ n lof --
-  over 32767 >		\ n lof hif
-  or				\ n out-of-range --
+: resolvok?			\ d -- d | throw
+  2dup  32768 0 dnegate d< >r
+  2dup 32767 0 2swap d<
+  r> or
   -100 swap 
   [ opQTHROW c, ]	
-
-  [ here over - 2 - swap w! ]
 ;
 
 : resolv!		\ store a-addr --
-  here over - 2 - 
-  resolvok?
+  dup 0 here 0 2swap d- 2 0 d-
+  resolvok? drop
   swap w!
 ;
 
 : resolv, 		\ a-addr --
-  here - 2 - 
-  resolvok?
+  0 here 0 d- 2 0 d-
+  resolvok? drop
   w,
 ;
 forth-wordlist set-current
@@ -1361,7 +1363,7 @@ forth-wordlist set-current
 		1+ >r
 		>r
 		base @ [ opUMULT c, ]
-		r> 0 [ opADD2 c, ]
+		r> 0 d+
 		r> 
 		r> 
 	0 until
@@ -1375,10 +1377,6 @@ forth-wordlist set-current
   else
     [ get-order internals swap 1+ set-order opCOMPARE get-order nip 1- set-order c, ]
   then
-;
-
-: dnegate																		\ \ DOUBLE
-  0 0 2swap d-
 ;
 
 : 2literal swap postpone literal postpone literal ; immediate					\ \ DOUBLE

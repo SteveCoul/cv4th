@@ -24,6 +24,7 @@ enum {
 
 	opDELETE_FILE,
 	opDEPTH,
+	opDLESSTHAN,
     opDMINUS,
 	opDOLIT,
 	opDOLIT_U8,
