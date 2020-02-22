@@ -357,7 +357,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		case opLESS_THAN:
 			{
-				int a,b;
+				s_cell_t a,b;
 				b = datastack[ DP-1 ];
 				DP--;
 				a = datastack[ DP-1 ];
@@ -430,95 +430,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 		    if ( tmp3 > 0 )
 				memmove( ABS_PTR( machine, tmp2 ), ABS_PTR( machine, tmp ), tmp3 );
 			break;
-		/* math */
-		case opDMINUS:
-			tmp = datastack[ DP-1 ];
-			tmp2 = datastack[ DP-2 ];
-			DP-=2;
-			tmp3 = datastack[ DP-1 ];
-			tmp4 = datastack[ DP-2 ];
-			{
-				uint64_t v, w;
-				v = tmp; v<<=32; v|=tmp2;
-				w = tmp3; w<<=32; w|=tmp4;
-				w-=v;
-				tmp4 = w & 0xFFFFFFFF;
-				w>>=32;
-				tmp3 = w & 0xFFFFFFFF;
-			}
-			datastack[ DP-1 ] = tmp3;
-			datastack[ DP-2 ] = tmp4;
-			break;
-		case opADD2:
-			tmp = datastack[ DP-1 ];
-			tmp2 = datastack[ DP-2 ];
-			DP-=2;
-			tmp3 = datastack[ DP-1 ];
-			tmp4 = datastack[ DP-2 ];
-			{
-				uint64_t v, w;
-				v = tmp; v<<=32; v|=tmp2;
-				w = tmp3; w<<=32; w|=tmp4;
-				w+=v;
-				tmp4 = w & 0xFFFFFFFF;
-				w>>=32;
-				tmp3 = w & 0xFFFFFFFF;
-			}
-			datastack[ DP-1 ] = tmp3;
-			datastack[ DP-2 ] = tmp4;
-			break;
-		case opMULT2:
-			tmp2 = datastack[ DP-1 ];
-			tmp3 = datastack[ DP-2 ];
-			{
-				union {
-					int32_t i;
-					uint32_t u;
-				} v, u;
-				int64_t V, U;
-				v.u = tmp2;
-				u.u = tmp3;
-				V = v.i;
-				U = u.i;
-				V*=U;
-				tmp3 = V & 0xFFFFFFFF;
-				V>>=32;
-				tmp2 = V & 0xFFFFFFFF;
-			}
-			datastack[ DP-1 ] = tmp2;
-			datastack[ DP-2 ] = tmp3;
-			break;
-		case opUMULT2:
-			tmp2 = datastack[ DP-1 ];
-			tmp3 = datastack[ DP-2 ];
-			{
-				cell_t v = tmp2;
-				cell_t u = tmp3;
-				uint64_t V = v;
-				uint64_t U = u;
-				V*=U;
-				tmp3 = V & 0xFFFFFFFF;
-				V>>=32;
-				tmp2 = V & 0xFFFFFFFF;
-			}
-			datastack[ DP-1 ] = tmp2;
-			datastack[ DP-2 ] = tmp3;
-			break;
-		case opUMULT:
-			tmp = datastack[ DP-1 ];		
-			DP--;
-			tmp2 = datastack[ DP-1 ];
-			tmp3 = datastack[ DP-2 ];
-			{
-				uint64_t v = tmp2; v<<=32; v|=tmp3;
-				v*=tmp;
-				tmp3 = v & 0xFFFFFFFF;
-				v>>=32;
-				tmp2 = v & 0xFFFFFFFF;
-			}
-			datastack[ DP-1 ] = tmp2;
-			datastack[ DP-2 ] = tmp3;
-			break;
+		/* simple math */
 		case opMULT:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] * datastack[ DP ];
@@ -537,12 +449,101 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 		case opONEMINUS:
 			datastack[ DP-1 ]--;
 			break;
+		/* math */
+		case opMULT2:
+			tmp2 = datastack[ DP-1 ];
+			tmp3 = datastack[ DP-2 ];
+			{
+				union {
+					int32_t i;
+					uint32_t u;
+				} v, u;
+				int64_t V, U;
+				v.u = tmp2;
+				u.u = tmp3;
+				V = v.i;
+				U = u.i;
+				V*=U;
+				tmp3 = V & CELL_MASK;
+				V>>=CELL_BITS;
+				tmp2 = V & CELL_MASK;
+			}
+			datastack[ DP-1 ] = tmp2;
+			datastack[ DP-2 ] = tmp3;
+			break;
+		case opDMINUS:
+			tmp = datastack[ DP-1 ];
+			tmp2 = datastack[ DP-2 ];
+			DP-=2;
+			tmp3 = datastack[ DP-1 ];
+			tmp4 = datastack[ DP-2 ];
+			{
+				uint64_t v, w;
+				v = tmp; v<<=CELL_BITS; v|=tmp2;
+				w = tmp3; w<<=CELL_BITS; w|=tmp4;
+				w-=v;
+				tmp4 = w & CELL_MASK;
+				w>>=CELL_BITS;
+				tmp3 = w & CELL_MASK;
+			}
+			datastack[ DP-1 ] = tmp3;
+			datastack[ DP-2 ] = tmp4;
+			break;
+		case opADD2:
+			tmp = datastack[ DP-1 ];
+			tmp2 = datastack[ DP-2 ];
+			DP-=2;
+			tmp3 = datastack[ DP-1 ];
+			tmp4 = datastack[ DP-2 ];
+			{
+				uint64_t v, w;
+				v = tmp; v<<=CELL_BITS; v|=tmp2;
+				w = tmp3; w<<=CELL_BITS; w|=tmp4;
+				w+=v;
+				tmp4 = w & CELL_MASK;
+				w>>=CELL_BITS;
+				tmp3 = w & CELL_MASK;
+			}
+			datastack[ DP-1 ] = tmp3;
+			datastack[ DP-2 ] = tmp4;
+			break;
+		case opUMULT2:
+			tmp2 = datastack[ DP-1 ];
+			tmp3 = datastack[ DP-2 ];
+			{
+				cell_t v = tmp2;
+				cell_t u = tmp3;
+				uint64_t V = v;
+				uint64_t U = u;
+				V*=U;
+				tmp3 = V & CELL_MASK;
+				V>>=CELL_BITS;
+				tmp2 = V & CELL_MASK;
+			}
+			datastack[ DP-1 ] = tmp2;
+			datastack[ DP-2 ] = tmp3;
+			break;
+		case opUMULT:
+			tmp = datastack[ DP-1 ];		
+			DP--;
+			tmp2 = datastack[ DP-1 ];
+			tmp3 = datastack[ DP-2 ];
+			{
+				uint64_t v = tmp2; v<<=CELL_BITS; v|=tmp3;
+				v*=tmp;
+				tmp3 = v & CELL_MASK;
+				v>>=CELL_BITS;
+				tmp2 = v & CELL_MASK;
+			}
+			datastack[ DP-1 ] = tmp2;
+			datastack[ DP-2 ] = tmp3;
+			break;
 		case opSM_SLASH_REM:
 			{
 				int32_t n = (int32_t)datastack[ DP - 1 ];
 				int32_t a, b;
 				int64_t v = datastack[ DP-2 ];
-				v<<=32;
+				v<<=CELL_BITS;
 				v|=datastack[ DP-3 ];
 				a = (int32_t)(v / n);
 				b = (int32_t)(v % n);
@@ -556,7 +557,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			DP--;
 			{
 				uint64_t v = datastack[ DP-1 ];
-				v<<=32;
+				v<<=CELL_BITS;
 				v|=datastack[ DP-2 ];
 
 				tmp2 = v / tmp;

@@ -248,12 +248,13 @@ internals set-current
   [ here over - 2 - swap w! ]
 ;
 
-: resolv!		\ a-addr --
+: resolv!		\ store a-addr --
   here over - 2 - 
   resolvok?
   swap w!
 ;
-: resolv,
+
+: resolv, 		\ a-addr --
   here - 2 - 
   resolvok?
   w,
