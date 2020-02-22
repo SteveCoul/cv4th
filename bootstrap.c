@@ -280,6 +280,7 @@ int main( int argc, char** argv ) {
 	opword( opOVER, "over" );
 	opword( opDUP, "dup" );
 	opword( opPICK, "pick" );
+    opword( opDMINUS, "d-" );
 	opword( opFETCH, "@" );
 	opword( opEQUALS, "=" );
 	opword( opSTORE, "!" );

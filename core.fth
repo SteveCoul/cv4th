@@ -3,6 +3,7 @@
 
 \ These words are defined in the native wrapper 
 
+\ d-																			\ \ DOUBLE
 \ cells																			\ \ CORE
 \ lshift																		\ \ CORE
 \ rshift																		\ \ CORE
@@ -1365,6 +1366,26 @@ forth-wordlist set-current
 	0 until
 ;
 
+: compare																		\ \ STRING
+  rot			\ c-addr1 c-addr2 u2 u1
+  over -		\ c-addr1 c-addr2 u2 diff --
+  ?dup if
+    nip nip nip
+  else
+    [ get-order internals swap 1+ set-order opCOMPARE get-order nip 1- set-order c, ]
+  then
+;
+
+: dnegate																		\ \ DOUBLE
+  0 0 2swap d-
+;
+
+: 2literal swap postpone literal postpone literal ; immediate					\ \ DOUBLE
+
+internals set-current
+: [2literal] postpone 2literal ;
+forth-wordlist set-current
+
 \ some folks call this 'interpret' :-)
 internals set-current
 : (evaluate)																	
@@ -1389,9 +1410,10 @@ internals set-current
 
 		0 0 2swap >number
 		\ ud c-addr u -- : R: multiplier --
-		?dup 0= if	
-			drop 
-			if \	>number gave the interpreter a number too big for 1 cell and I don't handle that yet"
+		dup 0= if
+			\ used all the chars it should be a single cell number
+			2drop 
+			if 
 				-24 throw
 			then
 			r> *
@@ -1399,9 +1421,16 @@ internals set-current
 				[literal] 
 			then
 		else
-			r> drop
-			2drop
-			-13 throw
+			S" ." compare 0= if
+				\ terminated by a . means it's a double
+				r> -1 = if dnegate then
+				state @ if 
+					[2literal] 
+				then
+			else
+				2drop
+				-13 throw
+			then
 		then
 	else
 		1 = if
@@ -1614,16 +1643,6 @@ internals forth-wordlist 2 set-order definitions
 
 \ ---------------------------------------------------------------------------------------------
 \ ---------------------------------------------------------------------------------------------
-
-: compare																		\ \ STRING
-  rot			\ c-addr1 c-addr2 u2 u1
-  over -		\ c-addr1 c-addr2 u2 diff --
-  ?dup if
-    nip nip nip
-  else
-    [ get-order internals swap 1+ set-order opCOMPARE get-order nip 1- set-order c, ]
-  then
-;
 
 : -trailing																		\ \ STRING
   begin
@@ -1921,6 +1940,9 @@ forth-wordlist set-current
   repeat
   bye	
 ; 
+
+: 2constant create , , does> dup cell+ @ swap @ ;								\ \ DOUBLE
+: 2variable create 0 , 0 , ;													\ \ DOUBLE
 
 ' quit A_QUIT !	
 only definitions

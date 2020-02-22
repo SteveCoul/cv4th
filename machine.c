@@ -431,6 +431,24 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 				memmove( ABS_PTR( machine, tmp2 ), ABS_PTR( machine, tmp ), tmp3 );
 			break;
 		/* math */
+		case opDMINUS:
+			tmp = datastack[ DP-1 ];
+			tmp2 = datastack[ DP-2 ];
+			DP-=2;
+			tmp3 = datastack[ DP-1 ];
+			tmp4 = datastack[ DP-2 ];
+			{
+				uint64_t v, w;
+				v = tmp; v<<=32; v|=tmp2;
+				w = tmp3; w<<=32; w|=tmp4;
+				w-=v;
+				tmp4 = w & 0xFFFFFFFF;
+				w>>=32;
+				tmp3 = w & 0xFFFFFFFF;
+			}
+			datastack[ DP-1 ] = tmp3;
+			datastack[ DP-2 ] = tmp4;
+			break;
 		case opADD2:
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
