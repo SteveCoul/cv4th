@@ -232,14 +232,29 @@ forth-wordlist set-current
 : within over - >r - r> u< ;													\ \ CORE-EXT
 
 internals set-current
+\ For now this will do nothing on 16bit vms because I need the double set
+\ to implement the range checking.
+: resolvok?			\ n -- n | throw
+  1 cells 2 <>
+  [ opQBRANCH c, here 0 w, ]
+
+  dup -32768 <		\ n lof --
+  over 32767 >		\ n lof hif
+  or				\ n out-of-range --
+  -100 swap 
+  [ opQTHROW c, ]	
+
+  [ here over - 2 - swap w! ]
+;
+
 : resolv!		\ a-addr --
   here over - 2 - 
-  dup -32768 < over 32767 > or -100 swap [ opQTHROW c, ]
+  resolvok?
   swap w!
 ;
 : resolv,
   here - 2 - 
-  dup -32768 < over 32767 > or -100 swap [ opQTHROW c, ]
+  resolvok?
   w,
 ;
 forth-wordlist set-current
