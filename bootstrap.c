@@ -125,8 +125,8 @@ int refill( void ) {
 		char c;
 		if ( read( input, &c, 1 ) != 1 ) break;
 		if ( c != '\r' ) {
-			if ( input != STDIN_FILENO ) {
-				putchar( c );
+			if ( input == STDIN_FILENO ) {
+				(void)write( input, &c, 1 );
 			}
 			if ( c == '\n' ) break;
 			WRITE_BYTE( machine, A_INPUT_BUFFER + GET_CELL( machine, A_HASH_TIB ), c );

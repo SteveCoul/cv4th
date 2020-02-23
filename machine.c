@@ -3,10 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "common.h"
 #include "io.h"
 #include "io_file.h"
+#include "io_platform.h"
 #include "machine.h"
 #include "opcode.h"
 
@@ -24,7 +26,9 @@ void machine_init( machine_t* machine ) {
 	ioRegister( &io_file );
 	machine->DP = 0;
 	machine->RP = 0;
-	machine->LP = 0;
+	machine->LP = 0;	
+	(void)io_platform_init();
+	atexit( io_platform_term );
 }
 
 void machine_set_endian( machine_t* machine, machine_endian_t which ) {
@@ -633,12 +637,22 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		/* io */
 		case opIN:
-			datastack[ DP ] = getchar();
-			DP++;
+			{
+				unsigned char c;
+				(void)read( STDOUT_FILENO, &c, 1 );
+				tmp = c;
+				DP++;
+				datastack[DP-1] = tmp;
+			}
 			break;
 		case opEMIT:
-			putchar( datastack[DP-1] );
-			DP--;
+			{
+				unsigned char c;
+				tmp = datastack[DP-1];
+				DP--;
+				c = ( tmp & 255 );
+				(void)write( STDOUT_FILENO, &c, 1 );
+			}
 			break;
 		/* logic */
 		case opLSHIFT:

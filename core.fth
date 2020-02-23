@@ -938,8 +938,9 @@ forth-wordlist set-current
 ;
 
 : j																				\ \ CORE
-  r> r> r> r> r> 
+  r> r> r> r> r> r>
   dup >r
+  swap >r
   swap >r
   swap >r
   swap >r
@@ -1470,9 +1471,11 @@ forth-wordlist set-current
   begin
     key
 	case			\ max addr count key --
-       8 of dup emit rot 1- rot 1- rot endof
+       8 of  8 emit bl emit 8 emit rot 1- rot 1- rot endof
+      127 of 8 emit bl emit 8 emit rot 1- rot 1- rot endof
 	  13 of endof
-	  10 of drop nip nip exit endof
+	  10 of emit nip nip exit endof
+	  dup emit
 	  dup 3 pick c!
 	  rot 1+ rot 1+ rot
 	endcase
@@ -1536,6 +1539,8 @@ forth-wordlist set-current
   tib @ SIZE_INPUT_BUFFER 2 - source-id read-line if 
 	2drop false 
 	exit
+  else
+	tib @ 2 pick type cr
   then
 
   false = if
@@ -1886,6 +1891,7 @@ forth-wordlist set-current
 	-1 of endof
 	-2 of cr here ctype cr endof
 	dup cr ." Exception #" . cr
+	source-id close-file drop throw
 	endcase
   repeat 
   source-id close-file drop
@@ -1936,6 +1942,32 @@ stub: dmin	DOUBLE
 stub: m*/	DOUBLE
 stub: m+	DOUBLE
 stub: search 	STRING
+
+\ ---------------------------------------------------------------------------------------------
+
+internals set-current
+1024 buffer: block_buffer
+0 variable updated
+forth-wordlist set-current
+
+variable blk																	\ \ BLOCK
+: block																			\ \ BLOCK
+  save-buffers
+  blk !
+  block_buffer 1024 bl fill block_buffer
+  0 updated !
+;
+
+: update																		\ \ BLOCK
+  1 updated +!
+;
+
+: save-buffers																	\ \ BLOCK
+  updated @ if
+	cr ." TODO save buffer"
+  then
+  0 updated !
+;
 
 \ ---------------------------------------------------------------------------------------------
 \
