@@ -1951,6 +1951,14 @@ internals set-current
 forth-wordlist set-current
 
 variable blk																	\ \ BLOCK
+
+: save-buffers																	\ \ BLOCK
+  updated @ if
+	cr ." TODO save buffer"
+  then
+  0 updated !
+;
+
 : block																			\ \ BLOCK
   save-buffers
   blk !
@@ -1960,13 +1968,6 @@ variable blk																	\ \ BLOCK
 
 : update																		\ \ BLOCK
   1 updated +!
-;
-
-: save-buffers																	\ \ BLOCK
-  updated @ if
-	cr ." TODO save buffer"
-  then
-  0 updated !
 ;
 
 \ ---------------------------------------------------------------------------------------------
