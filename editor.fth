@@ -142,6 +142,8 @@ width 1+ buffer: status_buffer
 : switch_block
   current_block !
   current_block @ block ^buffer !
+  \ not sure about this - might be better if 0 counted as white space in the interpreter
+  \ otherwise - this will update non-source (binary) blocks if I just view them
   1024 0 do ^buffer @ i + c@ 0= if bl ^buffer @ i + c! update then loop
   new_status s" Block " s>status current_block @ n>status draw_status
   draw_screen

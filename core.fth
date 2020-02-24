@@ -1104,7 +1104,6 @@ forth-wordlist set-current
 
 variable blk																	\ \ BLOCK
 
-
 256 buffer: pad																	\ \ CORE-EXT
 
 \ a bit of a lie atm since we're technically including from a file
