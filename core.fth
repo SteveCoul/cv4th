@@ -803,7 +803,7 @@ forth-wordlist set-current
 ; immediate
 
 : c" 																			\ \ CORE
-	postpone AHEAD
+	postpone ahead 
 	[char] " parse
 	here >r
 	dup 1+ allot
@@ -1539,7 +1539,7 @@ internals forth-wordlist 2 set-order definitions
 
 : sliteral																		\ \ STRING
   2>r
-  postpone AHEAD
+  postpone ahead 
   2r>
   dup >r
   here >r
