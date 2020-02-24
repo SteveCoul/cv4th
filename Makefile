@@ -24,8 +24,8 @@ common-target.o: common.c common.h
 io-target.o: common.h io.h io.c
 	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io.c
 
-io_platform-target.o: common.h io.h io_platform.h io_platform.c
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_platform.c
+io_platform-target.o: common.h io.h io_platform.h io_platform_nix.c
+	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_platform_nix.c
 
 io_file-target.o: common.h io.h io_file.h io_file.c
 	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_file.c
@@ -39,8 +39,8 @@ common.o: common.c common.h
 io.o: common.h io.h io.c
 	$(CC) $(CFLAGS) -c -o $@ io.c
 
-io_platform.o: common.h io.h io_platform.h io_platform.c
-	$(CC) $(CFLAGS) -c -o $@ io_platform.c
+io_platform.o: common.h io.h io_platform.h io_platform_nix.c
+	$(CC) $(CFLAGS) -c -o $@ io_platform_nix.c
 
 io_file.o: common.h io.h io_file.h io_file.c
 	$(CC) $(CFLAGS) -c -o $@ io_file.c
