@@ -1407,17 +1407,6 @@ forth-wordlist set-current
   0 endcase
 ;
 
-: marker																		\ \ CORE-EXT
-  here
-  create
-	,
-    here SIZE_ORDER cells allot
-	A_ORDER swap SIZE_ORDER cells move
-	get-current ,
-  does>
-	1 abort" FIX THE DICTIONARY DUDE!"
-;
-
 : fill																			\ \ CORE
   begin
     over 0>
@@ -2083,6 +2072,49 @@ forth-wordlist set-current
 ;
 
 : thru	1+ swap ?do i load loop ; 												\ \ BLOCK
+
+\ ---------------------------------------------------------------------------------------------
+
+internals set-current
+: (trim)		\ list cut-off --
+  over @ 0= if 2drop exit then		\ empty list, nothing to do
+  over 
+  begin		\ list cut-off next --
+	@ 2dup >
+  until
+  nip swap !
+;
+forth-wordlist set-current
+
+: marker																		\ \ CORE-EXT
+  here
+  create
+	,
+	get-current ,
+    here SIZE_ORDER cells allot
+	A_ORDER swap SIZE_ORDER cells move
+  does>
+	>r
+	A_LIST_OF_WORDLISTS @
+	begin
+		dup r@ @ (trim) 
+		1 cells - @
+		?dup 0=
+	until
+
+	begin
+		A_LIST_OF_WORDLISTS @ r@ @ 
+		>
+    while
+		A_LIST_OF_WORDLISTS @ 1 cells - @ A_LIST_OF_WORDLISTS !
+	repeat
+
+	r@ cell+ @ set-current
+	r@ cell+ cell+ A_ORDER SIZE_ORDER cells move
+
+	r> @ 
+    A_HERE !
+;
 
 \ ---------------------------------------------------------------------------------------------
 \
