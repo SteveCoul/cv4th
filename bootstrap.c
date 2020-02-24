@@ -71,8 +71,8 @@ static void constant( const char* name, cell_t value ) {
 
 #define opconstant( name ) constant( #name, name )
 
-//#define opconst_db( name ) {}
-#define opconst_db( name ) constant( #name, name )
+#define opconst_db( name ) {}
+//#define opconst_db( name ) constant( #name, name )
 
 static void internals_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST ); }
 static void forth_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST ); }
@@ -582,7 +582,6 @@ rescan:
 						machine_execute( machine, xt, A_THROW, 1 );
 						/* TODO report any exception? */
 					} else if ( header[CELL_SIZE] == opNONE ) {
-printf("COMPILEREF %d\n", xt );
 						if ( xt < 65536 ) {
 							c_comma( opSHORT_CALL );
 							w_comma( xt );
