@@ -1177,150 +1177,12 @@ forth-wordlist set-current
   tib !
 ;
 
-internals set-current
-
-: aschar 
-  dup bl < if drop [char] . else
-  dup [char] z > if drop [char] . else
-  then then
-;
-
-: .hex32	\ v --
-  base @ >r hex 0 <# # # # # # # # # #> type r> base !
-;
-
-: .hex16	\ v --
-  base @ >r hex 0 <# # # # # #> type r> base !
-;
-
-: .hex8		\ v --
-  base @ >r hex 0 <# # # #> type r> base !
-;
-	
-: .hex		\ v --
-  base @ >r hex 0 <# #s #> type r> base !
-;
-
-forth-wordlist set-current
-
-: dump		\ a-addr len --														\ \ PROGRAMMING-TOOLS
-  over +	
-
-  begin			\ ptr end --
-	2dup <
-  while
-    cr
-    over .hex32 ." : "
-
-	16 0 do	
-		over i + over < if over i + c@ .hex8 bl emit else 3 spaces then
-		i 7 = if space then
-	loop
-
-	[char] | emit space
-
-	16 0 do
-	    over i + over < if over i + c@ aschar emit then
-	loop
-
-    swap 16 + swap 
-  repeat
-  2drop
-  cr
-;
-
 : .r																			\ \ CORE-EXT
   swap dup >r abs 0 <# #s r> sign #> 
   \ width c-addr u --
   rot over - 
   spaces type
 ;
-
-: .s 																			\ \ PROGRAMMING-TOOLS
-  depth
-  ?dup 0= if 
-	cr 10 spaces ." (empty)" 
-  else
-    cr 13 spaces ." top"
-    0 begin
-      2dup <>
-    while
-      dup 2 + pick cr 16 .r
-  	1+
-    repeat
-    2drop
-  then
-;
-
-
-internals set-current
-
-: isconstantdef		\ head -- flag
-  link>name count +	\ ptr
-  dup c@ opDOLIT = if
-	1+ cell+
-	c@ opRET = 
-  else
-    dup c@ opDOLIT_U8 = if 
-	  2 +
-	  c@ opRET = 
-    else
-      drop false 
-    then
-  then
-;
-
-: opcodename 		\ value -- caddr u | -- 0
-  internals
-  begin				\ value link --
-    @ ?dup
-  while					
-    dup link>name										\ value link name
-    dup c@ 2 > if									
-		dup 1+ c@ [char] o = if	
-		dup	2 + c@ [char] p = if			
-				over isconstantdef if			
-					over link>xt execute		
-					3 pick = if
-						nip nip count exit
-					then
-				then
-			then
-		then
-    then
-    drop
-  repeat
-  drop 0
-;
-
-: (disprefix) 5 spaces ." | " ;
-
-: dis		\ a-addr len --														
-  over + swap		\ end p --
-  begin
-    2dup >
-  while
-    cr dup .hex32 ." : " 
-	\ I ned to process anything here that has inline data, anything else can be in opcodename
-  	dup c@ opSHORT_CALL =   if (disprefix) dup 1+ w@ >name ctype 3 +	else
-	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1 + cell+ else
-	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 1+ cell+ else
-	dup c@ opDOLIT_U8 =     if (disprefix) dup 1+ c@ .hex8 2 + else
-	dup c@ opRET = 		    if (disprefix) ." Ret" drop dup	else
-	dup c@ opBRANCH =		if (disprefix) ."  branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
-	dup c@ opQBRANCH =		if (disprefix) ." ?branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
-
-	dup c@ .hex8 space dup c@ aschar emit space ." | " 
-
-	dup c@ opcodename ?dup if type 1+ else
-	dup c@ ." code " .hex 1+ 
-    then then then then then then then then
-  repeat
-  2drop
-;
-forth-wordlist set-current
-
-: see bl word find if 20000 dis then ;											\ \ PROGRAMMING-TOOLS
 
 : u.r																			\ \ CORE-EXT
   swap 0 <# #s #> 
@@ -1548,7 +1410,6 @@ forth-wordlist set-current
 	A_ORDER swap SIZE_ORDER cells move
 	get-current ,
   does>
-    SIZE_ORDER 2 cells + dump
 	1 abort" FIX THE DICTIONARY DUDE!"
 ;
 
@@ -2005,6 +1866,143 @@ forth-wordlist set-current
 : words																			\ \ PROGRAMMING-TOOLS
   ['] (words) get-current @ traverse-wordlist
 ;  
+
+internals set-current
+
+: aschar 
+  dup bl < if drop [char] . else
+  dup [char] z > if drop [char] . else
+  then then
+;
+
+: .hex32	\ v --
+  base @ >r hex 0 <# # # # # # # # # #> type r> base !
+;
+
+: .hex16	\ v --
+  base @ >r hex 0 <# # # # # #> type r> base !
+;
+
+: .hex8		\ v --
+  base @ >r hex 0 <# # # #> type r> base !
+;
+	
+: .hex		\ v --
+  base @ >r hex 0 <# #s #> type r> base !
+;
+
+forth-wordlist set-current
+
+: dump		\ a-addr len --														\ \ PROGRAMMING-TOOLS
+  over +	
+
+  begin			\ ptr end --
+	2dup <
+  while
+    cr
+    over .hex32 ." : "
+
+	16 0 do	
+		over i + over < if over i + c@ .hex8 bl emit else 3 spaces then
+		i 7 = if space then
+	loop
+
+	[char] | emit space
+
+	16 0 do
+	    over i + over < if over i + c@ aschar emit then
+	loop
+
+    swap 16 + swap 
+  repeat
+  2drop
+  cr
+;
+
+internals set-current
+
+: isconstantdef		\ head -- flag
+  link>name count +	\ ptr
+  dup c@ opDOLIT = if
+	1+ cell+
+	c@ opRET = 
+  else
+    dup c@ opDOLIT_U8 = if 
+	  2 +
+	  c@ opRET = 
+    else
+      drop false 
+    then
+  then
+;
+
+: opcodename 		\ value -- caddr u | -- 0
+  internals
+  begin				\ value link --
+    @ ?dup
+  while					
+    dup link>name										\ value link name
+    dup c@ 2 > if									
+		dup 1+ c@ [char] o = if	
+		dup	2 + c@ [char] p = if			
+				over isconstantdef if			
+					over link>xt execute		
+					3 pick = if
+						nip nip count exit
+					then
+				then
+			then
+		then
+    then
+    drop
+  repeat
+  drop 0
+;
+
+: (disprefix) 5 spaces ." | " ;
+
+: dis		\ a-addr len --														
+  over + swap		\ end p --
+  begin
+    2dup >
+  while
+    cr dup .hex32 ." : " 
+	\ I ned to process anything here that has inline data, anything else can be in opcodename
+  	dup c@ opSHORT_CALL =   if (disprefix) dup 1+ w@ >name ctype 3 +	else
+	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1 + cell+ else
+	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 1+ cell+ else
+	dup c@ opDOLIT_U8 =     if (disprefix) dup 1+ c@ .hex8 2 + else
+	dup c@ opRET = 		    if (disprefix) ." Ret" drop dup	else
+	dup c@ opBRANCH =		if (disprefix) ."  branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
+	dup c@ opQBRANCH =		if (disprefix) ." ?branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
+
+	dup c@ .hex8 space dup c@ aschar emit space ." | " 
+
+	dup c@ opcodename ?dup if type 1+ else
+	dup c@ ." code " .hex 1+ 
+    then then then then then then then then
+  repeat
+  2drop
+;
+forth-wordlist set-current
+
+: see bl word find if 20000 dis then ;											\ \ PROGRAMMING-TOOLS
+
+: .s 																			\ \ PROGRAMMING-TOOLS
+  depth
+  ?dup 0= if 
+	cr 10 spaces ." (empty)" 
+  else
+    cr 13 spaces ." top"
+    0 begin
+      2dup <>
+    while
+      dup 2 + pick cr 16 .r
+  	1+
+    repeat
+    2drop
+  then
+;
 
 \ ---------------------------------------------------------------------------------------------
 
