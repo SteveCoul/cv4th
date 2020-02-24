@@ -22,6 +22,7 @@ enum {
 	opCREATE_FILE,
 	opCSTORE,
 
+	opDEC,
 	opDELETE_FILE,
 	opDEPTH,
 	opDLESSTHAN,
@@ -44,6 +45,7 @@ enum {
 
 	opGREATER_THAN,
 
+	opINC,
 	opINVERT,
 	opIP,
 

@@ -3,6 +3,8 @@
 
 \ These words are defined in the native wrapper 
 
+\ 1+																			\ \ CORE
+\ 1-																			\ \ CORE
 \ du<																			\ \ DOUBLE
 \ d<																			\ \ DOUBLE
 \ d-																			\ \ DOUBLE
@@ -114,9 +116,6 @@
 : set-current																	\ \ SEARCH-ORDER
   A_CURRENT !
 ;
-
-: 1- 1 - ;																		\ \ CORE
-: 1+ 1 + ;																		\ \ CORE
 
 : cell+ 1 cells + ;																\ \ CORE
 
@@ -414,12 +413,12 @@ forth-wordlist set-current
 	dup 0>
   while
     swap dup c@ emit
-	1 + swap 1 -
+	1+ swap 1-
   repeat
   2drop
 ;
 
-: count dup 1 + swap c@ ;														\ \ CORE
+: count dup 1+ swap c@ ;														\ \ CORE
 
 internals set-current
 : ctype count type ;		
@@ -598,7 +597,7 @@ forth-wordlist set-current
     over over link>name c@ =				
 	if
 	  2 pick 2 pick						
-	  2 pick link>name 1 + swap				
+	  2 pick link>name 1+ swap				
 	  [ opCOMPARE c, ]
 	  0= if \ c-addr u link --
         nip nip
@@ -1591,9 +1590,9 @@ forth-wordlist set-current
     dup locals-wordlist !
 	1 cells +
 
-	opIMMEDIATE over c!  1 +
+	opIMMEDIATE over c!  1+
 	
-	over over c!  1 +
+	over over c!  1+
 
 	2dup 2>r
 	swap move
@@ -1976,7 +1975,7 @@ internals set-current
     cr dup .hex32 ." : " 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if (disprefix) dup 1+ w@ >name ctype 3 +	else
-	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1 + cell+ else
+	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1+ cell+ else
 	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 1+ cell+ else
 	dup c@ opDOLIT_U8 =     if (disprefix) dup 1+ c@ .hex8 2 + else
 	dup c@ opRET = 		    if (disprefix) ." Ret" drop dup	else
@@ -2057,7 +2056,7 @@ variable scr																	\ \ BLOCK
     r@ 0= if -35 throw then
     openblockfile
     block_file @ file-size if closeblockfile -33 throw then
-    r@ 1 - 1024 um* 2swap 1024 s>d d- du< 0= if -33 throw then
+    r@ 1- 1024 um* 2swap 1024 s>d d- du< 0= if -33 throw then
     r@ 1- 1024 um* block_file @ reposition-file if closeblockfile -33 throw then
     block_buffer 1024 block_file @ read-file nip if closeblockfile -33 throw then
     closeblockfile

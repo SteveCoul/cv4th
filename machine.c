@@ -525,6 +525,12 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 				memmove( ABS_PTR( machine, tmp2 ), ABS_PTR( machine, tmp ), tmp3 );
 			break;
 		/* simple math */
+		case opINC:
+			datastack[DP-1] = datastack[DP-1]+1;
+			break;
+		case opDEC:
+			datastack[DP-1] = datastack[DP-1]-1;
+			break;
 		case opMULT:	
 			DP--;
 			datastack[ DP-1 ] = datastack[ DP-1 ] * datastack[ DP ];

@@ -250,6 +250,8 @@ int main( int argc, char** argv ) {
 
 	/** Forth definitions that map to a single opcode */
 	forth_definitions();
+	opword( opINC, "1+" );
+	opword( opDEC, "1-" );
 	opword( opOPEN_FILE, "open-file" );
 	opword( opCLOSE_FILE, "close-file" );
 	opword( opCREATE_FILE, "create-file" );
@@ -347,6 +349,7 @@ int main( int argc, char** argv ) {
 	opconstant( opCOMPARE );
 	opconst_db( opCREATE_FILE );
 	opconst_db( opCSTORE );
+ 	opconst_db( opDEC );
 	opconst_db( opDELETE_FILE );
 	opconst_db( opDEPTH );
 	opconst_db( opDLESSTHAN );
@@ -367,6 +370,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opINVERT );
 	opconst_db( opIP );
 	opconstant( opIN );
+	opconstant( opINC );
 	opconst_db( opLESS_THAN );
 	opconstant( opLITM1 );
 	opconstant( opLIT0 );
@@ -578,6 +582,7 @@ rescan:
 						machine_execute( machine, xt, A_THROW, 1 );
 						/* TODO report any exception? */
 					} else if ( header[CELL_SIZE] == opNONE ) {
+printf("COMPILEREF %d\n", xt );
 						if ( xt < 65536 ) {
 							c_comma( opSHORT_CALL );
 							w_comma( xt );
