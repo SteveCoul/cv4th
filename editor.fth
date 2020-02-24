@@ -131,21 +131,21 @@ width 1+ buffer: status_buffer
   update
 ;
 
-: run_editor
+: switch_block
   current_block !
-
   current_block @ block ^buffer !
-
   1024 0 do ^buffer @ i + c@ 0= if bl ^buffer @ i + c! update then loop
+  new_status s" Block " s>status current_block @ n>status draw_status
+  draw_screen
+  locate
+;
 
+: run_editor
   console_clear
-  console_black
   0 to xpos
   0 to ypos
-  locate
-  draw_screen
 
-  new_status s" Block " s>status current_block @ n>status draw_status
+  switch_block
 
   begin
 	getkey
@@ -173,6 +173,8 @@ width 1+ buffer: status_buffer
 		13 of endof
 		10 of newline endof
 		27 of console_clear drop save-buffers console_black exit endof
+		4 of blk @ 1+ switch_block endof
+		5 of blk @ dup 1 > if 1 - switch_block else drop then endof
 		KEY_UP of cursorup endof
 		KEY_DOWN of cursordown endof
 		KEY_LEFT of cursorleft endof

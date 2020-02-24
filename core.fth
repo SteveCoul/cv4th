@@ -814,8 +814,6 @@ forth-wordlist set-current
 	r> [literal]
 ; immediate
 
-\ fuck
-
 internals set-current
 : the-s"buffer [fake-variable] ;
 here SIZE_INPUT_BUFFER 3 * allot the-s"buffer !
@@ -1105,6 +1103,8 @@ forth-wordlist set-current
 : 2constant create , , does> dup cell+ @ swap @ ;								\ \ DOUBLE
 : 2variable create 0 , 0 , ;													\ \ DOUBLE
 
+variable blk																	\ \ BLOCK
+
 
 256 buffer: pad																	\ \ CORE-EXT
 
@@ -1168,11 +1168,13 @@ forth-wordlist set-current
   tib @
   #tib @
   >in @
+  blk @
   source-id
 ;
 
 : restore-input																	\ \ CORE-EXT
   to source-id
+  blk !
   >in !
   #tib !
   tib !
@@ -1306,6 +1308,7 @@ forth-wordlist set-current
   r> tib !
   r> #tib !
   0 >in !
+  0 blk !
   -1 to source-id
   (evaluate)
   restore-input
@@ -1377,7 +1380,10 @@ forth-wordlist set-current
   r> drop nip nip true 0
 ;
 
-: refill																		\ \ CORE-EXT FILE
+: refill																		\ \ CORE-EXT FILE BLOCK
+  blk @ if
+		cr cr ." I don't have support for block in refill yet" -1 throw then
+
   source-id
   case
   -1 of false swap endof
@@ -1865,7 +1871,7 @@ internals set-current
 forth-wordlist set-current
 
 : words																			\ \ PROGRAMMING-TOOLS
-  ['] (words) get-current @ traverse-wordlist
+  ['] (words) get-current traverse-wordlist
 ;  
 
 internals set-current
@@ -2009,8 +2015,9 @@ forth-wordlist set-current
 
 internals set-current
 1024 buffer: block_buffer
-0 variable updated
-0 variable block_file
+variable updated
+variable block_file
+variable actual_blk
 
 : openblockfile
   s" block:/" r/w open-file if cr ." failed to open blockfile" -69 throw then block_file !
@@ -2021,21 +2028,30 @@ internals set-current
 ;
 forth-wordlist set-current
 
-variable blk																	\ \ BLOCK
 0 blk !
+
+variable scr																	\ \ BLOCK
+0 scr !
+
+: empty-buffers																	\ \ BLOCK
+  0 updated !
+  \ I only have one buffer and you cannot unassign it
+;
 
 : save-buffers																	\ \ BLOCK
   updated @ if
 	openblockfile
-	blk @ 1- 1024 um* block_file @ reposition-file if -34 throw then
+	actual_blk @ 1- 1024 um* block_file @ reposition-file if -34 throw then
 	block_buffer 1024 block_file @ write-file if -34 throw then
 	closeblockfile
     0 updated !
   then
 ;
 
+: flush save-buffers ;															\ \ BLOCK
+
 : block																			\ \ BLOCK
-  dup blk @ <> if
+  dup actual_blk @ <> if
     >r
     save-buffers
     r@ 0= if -35 throw then
@@ -2045,8 +2061,11 @@ variable blk																	\ \ BLOCK
     r@ 1- 1024 um* block_file @ reposition-file if closeblockfile -33 throw then
     block_buffer 1024 block_file @ read-file nip if closeblockfile -33 throw then
     closeblockfile
-    r> blk !
+    r> actual_blk !
+	
     0 updated !
+  else
+	drop
   then
   block_buffer
 ;
@@ -2054,6 +2073,29 @@ variable blk																	\ \ BLOCK
 : buffer block ;																\ \ BLOCK
 
 : update 1 updated +! ;															\ \ BLOCK
+
+: list dup scr ! block 1024 dump ;												\ \ BLOCK
+
+internals set-current
+: (load) block tib ! 1024 #tib ! 0 >in ! 
+  1024 0 do
+	i 64 mod 0= if cr then
+    tib @ i + c@ emit
+  loop
+  actual_blk @ blk !
+  (evaluate) 
+  0 blk !
+;
+forth-wordlist set-current
+
+: load																			\ \ BLOCK
+  >r save-input r> 
+  ['] (load) catch >r
+  restore-input
+  r> throw
+;
+
+: thru	1+ swap ?do i load loop ; 												\ \ BLOCK
 
 \ ---------------------------------------------------------------------------------------------
 \
@@ -2084,7 +2126,7 @@ forth-wordlist set-current
     postpone [
 	-1 of endof
 	-2 of cr here ctype cr endof
-	dup cr ." Exception #" . cr
+	dup cr ." Uncaught exception #" . cr
 	endcase
   repeat
   bye	
