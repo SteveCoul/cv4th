@@ -268,6 +268,7 @@ int main( int argc, char** argv ) {
 	opword( opNIP, "nip" );
 	opword( opADD2, "d+" );
 	opword( opDLESSTHAN, "d<" );
+	opword( opDULESSTHAN, "du<" );
 	opword( opLSHIFT, "lshift" );
 	opword( opRSHIFT, "rshift" );
 	opword( opROT, "rot" );
@@ -352,6 +353,7 @@ int main( int argc, char** argv ) {
 	opconstant( opDOLIT );
 	opconstant( opDOLIT_U8 );
 	opconst_db( opDROP );
+	opconst_db( opDULESSTHAN );
 	opconstant( opDUP );
 	opconst_db( opEMIT );
 	opconst_db( opEQUALS );

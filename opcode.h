@@ -29,6 +29,7 @@ enum {
 	opDOLIT,
 	opDOLIT_U8,
 	opDROP,
+	opDULESSTHAN,
 	opDUP,
 
 	opEMIT,

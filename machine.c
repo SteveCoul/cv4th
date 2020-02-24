@@ -8,6 +8,7 @@
 #include "common.h"
 #include "io.h"
 #include "io_file.h"
+#include "io_block.h"
 #include "io_platform.h"
 #include "machine.h"
 #include "opcode.h"
@@ -24,6 +25,7 @@ static cell_t noswapCELL( cell_t v ) { return v; }
 void machine_init( machine_t* machine ) {
 	ioInit();
 	ioRegister( &io_file );
+	ioRegister( &io_block );
 	machine->DP = 0;
 	machine->RP = 0;
 	machine->LP = 0;	
@@ -172,8 +174,14 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
 			break;
 		case opREPOSITION_FILE:
-			DP-=2;
-			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
+			tmp = datastack[DP-1];
+			{
+				uint64_t p = datastack[DP-2] & CELL_MASK;
+				p<<=CELL_BITS;
+				p|=(datastack[DP-3] & CELL_MASK);
+				DP-=2;
+				datastack[DP-1] = (cell_t)ioSeek( (int)tmp, p );
+			}
 			break;
 		case opRESIZE_FILE:
 			DP-=2;
@@ -393,6 +401,24 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 				DP--;
 				a = datastack[ DP-1 ];
 				datastack[ DP-1 ] = ( a > b ) ? 1 : 0;
+			}
+			break;
+		case opDULESSTHAN:
+			ATHROW( DP<4, ;, -4 );
+			{
+				uint64_t a,b;
+
+				a = (s_cell_t)datastack[DP-3]; 
+				a<<=CELL_BITS;
+				a|= datastack[DP-4];
+
+				b = (s_cell_t)datastack[DP-1]; 
+				b<<=CELL_BITS;
+				b|= datastack[DP-2];
+
+				DP-=3;
+	
+				datastack[DP-1] = ( a < b ) ? 1 : 0 ;
 			}
 			break;
 		case opDLESSTHAN:

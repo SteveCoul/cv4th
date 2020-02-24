@@ -26,6 +26,7 @@ typedef struct {
 	ior_t (*write)( int fd, void* buffer, unsigned int length );
 	ior_t (*position)( int fd, unsigned long int* position );
 	ior_t (*size)( int fd, unsigned long int* size );
+	ior_t (*seek)( int fd, unsigned long int position );
 } ioSubsystem;
 
 extern void ioRegister( ioSubsystem* ios );
@@ -36,5 +37,7 @@ extern ior_t ioRead( int fd, void* buffer, unsigned int length );
 extern ior_t ioWrite( int fd, void* buffer, unsigned int length );
 extern ior_t ioPosition( int fd, unsigned long int* position );
 extern ior_t ioSize( int fd, unsigned long int* size );
+extern ior_t ioSeek( int fd, unsigned long int position );
+
 #endif
 

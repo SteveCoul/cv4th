@@ -3,6 +3,7 @@
 
 \ These words are defined in the native wrapper 
 
+\ du<																			\ \ DOUBLE
 \ d<																			\ \ DOUBLE
 \ d-																			\ \ DOUBLE
 \ d+																			\ \ DOUBLE
@@ -2009,27 +2010,50 @@ forth-wordlist set-current
 internals set-current
 1024 buffer: block_buffer
 0 variable updated
+0 variable block_file
+
+: openblockfile
+  s" block:/" r/w open-file if cr ." failed to open blockfile" -69 throw then block_file !
+;
+
+: closeblockfile
+  block_file @ close-file drop
+;
 forth-wordlist set-current
 
 variable blk																	\ \ BLOCK
+0 blk !
 
 : save-buffers																	\ \ BLOCK
   updated @ if
-	cr ." TODO save buffer"
+	openblockfile
+	blk @ 1- 1024 um* block_file @ reposition-file if -34 throw then
+	block_buffer 1024 block_file @ write-file if -34 throw then
+	closeblockfile
+    0 updated !
   then
-  0 updated !
 ;
 
 : block																			\ \ BLOCK
-  save-buffers
-  blk !
-  block_buffer 1024 bl fill block_buffer
-  0 updated !
+  dup blk @ <> if
+    >r
+    save-buffers
+    r@ 0= if -35 throw then
+    openblockfile
+    block_file @ file-size if closeblockfile -33 throw then
+    r@ 1 - 1024 um* 2swap 1024 s>d d- du< 0= if -33 throw then
+    r@ 1- 1024 um* block_file @ reposition-file if closeblockfile -33 throw then
+    block_buffer 1024 block_file @ read-file nip if closeblockfile -33 throw then
+    closeblockfile
+    r> blk !
+    0 updated !
+  then
+  block_buffer
 ;
 
-: update																		\ \ BLOCK
-  1 updated +!
-;
+: buffer block ;																\ \ BLOCK
+
+: update 1 updated +! ;															\ \ BLOCK
 
 \ ---------------------------------------------------------------------------------------------
 \
@@ -2048,6 +2072,7 @@ forth-wordlist set-current
 : quit																			\ \ CORE
   0 rsp!
   0 to source-id
+  0 blk !
 
   postpone [
   begin

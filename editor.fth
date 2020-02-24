@@ -27,10 +27,16 @@ width 1+ buffer: status_buffer
 : console_clear	esc ." 2J" ;
 : locate xpos 3 + ypos console_at ;
 
+: hline 
+  0 swap console_at width 4 + 0 do [char] - emit loop 
+;
+
 : draw_status
-  0 height console_at console_red width 4 + 0 do [char] - emit loop 
+  console_red
+  height hline
   0 height 1+ console_at width spaces
   0 height 1+ console_at status_buffer count type
+  height 2 + hline
   console_black
   locate
 ;
@@ -56,7 +62,6 @@ width 1+ buffer: status_buffer
   repeat
   2drop
   r> drop
-  draw_status
   locate
 ;
 
@@ -122,7 +127,7 @@ width 1+ buffer: status_buffer
 ;
 
 : normalkey
-	^buffer @ ypos width * + xpos + c! cursorright draw_screen
+  ^buffer @ ypos width * + xpos + c! cursorright draw_screen
   update
 ;
 
@@ -131,12 +136,17 @@ width 1+ buffer: status_buffer
 
   current_block @ block ^buffer !
 
+  1024 0 do ^buffer @ i + c@ 0= if bl ^buffer @ i + c! update then loop
+
   console_clear
   console_black
   0 to xpos
   0 to ypos
   locate
   draw_screen
+
+  new_status s" Block " s>status current_block @ n>status draw_status
+
   begin
 	getkey
     dup 32 127 within if
@@ -162,7 +172,7 @@ width 1+ buffer: status_buffer
 		endof
 		13 of endof
 		10 of newline endof
-		27 of console_clear drop save-buffers exit endof
+		27 of console_clear drop save-buffers console_black exit endof
 		KEY_UP of cursorup endof
 		KEY_DOWN of cursordown endof
 		KEY_LEFT of cursorleft endof

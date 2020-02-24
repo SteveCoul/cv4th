@@ -26,8 +26,9 @@ static
 ioSubsystem* getSubsystem( const char* name ) {
 	ioSubsystem* p = list;
 	while ( p != NULL ) {
-		if ( cmp( name, p->name, strlen( name ) + 1 ) == 0 ) 
+		if ( cmp( name, p->name, strlen( name ) + 1 ) == 0 ) {
 			return p;
+		}
 		p = (ioSubsystem*)(p->link);
 	}
 	return NULL;
@@ -186,5 +187,11 @@ ior_t ioSize( int fd, unsigned long int* size ) {
 	ioSubsystem* i = getfile( fd );
 	if ( i == NULL ) return IOR_UNKNOWN;
 	return i->size( fd, size );
+}
+
+ior_t ioSeek( int fd, unsigned long int position ) {
+	ioSubsystem* i = getfile( fd );
+	if ( i == NULL ) return IOR_UNKNOWN;
+	return i->seek( fd, position );
 }
 

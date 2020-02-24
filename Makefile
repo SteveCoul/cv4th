@@ -10,12 +10,12 @@ CFLAGS=-Wall -Wpedantic -Werror -Os $(SIZE_FLAGS)
 default: forth
 
 clean:
-	rm -f cross-forth forth toC bootstrap kernel.img kernel.img.c *.o
+	rm -f cross-forth forth toC bootstrap kernel.img kernel.img.c *.o blockfile
 
-cross-forth: runner.c kernel.img.c common-target.o machine-target.o io-target.o io_file-target.o io_platform-target.o
+cross-forth: runner.c kernel.img.c common-target.o machine-target.o io-target.o io_file-target.o io_platform-target.o io_block-target.o
 	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -o $@ $^
 
-forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o
+forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o io_block.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 common-target.o: common.c common.h
@@ -26,6 +26,9 @@ io-target.o: common.h io.h io.c
 
 io_platform-target.o: common.h io.h io_platform.h io_platform_nix.c
 	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_platform_nix.c
+
+io_block-target.o: common.h io.h io_block.h io_block.c io_platform.h
+	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_block.c
 
 io_file-target.o: common.h io.h io_file.h io_file.c
 	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_file.c
@@ -42,6 +45,9 @@ io.o: common.h io.h io.c
 io_platform.o: common.h io.h io_platform.h io_platform_nix.c
 	$(CC) $(CFLAGS) -c -o $@ io_platform_nix.c
 
+io_block.o: common.h io.h io_block.h io_block.c io_platform.h
+	$(CC) $(CFLAGS) -c -o $@ io_block.c
+
 io_file.o: common.h io.h io_file.h io_file.c
 	$(CC) $(CFLAGS) -c -o $@ io_file.c
 
@@ -57,6 +63,6 @@ toC: toC.c
 kernel.img: bootstrap core.fth
 	./bootstrap $(ENDIAN_FLAGS) -f core.fth -p "get-order internals swap 1+ set-order ' bye ' save only definitions execute kernel.img execute"
 
-bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o
+bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.o
 	$(CC) $(CFLAGS) -o $@ $^
 

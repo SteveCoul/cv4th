@@ -13,6 +13,7 @@ static ior_t f_read( int fd, void* buffer, unsigned int length ) { return IOR_NO
 static ior_t f_write( int fd, void* buffer, unsigned int length ) { return IOR_NOT_SUPPORTED; }
 static ior_t f_position( int fd, unsigned long int* position ) { return IOR_NOT_SUPPORTED; }
 static ior_t f_size( int fd, unsigned long int* size ) { return IOR_NOT_SUPPORTED; }
+static ior_t f_seek( int fd, unsigned long int pos ) { return IOR_NOT_SUPPORTED; }
 
 #else
 #include <fcntl.h>
@@ -70,6 +71,11 @@ static ior_t f_size( int fd, unsigned long int* size ) {
 	return IOR_OK;
 }
 
+static ior_t f_seek( int fd, unsigned long int pos ) {
+	if ( lseek( fd, pos, SEEK_SET ) < 1 ) return IOR_UNKNOWN;
+	return IOR_OK;
+}
+
 #endif
 
 ioSubsystem io_file = {	NULL,
@@ -80,5 +86,7 @@ ioSubsystem io_file = {	NULL,
 						f_read,
 						f_write,
 						f_position,
-						f_size };
+						f_size,
+						f_seek };
+
 
