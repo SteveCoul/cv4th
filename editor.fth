@@ -21,7 +21,7 @@ width 1+ buffer: status_buffer
 0 value ypos
 
 : esc 27 emit [char] [ emit ;
-: console_black	esc ." 30m" ;
+: console_black	esc ." 39m" ;
 : console_red	esc ." 31m" ;
 : console_at	esc 1+ . [char] ; emit 1+ . [char] H emit ;
 : console_clear	esc ." 2J" ;
