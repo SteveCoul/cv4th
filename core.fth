@@ -1734,9 +1734,7 @@ forth-wordlist set-current
 
 : include-file																	\ \ FILE
   >r save-input r> to source-id
-  begin
-    refill
-  while
+  begin refill while
 	['] (evaluate) catch
 	case 
 	0 of endof
@@ -1942,26 +1940,20 @@ internals set-current
 ;
 
 : opcodename 		\ value -- caddr u | -- 0
-  internals
-  begin				\ value link --
-    @ ?dup
-  while					
-    dup link>name										\ value link name
+  internals begin	@ ?dup while					
+    dup link>name	
     dup c@ 2 > if									
-		dup 1+ c@ [char] o = if	
-		dup	2 + c@ [char] p = if			
-				over isconstantdef if			
-					over link>xt execute		
-					3 pick = if
-						nip nip count exit
-					then
-				then
-			then
-		then
-    then
+      dup 1+ c@ [char] o = if	
+        dup	2 + c@ [char] p = if			
+          over isconstantdef if			
+            over link>xt execute		
+              3 pick = if nip nip count exit then
+            then
+          then
+        then
+      then
     drop
-  repeat
-  drop 0
+  repeat drop 0
 ;
 
 : (disprefix) 5 spaces ." | " ;
@@ -2060,11 +2052,8 @@ variable scr																	\ \ BLOCK
     block_buffer 1024 block_file @ read-file nip if closeblockfile -33 throw then
     closeblockfile
     r> actual_blk !
-	
     0 updated !
-  else
-	drop
-  then
+  else drop then
   block_buffer
 ;
 
