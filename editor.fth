@@ -65,12 +65,20 @@ width 1+ buffer: status_buffer
   locate
 ;
 
-: cursorleft
-  xpos if xpos 1- to xpos locate then
-;
+: cursorbol 0 to xpos locate ;
 
-: cursorup
-  ypos if ypos 1- to ypos locate then
+: cursorleft xpos if xpos 1- to xpos locate then ;
+
+: cursorup ypos if ypos 1- to ypos locate then ;
+
+: cursoreol 
+  64 0 do
+    ^buffer @ 64 ypos * + 64 i - + c@ bl <> if
+		64 i - 1+ 63 min to xpos
+	    leave
+	then
+  loop
+  locate
 ;
 
 : cursorright
@@ -173,8 +181,10 @@ width 1+ buffer: status_buffer
 		13 of endof
 		10 of newline endof
 		27 of console_clear drop save-buffers console_black exit endof
-		4 of blk @ 1+ switch_block endof
-		5 of blk @ dup 1 > if 1 - switch_block else drop then endof
+		1 of  cursoreol endof
+		2 of  cursorbol endof
+		4 of current_block @ 1+ switch_block endof
+		21 of current_block @ dup 1 > if 1 - switch_block else drop then endof
 		KEY_UP of cursorup endof
 		KEY_DOWN of cursordown endof
 		KEY_LEFT of cursorleft endof
