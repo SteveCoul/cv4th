@@ -645,25 +645,12 @@ internals set-current
 
 forth-wordlist set-current
 
-: find		\ ( c-addr -- c-addr 0 | xt 1 | xt -1 )								\ \ CORE SEARCH-WORDLIST
-  >r
-  get-order		\ widN ... wid1 wid-count -- : R: c-addr --
-  locals-wordlist swap 1+
-  ?dup 0= if r> 0 exit then
-  begin
- 	1- swap
- 	r@ count rot
- 	search-wordlist 
-	?dup if 	\ widN .. wid1 wid-count xt flag -- R: c-addr --
- 	  r> drop
- 	  >r >r					\ widN .. wid1 wid-count -- R: flag xt --
- 	  begin dup if nip 1- then ?dup 0= until	\ Ndrop
- 	  r> r> exit
-    then
-	\ widN .. wid1 wid-count
-    ?dup 0=
-  until
-  r> 0
+: find																			\ \ CORE SEARCH-WORDLIST
+  dup >r count $find dup if
+	r> drop
+  else
+	r> swap
+  then
 ;
 
 internals set-current
