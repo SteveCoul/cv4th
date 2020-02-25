@@ -542,7 +542,7 @@ forth-wordlist set-current
 ;
 
 : char																			\ \ CORE
-  bl word count 0= if
+  parse-name 0= if
     drop 0			
   else
     c@
@@ -1107,8 +1107,8 @@ forth-wordlist set-current
   here 0				\ colon-sys --
   get-current @ ,
   opNONE c,
-  bl word 
-  count dup c,			\ colon-sys c-addr u --
+  parse-name 
+  dup c,			\ colon-sys c-addr u --
   here over allot		\ colon-sys c-addr u here --
   swap move
   1 state !
@@ -1139,7 +1139,7 @@ forth-wordlist set-current
   get-current @ ,
   get-current !					\ warning, I don't really want the definition on the wordlist until it's complete !
   opNONE c,
-  bl word count dup c,
+  parse-name dup c,
   here over allot
   swap move
 
@@ -1687,7 +1687,7 @@ forth-wordlist set-current
 
 : locals|
   begin
-  	bl word count
+  	parse-name
 	?dup 0= if
 		1 abort" failed local parsing"
 	then
@@ -1877,7 +1877,7 @@ get-order internals swap 1+ set-order
 : [then] ; immediate															\ \ PROGRAMMING-TOOLS
 : [else]																		\ \ PROGRAMMING-TOOLS
   1 begin
-    begin bl word count dup while
+    begin parse-name dup while
       2dup s" [if]" compare 0= if		\ FIXME case sensitivity
         2drop 1+
 	  else
