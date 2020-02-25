@@ -1725,13 +1725,12 @@ forth-wordlist set-current
   >r save-input r> to source-id
   begin refill while
 	['] (evaluate) catch
-	case 
-	0 of endof
-	-1 of endof
-	-2 of cr here ctype cr endof
-	dup cr ." Exception #" . cr
-	source-id close-file drop throw
-	endcase
+	?dup if
+		>r
+		source-id close-file drop
+		restore-input
+		r> throw
+	then
   repeat 
   source-id close-file drop
   restore-input
