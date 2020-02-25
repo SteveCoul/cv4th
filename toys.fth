@@ -140,7 +140,7 @@ variable print-over
   0 header-s !
   0 code-s !
   0 line-counter ! here last-word ! ['] (size) for-each-word-in-order 
-  total-s @ cr . space ." bytes total, " header-s @ . space ." used for headers and " code-s @ . space ." for code"
+  total-s @ cr . ."  bytes total, " header-s @ . ."  used for headers and " code-s @ . ."  for code"
 ;
 
 

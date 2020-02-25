@@ -175,7 +175,7 @@ width 1+ buffer: status_buffer
   again
 ;
 
-here start - s" Editor takes " type . space s" bytes" type 
+here start - s" Editor takes " type . s"  bytes" type 
 
 wordlist constant wid-editor
 get-order wid-editor swap 1+ set-order definitions

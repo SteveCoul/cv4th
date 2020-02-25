@@ -592,7 +592,7 @@ forth-wordlist set-current
 ;
 
 : .(																			\ \ CORE-EXT
-  [char] ) word ctype
+  [char] ) parse type
 ; immediate
 
 : search-wordlist	\ c-addr u wid -- 0 | xt 1 | xt -1 							\ \ SEARCH-ORDER
@@ -937,7 +937,7 @@ forth-wordlist set-current
 	postpone count
   else
 	  ^s"-buffer 
-      [char] " word count			\ tmp c-addr u --
+      [char] " parse				\ tmp c-addr u --
       swap 2 pick 2 pick			\ tmp u c-addr tmp u --
 	  move
   then
@@ -1239,7 +1239,7 @@ variable blk																	\ \ BLOCK
 
 : ( 																			\ \ CORE FILE
   source-id 0> abort" i haven't implemented the file semantics of ("
-  [char] ) word drop 
+  [char] ) parse 2drop
 ; immediate	
 
 : align	;	( I dont currently have any alignment requirements )				\ \ CORE
@@ -2034,7 +2034,7 @@ internals set-current
   repeat drop 0
 ;
 
-: (disprefix) 5 spaces ." | " ;
+: (disprefix) ."      | " ;
 
 : dis		\ a-addr len --														
   over + swap		\ end p --
@@ -2051,7 +2051,7 @@ internals set-current
 	dup c@ opBRANCH =		if (disprefix) ."  branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
 	dup c@ opQBRANCH =		if (disprefix) ." ?branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
 
-	dup c@ .hex8 space dup c@ aschar emit space ." | " 
+	dup c@ .hex8 space dup c@ aschar emit ."  | " 
 
 	dup c@ opcodename ?dup if type 1+ else
 	dup c@ ." code " .hex 1+ 
@@ -2091,7 +2091,7 @@ internals set-current
   	  1+
     repeat
     2drop 
-	space ." top"
+	."  top"
   n>r r> drop
 ;
 forth-wordlist set-current
