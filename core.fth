@@ -211,7 +211,12 @@ forth-wordlist set-current
   [ 
 	opRFROM c,
 	opRFROM c,
+	opDUP c,
 	opRFROM c,		\ ret a b --
+	opDUP c,		\ ret a a b b --
+	opTOR c,		\ ret a a b
+	opROT c,		\ ret a b a
+	opTOR c,		\ ret a b
 	opROT c,
 	opTOR c,
 	opSWAP c,
