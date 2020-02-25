@@ -1,12 +1,6 @@
 
 get-order internals swap 1+ set-order
 
-: (show)
-  cr link>name count type
-;
-
-: all-words ['] (show) traverse-all-wordlists ;
-
 variable last-word 
 variable line-counter
 variable total-s
@@ -36,6 +30,7 @@ variable print-over
 		  code-s +!
 		  drop
   then
+  true
 ;
 
 : (size-words)
