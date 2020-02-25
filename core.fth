@@ -1086,13 +1086,6 @@ internals set-current
 ;
 forth-wordlist set-current
 
-: key																			\ \ CORE
-  begin
-    [ opIN c, ]
-	?dup 
-  until
-;
-
 : n>r dup begin dup while rot r> swap >r >r 1- repeat drop r> swap >r >r ;		\ \ PROGRAMMING-TOOLS
 : nr> r> r> swap >r dup begin dup while r> r> swap >r rot rot 1- repeat drop ;	\ \ PROGRAMMING-TOOLS
 
@@ -1400,6 +1393,30 @@ forth-wordlist set-current
 
 : source																		\ \ CORE
   tib @ #tib @
+;
+
+\ Key values from my mac
+
+127 constant k-delete															\ \ FACILITY-EXT
+23361 constant k-up																\ \ FACILITY-EXT
+23362 constant k-down															\ \ FACILITY-EXT
+23363 constant k-right															\ \ FACILITY-EXT
+23364 constant k-left															\ \ FACILITY-EXT
+
+: at-xy	27 emit [char] [ emit 1+ . [char] ; emit 1+ . [char] H emit ;			\ \ FACILITY
+
+: ekey																			\ \ FACILITY-EXT
+  [ opEKEY c, ]	
+;
+
+: key																			\ \ CORE
+  begin
+    ekey dup 255 > if
+		drop 0
+	else
+		1
+	then
+  until
 ;
 
 : accept		\ addr max -- count												\ \ CORE

@@ -359,6 +359,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opDROP );
 	opconst_db( opDULESSTHAN );
 	opconstant( opDUP );
+	opconstant( opEKEY );
 	opconst_db( opEMIT );
 	opconst_db( opEQUALS );
 	opconst_db( opEXECUTE );
@@ -370,7 +371,6 @@ int main( int argc, char** argv ) {
 	opconst_db( opGREATER_THAN );
 	opconst_db( opINVERT );
 	opconst_db( opIP );
-	opconstant( opIN );
 	opconstant( opINC );
 	opconst_db( opLESS_THAN );
 	opconstant( opLITM1 );

@@ -33,6 +33,7 @@ enum {
 	opDULESSTHAN,
 	opDUP,
 
+	opEKEY,
 	opEMIT,
 	opEQUALS,
 	opEXECUTE,
@@ -48,8 +49,6 @@ enum {
 	opINC,
 	opINVERT,
 	opIP,
-
-	opIN,
 
 	opLESS_THAN,
 	opLITM1,

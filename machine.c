@@ -668,12 +668,13 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			}
 			break;
 		/* io */
-		case opIN:
+		case opEKEY:
 			{
-				unsigned char c;
-				if ( read( STDOUT_FILENO, &c, 1 ) )
-					;
-				tmp = c;
+				unsigned char c[3];
+				int ret = read( STDIN_FILENO, c, 3 );	
+				/* I'm expecting either 1 byte or 3 ( 27 x y ) */
+				if ( ret == 1 ) tmp = c[0];
+				else tmp = ( c[1] << 8 ) | c[2];
 				DP++;
 				datastack[DP-1] = tmp;
 			}

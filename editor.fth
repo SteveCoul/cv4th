@@ -5,11 +5,6 @@ here constant start
 
 variable current_block 
 
-128 constant KEY_UP
-139 constant KEY_DOWN
-130 constant KEY_LEFT
-131 constant KEY_RIGHT
-
 64 constant width
 16 constant height
 
@@ -25,7 +20,7 @@ width 1+ buffer: status_buffer
 : console_red	esc ." 31m" ;
 : console_at	esc 1+ . [char] ; emit 1+ . [char] H emit ;
 : console_clear	esc ." 2J" ;
-: locate xpos 3 + ypos console_at ;
+: locate xpos 3 + ypos at-xy ;
 
 : hline 
   0 swap console_at width 4 + 0 do [char] - emit loop 
@@ -102,23 +97,6 @@ width 1+ buffer: status_buffer
   then
 ;
 
-: getkey		\ very close to ekey
-  key
-  dup 27 = if
-	key 91 = if
-		drop key dup
-		case
-		65 of nip KEY_UP swap endof
-		66 of nip KEY_DOWN swap endof
-		67 of nip KEY_RIGHT swap endof
-		68 of nip KEY_LEFT swap endof
-		nip 0 swap
-		endcase
-	else drop key
-	then
-  then
-;
-
 : s>status
   status_buffer count +		\ c-addr u dest
   rot swap 2 pick			\ u c-addr dest u
@@ -158,14 +136,14 @@ width 1+ buffer: status_buffer
   switch_block
 
   begin
-	getkey
+	ekey
     dup 32 127 within if
 		xpos width = if drop else
 			normalkey
 		then
 	else
 		case
-		127 of 
+		k-delete of 
 			xpos if
 				cursorleft
 				bl normalkey
@@ -187,17 +165,17 @@ width 1+ buffer: status_buffer
 		2 of  cursorbol endof
 		4 of current_block @ 1+ switch_block endof
 		21 of current_block @ dup 1 > if 1 - switch_block else drop then endof
-		KEY_UP of cursorup endof
-		KEY_DOWN of cursordown endof
-		KEY_LEFT of cursorleft endof
-		KEY_RIGHT of cursorright endof
+		k-up of cursorup endof
+		k-down of cursordown endof
+		k-left of cursorleft endof
+		k-right of cursorright endof
 		new_status s" Unhandled key " s>status dup n>status draw_status
 		endcase
 	then
   again
 ;
 
-here start - cr s" Editor takes " type . space s" bytes" type cr
+here start - s" Editor takes " type . space s" bytes" type 
 
 wordlist constant wid-editor
 get-order wid-editor swap 1+ set-order definitions
