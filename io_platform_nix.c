@@ -29,7 +29,8 @@ ior_t io_platform_read_block( unsigned int number, void* where ) {
 
 ior_t io_platform_write_block( unsigned int number, void* what ) {
 	(void)lseek( io_platform_block_fd(), number*1024, SEEK_SET );
-	if ( write( io_platform_block_fd(), what, 1024 ) );
+	if ( write( io_platform_block_fd(), what, 1024 ) )
+		;
 	return IOR_OK;
 }
 
@@ -37,7 +38,8 @@ int io_platform_block_fd( void ) {
 	static int fd = -1;
 	if ( fd == -1 ) {
 		fd = open( "blockfile", O_RDWR | O_CREAT, 0666 );
-		if (ftruncate( fd, io_platform_block_count() * 1024 ));
+		if (ftruncate( fd, io_platform_block_count() * 1024 ))
+			;
 	}
 	return fd;
 }

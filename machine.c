@@ -671,7 +671,8 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 		case opIN:
 			{
 				unsigned char c;
-				if ( read( STDOUT_FILENO, &c, 1 ) );
+				if ( read( STDOUT_FILENO, &c, 1 ) )
+					;
 				tmp = c;
 				DP++;
 				datastack[DP-1] = tmp;
@@ -683,7 +684,8 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 				tmp = datastack[DP-1];
 				DP--;
 				c = ( tmp & 255 );
-				if ( write( STDOUT_FILENO, &c, 1 ) );
+				if ( write( STDOUT_FILENO, &c, 1 ))
+					;
 			}
 			break;
 		/* logic */
