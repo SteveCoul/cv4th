@@ -625,6 +625,24 @@ internals set-current
 
 : forget-locals	0 locals-wordlist !	;											
 
+: $find		\ c-addr u -- 0 | xt 1 | xt -1 
+  2>r
+  get-order locals-wordlist swap 1+ 
+  begin
+    dup
+  while
+	1- swap
+	2r@ rot search-wordlist ?dup if
+		2r> 2drop
+		2>r
+		begin ?dup while nip 1- repeat
+		2r>
+		exit
+	then
+  repeat
+  2r> 2drop
+;
+
 forth-wordlist set-current
 
 : find		\ ( c-addr -- c-addr 0 | xt 1 | xt -1 )								\ \ CORE SEARCH-WORDLIST
