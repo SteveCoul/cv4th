@@ -2038,7 +2038,7 @@ internals set-current
 : dis		\ a-addr len --														
   over + swap		\ end p --
   begin
-    2dup >
+    2dup u>
   while
     cr dup .hex32 ." : " 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
@@ -2060,8 +2060,6 @@ internals set-current
 ;
 forth-wordlist set-current
 
-: see parse-name $find if 20000 dis then ;										\ \ PROGRAMMING-TOOLS
-
 : .s 																			\ \ PROGRAMMING-TOOLS
   depth
   ?dup 0= if 
@@ -2077,6 +2075,8 @@ forth-wordlist set-current
     2drop
   then
 ;
+
+: see parse-name $find if 20000 dis then ;										\ \ PROGRAMMING-TOOLS
 
 internals set-current
 : .rs
