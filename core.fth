@@ -691,6 +691,108 @@ forth-wordlist set-current
 
 internals set-current
 : exception-handler	[fake-variable] ;
+: exception-info [fake-variable] ;
+forth-wordlist set-current
+
+0 exception-info !
+
+: cmove>																		\ \ STRING
+  ?dup if
+    		\ a1 a2 l --
+    rot over + 1-		\ a2 l A1 --
+    rot	2 pick + 1-		\ l A1 A2 --
+    rot
+	begin
+	  ?dup 0>
+    while
+      2 pick c@ 2 pick c!
+  	  1- rot 1- rot 1- rot
+    repeat
+	2drop
+  else
+    2drop
+  then
+;
+
+: space																			\ \ CORE
+  bl emit
+;
+
+: spaces	\ n --																\ \ CORE
+  begin
+    dup 0>
+  while
+    space
+    1-
+  repeat
+  drop
+;
+
+
+internals set-current
+
+: stash-exception-info
+  ?dup if
+	exception-info @ if
+	  drop 
+	else
+  	  \ abort" is a special case, it already has a string at here that I need to move
+	  \ and I don't store any input buffer information
+	  dup -2 = if
+		here here 1 cells + here c@ 1+ cmove>
+		here !
+	  else 
+		here !
+		>in @ here 1 cells + !
+		#tib @ here 2 cells + !
+		tib @ here 3 cells + #tib @ cmove>
+	  then	
+	  1 exception-info !
+    then
+  then
+;
+
+: text_abort"
+  [ ahead 
+    7 c, char a c, char b c, char o c, char r c, char t c, char " c, bl c, 
+    then 
+    here 8 - literal ]
+;
+
+: text_unhandled_exception
+  [ ahead
+    21 c, char U c, char n c, char h c, char a c, char n c, char d c, char l c,
+    char e c, char d c, bl c, char E c, char x c, char c c, char e c, char p c,
+    char t c, char i c, char o c, char n c, bl c, char # c,
+    then
+    here 22 - literal ]
+;
+
+: show-exception
+  exception-info @ if
+	0 exception-info !
+    here @ -2 = if
+ 	  cr text_abort" count type here 1 cells + count type [char] " emit
+    else
+      cr text_unhandled_exception count type here @ . 
+	  cr here 3 cells + here 2 cells + @ type
+	  cr
+	  here 3 cells +
+	  here 1 cells + @ 
+	  begin
+		?dup
+	  while
+		over c@
+		rot 1+ rot rot
+		9 <> if bl else 9 then
+	    emit
+		1-
+	  repeat
+	  drop [char] ^ emit
+    then
+  then
+;
+
 forth-wordlist set-current
 
 : catch																			\ \ EXCEPTION
@@ -708,14 +810,7 @@ forth-wordlist set-current
   ?dup if
 
 	exception-handler @ 0= if
-		dup -1 = if
-			(abort)
-		then
-		dup -2 = if
-			cr here ctype 
-			(abort)
-		then
-		cr [char] # dup emit emit . 
+		show-exception
 		(abort)
 	then
 
@@ -980,20 +1075,6 @@ forth-wordlist set-current
   swap
 ; immediate
 
-: space																			\ \ CORE
-  bl emit
-;
-
-: spaces	\ n --																\ \ CORE
-  begin
-    dup 0>
-  while
-    space
-    1-
-  repeat
-  drop
-;
-
 internals set-current
 : >name 	 \ xt -- c-addr														
   dup >r
@@ -1011,6 +1092,9 @@ forth-wordlist set-current
 	?dup 
   until
 ;
+
+: n>r dup begin dup while rot r> swap >r >r 1- repeat drop r> swap >r >r ;		\ \ PROGRAMMING-TOOLS
+: nr> r> r> swap >r dup begin dup while r> r> swap >r rot rot 1- repeat drop ;	\ \ PROGRAMMING-TOOLS
 
 \ Really might be better to have the word linked on create but invisible until ;
 \ so I can do away with the extra flag on colon-sys and this variable.
@@ -1168,9 +1252,11 @@ variable blk																	\ \ BLOCK
   >in @
   blk @
   source-id
+  5
 ;
 
 : restore-input																	\ \ CORE-EXT
+  5 <> if -12 throw then
   to source-id
   blk !
   >in !
@@ -1393,7 +1479,7 @@ forth-wordlist set-current
 	2drop false 
 	exit
   else
-	\ tib @ 2 pick type cr
+\	tib @ 2 pick type cr
   then
 
   false = if
@@ -1511,24 +1597,6 @@ internals forth-wordlist 2 set-order definitions
 	1- rot 1+ rot 1+ rot
   repeat
   2drop
-;
-
-: cmove>																		\ \ STRING
-  ?dup if
-    		\ a1 a2 l --
-    rot over + 1-		\ a2 l A1 --
-    rot	2 pick + 1-		\ l A1 A2 --
-    rot
-	begin
-	  ?dup 0>
-    while
-      2 pick c@ 2 pick c!
-  	  1- rot 1- rot 1- rot
-    repeat
-	2drop
-  else
-    2drop
-  then
 ;
 
 : sliteral																		\ \ STRING
@@ -1722,18 +1790,19 @@ variable save-tmp
 forth-wordlist set-current
 
 : include-file																	\ \ FILE
-  >r save-input r> to source-id
+  save-input n>r 
+  to source-id
   begin refill while
 	['] (evaluate) catch
 	?dup if
-		>r
+		dup stash-exception-info
 		source-id close-file drop
-		restore-input
-		r> throw
+		nr> restore-input
+		throw
 	then
   repeat 
   source-id close-file drop
-  restore-input
+  nr> restore-input
 ;
 
 : included																		\ \ FILE
@@ -1805,8 +1874,6 @@ get-order internals swap 1+ set-order
   refill 0= until drop
 ; immediate
 : [if] 0= if postpone [else] then ; immediate									\ \ PROGRAMMING-TOOLS
-: n>r dup begin dup while rot r> swap >r >r 1- repeat drop r> swap >r >r ;		\ \ PROGRAMMING-TOOLS
-: nr> r> r> swap >r dup begin dup while r> r> swap >r rot rot 1- repeat drop ;	\ \ PROGRAMMING-TOOLS
 
 \ no intention of supporting
 stub: assembler PROGRAMMING-TOOLS
@@ -2061,10 +2128,11 @@ internals set-current
 forth-wordlist set-current
 
 : load																			\ \ BLOCK
-  >r save-input r> 
-  ['] (load) catch >r
-  restore-input
-  r> throw
+  save-input n>r
+  ['] (load) catch 
+  dup stash-exception-info
+  nr> restore-input
+  throw
 ;
 
 : thru	1+ swap ?do i load loop ; 												\ \ BLOCK
@@ -2136,13 +2204,9 @@ forth-wordlist set-current
     refill
   while
 	['] (evaluate) catch
-	case 
-	0 of drop prompt? 0 endof
-    postpone [
-	-1 of endof
-	-2 of cr here ctype cr endof
-	dup cr ." Uncaught exception #" . cr
-	endcase
+    dup stash-exception-info
+	0= if prompt? else
+	show-exception postpone [ prompt? then
   repeat
   bye	
 ; 
