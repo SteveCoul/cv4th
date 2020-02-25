@@ -1,102 +1,60 @@
 
 get-order internals swap 1+ set-order
 
-: list-of-wordlists		\ widN .. wid1 n --
-  0 A_LIST_OF_WORDLISTS >r
+create start
 
-  begin
-    r@ @ ?dup
-  while					\ widN .. wid1 n next -- R: ptr --
-	swap 1+
-    r> @ 1 cells - >r
-  repeat  
-  r> drop
-;
-
-: get-first-word-each-wid		{: n -- :}	\ widN .. wid1 n --
-  n 0 ?do
-    n 1- roll ?dup if @ then
-  loop
-  n
-;
-
-: drop-empty			\ widN .. wid1 n --
-  0 
-  begin
+: drop-empty			\ widN .. wid1 n -- widN' .. wid1 n' ( no zeros in list )
+  0
+  begin		\ N..1 count stored --
     over
-  while 
-    rot 
-	?dup if
-      >r 1+
-    then
-    swap 1- swap
+  while
+	swap 1- swap rot	\ N...2 count' stored next --
+	?dup if >r 1+ then
   repeat
   nip
-  0
+  >r nr>
+;
+
+: get-highest
+  0 >r -1 >r
+  0 
   begin
     2dup <>
   while
-  	r> 
-	rot rot 1+
-  repeat
-  drop 	
-;
-
-: get-highest	{: | idx val -- }		\ widN .. wid1 n -- widN .. wid1 n index-of-highest-wid
-  -1 to idx
-  0 to val
-  dup 0 ?do
-    i 1+ pick val > if
-		i 1+ pick to val
-		i 1+ to idx
+	dup 2 + pick 
+	r@ > if
+		2r> 2drop
+		dup dup 1+ >r 2 + pick >r
 	then
-  loop
-  idx
-;
-
-: show
-	cr ." Word lists look like : " dup 0 ?do i 1+ pick . space loop
-;
-
-: n>r		\ xN .. x1 x -- : R x1 .. xN
-  begin
-    ?dup
-  while
-    swap 
-	r> swap >r >r
-    1-
+	1+
   repeat
+  drop r> drop r>
 ;
 
-: nr>		
-  begin	
-	?dup
-  while
-    r> r> swap >r
-	swap 1-
-  repeat
-;
-
-: pick@		{: N -- } \ a-addrN .. a-addr1 count N -- a-addrN .. a-addr1 count   : fetch in place at the Nth stack item
-  N n>r
-  @
-  N nr>
-;
+: pick@	n>r @ nr> drop ;
 
 : for-each-word-in-order	{: xt | -- }
-  list-of-wordlists
-  get-first-word-each-wid
-  drop-empty
+  \ get all wordlists 1st word pointer
+  0 A_LIST_OF_WORDLISTS >r
   begin
-    dup
-  while			\ widN .. wid1 n --
-	get-highest	>r 
-	r@ pick xt execute
-    r> pick@
+    r@ @ ?dup
+  while		
+	@ swap 1+
+    r> @ 1 cells - >r
+  repeat  
+  r> drop
+  \ N...1 count --
+  begin
     drop-empty
+    ?dup
+  while			\ widN .. wid1 n --
+	get-highest	dup >r 
+	pick xt execute
+    r> pick@
   repeat
-  drop
 ;
+
+here start - cr . s"  bytes" type
 
 : (show)
   cr link>name count type
