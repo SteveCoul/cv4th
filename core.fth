@@ -2078,6 +2078,23 @@ forth-wordlist set-current
   then
 ;
 
+internals set-current
+: .rs
+  cr
+  rsp@ >r nr> 
+    dup
+    1- 0 begin
+      2dup <>
+    while
+      dup 3 + pick cr 10 spaces .hex32
+  	  1+
+    repeat
+    2drop 
+	space ." top"
+  n>r r> drop
+;
+forth-wordlist set-current
+
 \ ---------------------------------------------------------------------------------------------
 
 internals set-current
