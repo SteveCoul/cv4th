@@ -832,7 +832,7 @@ forth-wordlist set-current
 ;
 
 : [']																			\ \ CORE
-	bl word find 0= if -13 throw then [literal]	
+  parse-name $find 0= if -13 throw then [literal]
 ; immediate
 
 : abort																			\ \ CORE EXCEPTION
@@ -840,12 +840,8 @@ forth-wordlist set-current
 ; 
 
 : '																				\ \ CORE
-	bl word 
-	find
-	0= if
-		-13 throw
-	then
-; 
+  parse-name $find 0= if -13 throw then 
+;
 
 ' throw A_THROW !
 
@@ -2065,7 +2061,7 @@ internals set-current
 ;
 forth-wordlist set-current
 
-: see bl word find if 20000 dis then ;											\ \ PROGRAMMING-TOOLS
+: see parse-name $find if 20000 dis then ;										\ \ PROGRAMMING-TOOLS
 
 : .s 																			\ \ PROGRAMMING-TOOLS
   depth
