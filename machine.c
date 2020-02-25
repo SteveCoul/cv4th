@@ -404,7 +404,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 		case opGREATER_THAN:
 			ATHROW( DP<2, ;, -4 );
 			{	
-				int a,b;
+				s_cell_t a,b;
 				b = datastack[ DP-1 ];
 				DP--;
 				a = datastack[ DP-1 ];
