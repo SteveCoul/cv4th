@@ -1393,7 +1393,7 @@ forth-wordlist set-current
 	2drop false 
 	exit
   else
-	tib @ 2 pick type cr
+	\ tib @ 2 pick type cr
   then
 
   false = if
@@ -2053,11 +2053,8 @@ variable scr																	\ \ BLOCK
 : list dup scr ! block 1024 dump ;												\ \ BLOCK
 
 internals set-current
-: (load) block tib ! 1024 #tib ! 0 >in ! 
-  1024 0 do
-	i 64 mod 0= if cr then
-    tib @ i + c@ emit
-  loop
+: (load) 
+  block tib ! 1024 #tib ! 0 >in ! 
   actual_blk @ blk !
   (evaluate) 
   0 blk !
