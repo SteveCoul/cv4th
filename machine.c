@@ -325,6 +325,13 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 				datastack[ DP-1 ] = tmp2;
 			}
 			break;
+		case opQDUP:
+			ATHROW( DP<1, ;, -4 );
+			if ( datastack[DP-1] ) {
+				datastack[ DP ] = datastack[ DP-1 ];
+				DP++;
+			}
+			break;
 		case opDUP:
 			ATHROW( DP<1, ;, -4 );
 			datastack[ DP ] = datastack[ DP-1 ];

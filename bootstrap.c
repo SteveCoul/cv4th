@@ -278,6 +278,7 @@ int main( int argc, char** argv ) {
 	opword( opTUCK, "tuck" );
 	opword( opROLL, "roll" );
 	opword( op2DUP, "2dup" );
+	opword( opQDUP, "?dup" );
 	opword( op2DROP, "2drop" );
 	opword( op2OVER, "2over" );
 	opword( op2SWAP, "2swap" );
@@ -402,6 +403,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opPLUS );
 	opconst_db( opPLUSSTORE );
 	opconstant( opQBRANCH );
+	opconst_db( opQDUP );
 	opconstant( opQTHROW );
 	opconst_db( opREAD_FILE );
 	opconst_db( opRENAME_FILE );

@@ -3,6 +3,7 @@
 
 \ These words are defined in the native wrapper 
 
+\ ?dup																			\ \ CORE
 \ 1+																			\ \ CORE
 \ 1-																			\ \ CORE
 \ du<																			\ \ DOUBLE
@@ -383,8 +384,6 @@ internals set-current
 forth-wordlist set-current
 
 : exit end-locals opRET c, ; immediate											\ \ CORE
-
-: ?dup dup 0<> if dup then ;													\ \ CORE
 
 : also																			\ \ SEARCH-ORDER
   get-order over swap 1+ set-order
