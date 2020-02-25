@@ -1387,8 +1387,8 @@ forth-wordlist set-current
   0 >in !
   0 blk !
   -1 to source-id
-  (evaluate)
-  restore-input
+  ['] (evaluate) catch >r
+  restore-input r> throw
 ;
 
 : source																		\ \ CORE

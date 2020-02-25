@@ -220,6 +220,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			break;
 		/* internal magic */
 		case opBYE:
+			printf("\n\nbye\n\n");
 			exit(0);
 			break;
 		case opIP:
