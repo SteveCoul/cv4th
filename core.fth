@@ -1632,6 +1632,10 @@ ENVIRONMENT-wid set-current
 16 constant #LOCALS
 forth-wordlist set-current
 
+internals set-current
+1024 constant local_dict_size
+forth-wordlist set-current
+
 : (local)
   2dup or 0= if
 	2drop
@@ -1646,11 +1650,10 @@ forth-wordlist set-current
 	locals-count @ 0 ?do ['] >r compile, loop
   else
 	locals-here @ 0= if
+		unused local_dict_size < abort" Not enough space for locals"
 		0 locals-count !
-		here unused + 1024 - locals-here !			\ HACK, a fairly arbitary number of bytes for dictionary
-													\ all hell breaks loose if we get within 1k of the end normally
-													\ or our locals exceed it.
-													\ TODO abort" if dictionary already full or we would go over buffer
+		here unused + local_dict_size - locals-here !		
+		\ build our locals words at end of dictionary so we can drop them 
 	then
 
 	locals-here @				\ c-addr u lh --

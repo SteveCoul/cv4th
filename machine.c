@@ -219,7 +219,8 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			datastack[DP-1] = (cell_t)IOR_NOT_SUPPORTED;
 			break;
 		/* internal magic */
-		case opBYE:
+		case opBYE:	
+			printf("\n\nBYE!!!\n\n");
 			return;
 			break;
 		case opIP:

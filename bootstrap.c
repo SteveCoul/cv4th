@@ -157,7 +157,7 @@ int refill( void ) {
 }
 
 int main( int argc, char** argv ) {
-
+	int					bye = 0;
 	machine_endian_t	endian = ENDIAN_NATIVE;
 	uint32_t			word_colon = 0;
 	uint32_t			word_semicolon = 0;
@@ -459,7 +459,7 @@ int main( int argc, char** argv ) {
 		input = open( include_file, O_RDONLY );
 	else	
 		input = STDIN_FILENO;
-	for (;;) {
+	while (bye == 0 ) {
 		int next_word_is_colon_name;
 aborted:
 		if ( ! refill() ) {
@@ -471,12 +471,17 @@ aborted:
 					WRITE_CELL( machine, A_HASH_TIB, (GET_CELL( machine, A_HASH_TIB )) + 1 );
 				}
 				WRITE_CELL( machine, A_TOIN, 0 );
+				printf("\nPostaction\n");
+				bye = 1;	/* I'm going to assume the postaction will bye */
 			} else if ( GET_CELL( machine, A_QUIT ) == 0 ) {
 				/* just drop into bootstrap interpreter */
+				printf("\nNo bootstrap vector set\n");
 			} else {
 				/* TODO report any exception? */
-				for (;;)
+				for (;;) {
+					printf("\nBoot via vector\n");
 					machine_execute( machine, GET_CELL( machine, A_QUIT ), A_THROW, 1 );
+				}
 				exit(0);
 			}
 		}
