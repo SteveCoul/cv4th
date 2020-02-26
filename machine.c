@@ -755,7 +755,6 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 		case opQTHROW:
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
-printf("\nopQTHROW %d %d\n", tmp, tmp2 );
 			DP-=2;
 			ATHROW( tmp, ;, tmp2 );
 			break;
