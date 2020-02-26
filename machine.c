@@ -517,12 +517,21 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			RP--;
 			break;
 		/* memory */
+		case opICOMPARE:
+			tmp = datastack[ DP-4 ];
+			tmp2 = datastack[ DP-3 ];
+			tmp3 = datastack[ DP-2 ];
+			tmp4 = datastack[ DP-1 ];
+			DP-=3;
+			datastack[ DP-1 ] = cmp( ABS_PTR( machine, tmp ), tmp2, ABS_PTR( machine, tmp3 ), tmp4, 0 );
+			break;
 		case opCOMPARE:
-			tmp = datastack[ DP-3 ];
-			tmp2 = datastack[ DP-2 ];
-			tmp3 = datastack[ DP-1 ];
-			DP-=2;
-			datastack[ DP-1 ] = cmp( ABS_PTR( machine, tmp ), ABS_PTR( machine, tmp2 ), tmp3 );
+			tmp = datastack[ DP-4 ];
+			tmp2 = datastack[ DP-3 ];
+			tmp3 = datastack[ DP-2 ];
+			tmp4 = datastack[ DP-1 ];
+			DP-=3;
+			datastack[ DP-1 ] = cmp( ABS_PTR( machine, tmp ), tmp2, ABS_PTR( machine, tmp3 ), tmp4, 1 );
 			break;
 		case opMOVE:
 			tmp = datastack[ DP-3 ];

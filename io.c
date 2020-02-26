@@ -26,7 +26,7 @@ static
 ioSubsystem* getSubsystem( const char* name ) {
 	ioSubsystem* p = list;
 	while ( p != NULL ) {
-		if ( cmp( name, p->name, strlen( name ) + 1 ) == 0 ) {
+		if ( cmp( name, strlen(name)+1, p->name, strlen( name ) + 1, 0 ) == 0 ) {
 			return p;
 		}
 		p = (ioSubsystem*)(p->link);

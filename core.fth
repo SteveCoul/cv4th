@@ -3,6 +3,7 @@
 
 \ These words are defined in the native wrapper 
 
+\ compare																		\ \ STRING
 \ ?dup																			\ \ CORE
 \ 1+																			\ \ CORE
 \ 1-																			\ \ CORE
@@ -598,11 +599,11 @@ forth-wordlist set-current
   begin
     ?dup
   while
-    over over link>name c@ =				
+    over over link>name c@ =			\ c-addr u wid --
 	if
-	  2 pick 2 pick						
-	  2 pick link>name 1+ swap				
-	  [ opCOMPARE c, ]
+	  2 pick 2 pick						\ c-addr u wid c-addr u wid 
+	  2 pick link>name count
+	  [ opICOMPARE c, ]
 	  0= if \ c-addr u link --
         nip nip
 		dup 
@@ -1304,16 +1305,6 @@ forth-wordlist set-current
 		r> 
 		r> 
 	0 until
-;
-
-: compare																		\ \ STRING
-  rot			\ c-addr1 c-addr2 u2 u1
-  over -		\ c-addr1 c-addr2 u2 diff --
-  ?dup if
-    nip nip nip
-  else
-    [ get-order internals swap 1+ set-order opCOMPARE get-order nip 1- set-order c, ]
-  then
 ;
 
 : 2literal swap postpone literal postpone literal ; immediate					\ \ DOUBLE

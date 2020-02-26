@@ -90,7 +90,7 @@ uint32_t find( const char* name ) {
 		while ( p != 0 ) {
 			uint32_t s = to_name( p );
 			if ( GET_BYTE( machine, s ) == strlen(name) ) {
-				if ( cmp( name, ABS_PTR( machine, s+1 ), strlen(name) ) == 0 ) {
+				if ( cmp( name, strlen(name), ABS_PTR( machine, s+1 ), strlen(name), 0 ) == 0 ) {
 					return p;
 				}
 			}
@@ -296,6 +296,7 @@ int main( int argc, char** argv ) {
 	opword( opAND, "and" );
 	opword( opXOR, "xor" );
 	opword( opCSTORE, "c!" );
+	opword( opCOMPARE, "compare" );
 	opword( opCFETCH, "c@" );
 	opword( opDROP, "drop" );
 	opword( opEMIT, "emit" );
@@ -348,7 +349,7 @@ int main( int argc, char** argv ) {
 	opconstant( opCALL );
 	opconst_db( opCFETCH );
 	opconst_db( opCLOSE_FILE );
-	opconstant( opCOMPARE );
+	opconst_db( opCOMPARE );
 	opconst_db( opCREATE_FILE );
 	opconst_db( opCSTORE );
  	opconst_db( opDEC );
@@ -370,6 +371,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opFILE_STATUS );
 	opconst_db( opFLUSH_FILE );
 	opconst_db( opGREATER_THAN );
+	opconstant( opICOMPARE );
 	opconst_db( opINVERT );
 	opconst_db( opIP );
 	opconstant( opINC );
