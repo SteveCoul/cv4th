@@ -42,6 +42,19 @@ static void lay_header( uint8_t type, const char* name ) {
 	s_comma( name );
 }
 
+static cell_t lay_header_no_link( uint8_t type, const char* name ) {
+	cell_t rc = HERE;
+	comma( 0 );
+	c_comma( type );
+	s_comma( name );
+	return rc;
+}
+
+static void link_header( cell_t where ) {
+	WRITE_CELL( machine, where, GET_CELL( machine, GET_CELL( machine, A_CURRENT ) ) );
+	WRITE_CELL( machine, GET_CELL( machine, A_CURRENT), where );
+}
+
 static cell_t to_xt( cell_t link ) { return link + GET_BYTE( machine, link+CELL_SIZE+1 ) + CELL_SIZE + 2; }
 static cell_t to_name( cell_t link ) { return link + CELL_SIZE + 1; }
 
@@ -151,6 +164,7 @@ int main( int argc, char** argv ) {
 	uint32_t			word_fslash = 0;
 	const char*			include_file = NULL;
 	const char*			post_action = NULL;
+	cell_t 				current_word = 0;
 	int					i;
 
 	for ( i = 1; i < argc; i++ ) {
@@ -493,7 +507,7 @@ rescan:
 				WRITE_CELL( machine, A_TOIN, (GET_CELL( machine, A_TOIN )) + i );
 
 				if ( next_word_is_colon_name ) {
-					lay_header( opNONE, tmp_word );
+					current_word = lay_header_no_link( opNONE, tmp_word );
 					WRITE_CELL( machine, A_STATE, 1 );
 					next_word_is_colon_name = 0;
 					goto rescan;
@@ -511,6 +525,7 @@ rescan:
 					// relink to wordlist to make visible
 					WRITE_CELL( machine, A_STATE, 0 );
 					c_comma( opRET );
+					link_header( current_word );
 					if ( word_colon == 0 ) 		{ word_colon = find(":"); if ( word_colon ) printf("now have :\n"); }
 					if ( word_semicolon == 0 )  { word_semicolon = find(";"); if ( word_semicolon ) printf("now have ;\n" ); }
 					goto rescan;
