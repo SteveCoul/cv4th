@@ -1192,7 +1192,8 @@ forth-wordlist set-current
 
 variable blk																	\ \ BLOCK
 
-256 buffer: pad																	\ \ CORE-EXT
+\ See also the environment string for the size of this buffer
+84 buffer: pad																	\ \ CORE-EXT
 
 \ a bit of a lie atm since we're technically including from a file
 \ but for bootstrap purposes we pretend we're not
@@ -1562,7 +1563,7 @@ get-order ENVIRONMENT-wid swap 1+ set-order definitions
 
 : /COUNTED_STRING		255 ;
 : /HOLD					SIZE_PICTURED_NUMERIC ;
-: /PAD					255 ;										\ FIXME should be a bootstrap const. see alsoPAD
+: /PAD					84 ;										\ FIXME should be a bootstrap const. see alsoPAD
 : ADDRESS-UNIT-BITS		1 cells 8 * ;									
 : FLOORED				0 ;
 : MAX-CHAR				255 ;
