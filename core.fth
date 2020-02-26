@@ -2030,7 +2030,9 @@ internals set-current
   repeat drop 0
 ;
 
-: (disprefix) ."      | " ;
+: dis-branch
+  ." branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 +
+;
 
 : dis		\ a-addr len --														
   over + swap		\ end p --
@@ -2038,18 +2040,17 @@ internals set-current
     2dup u>
   while
     cr dup .hex32 ." : " 
-	\ I ned to process anything here that has inline data, anything else can be in opcodename
-  	dup c@ opSHORT_CALL =   if (disprefix) dup 1+ w@ >name ctype 3 +	else
-	dup c@ opCALL = 	    if (disprefix) dup 1+ @ >name ctype 1+ cell+ else
-	dup c@ opDOLIT = 	    if (disprefix) dup 1+ @ .hex 1+ cell+ else
-	dup c@ opDOLIT_U8 =     if (disprefix) dup 1+ c@ .hex8 2 + else
-	dup c@ opRET = 		    if (disprefix) ." Ret" drop dup	else
-	dup c@ opBRANCH =		if (disprefix) ."  branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
-	dup c@ opQBRANCH =		if (disprefix) ." ?branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 + else
-
 	dup c@ .hex8 space dup c@ aschar emit ."  | " 
 
-	dup c@ opcodename ?dup if type 1+ else
+	\ I ned to process anything here that has inline data, anything else can be in opcodename
+  	dup c@ opSHORT_CALL =   if dup 1+ w@ >name ctype 3 +	else
+	dup c@ opCALL = 	    if dup 1+ @ >name ctype 1+ cell+ else
+	dup c@ opDOLIT = 	    if dup 1+ @ .hex 1+ cell+ else
+	dup c@ opDOLIT_U8 =     if dup 1+ c@ .hex8 2 + else
+	dup c@ opRET = 		    if ." Ret" drop dup	else
+	dup c@ opBRANCH = 		if dis-branch else
+	dup c@ opQBRANCH = 		if [char] ? emit dis-branch else
+	dup c@ opcodename ?dup 	if type 1+ else
 	dup c@ ." code " .hex 1+ 
     then then then then then then then then
   repeat
