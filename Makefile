@@ -5,7 +5,8 @@
 #SIZE_FLAGS?=-DVM_16BIT
 ENDIAN_FLAGS?=-be
 
-CFLAGS=-Wall -Wpedantic -Werror -O0 -g $(SIZE_FLAGS)
+CFLAGS=-Wall -Wpedantic -Werror -Os$(SIZE_FLAGS)
+STRIP=strip
 
 default: forth
 
@@ -17,6 +18,7 @@ cross-forth: runner.c kernel.img.c common-target.o machine-target.o io-target.o 
 
 forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o io_block.o
 	$(CC) $(CFLAGS) -o $@ $^
+	$(STRIP) $@
 
 common-target.o: common.c common.h
 	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ common.c
