@@ -370,6 +370,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opDELETE_FILE );
 	opconst_db( opDEPTH );
 	opconst_db( opDLESSTHAN );
+	opconstant( opDOCSTR );
 	opconstant( opDOLIT );
 	opconstant( opDOLIT_U8 );
 	opconst_db( opDROP );

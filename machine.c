@@ -742,6 +742,11 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			datastack[ DP-1 ] = datastack[ DP-1 ] & datastack[ DP ];
 			break;
 		/* others */
+		case opDOCSTR:
+			DP++;
+			datastack[ DP-1 ] = IP;
+			IP = IP + 1 + GET_BYTE( machine, IP );
+			break;
 		case opDOLIT:
 			datastack[ DP ] = GET_CELL( machine, IP );
 			DP++;

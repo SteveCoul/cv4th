@@ -27,6 +27,7 @@ enum {
 	opDEPTH,
 	opDLESSTHAN,
     opDMINUS,
+	opDOCSTR,
 	opDOLIT,
 	opDOLIT_U8,
 	opDROP,

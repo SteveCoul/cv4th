@@ -910,15 +910,13 @@ forth-wordlist set-current
  	then
 ; immediate
 
-: c" 																			\ \ CORE
-	postpone ahead 
-	[char] " parse
-	here >r
-	dup 1+ allot
-	dup r@ c!
-    r@ 1+ swap move
-	postpone then
-	r> [literal]
+: c"																			\ \ CORE
+	[char] " parse			\ c-addr u --
+	dup 255 > if -18 throw then
+	opDOCSTR c, 
+	dup c,					\ c-addr u --
+	here over allot		
+	swap move
 ; immediate
 
 internals set-current
@@ -940,7 +938,7 @@ forth-wordlist set-current
 
 : s"																			\ \ CORE / FILE-ACCESS
   state @ if
-	postpone c"
+	postpone c"				\ Warning! assumes 255 chars max for S"
 	postpone count
   else
 	  ^s"-buffer 
