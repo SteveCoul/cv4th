@@ -3,8 +3,8 @@
 
 int cmp( const char* s1, int len1, const char* s2, int len2, int match_case ) {
 	int rc = 0;
-	char a;
-	char b;
+	char a = 0;
+	char b = 0;
 	while ( ( len1 > 0 ) && ( len2 > 0 ) ) {
 		a = *s1++;
 		b = *s2++;
