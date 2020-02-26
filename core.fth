@@ -152,8 +152,10 @@ forth-wordlist set-current
   SIZE_FORTH here -
 ;
 
+\ throwing places exception information at HERE so don't get too close
+\ to the edge of dictionary before doing this throw. yuk.
 : allot																			\ \ CORE
-  -8 over unused < 0= [ opQTHROW here c! 1 A_HERE +! ]
+  -8 over unused 512 - < 0= [ opQTHROW here c! 1 A_HERE +! ]
   A_HERE +!	
 ;
 
