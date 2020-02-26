@@ -1950,35 +1950,36 @@ internals set-current
   then then
 ;
 
-: .hex32	\ v --
-  base @ >r hex 0 <# # # # # # # # # #> type r> base !
+: .8		\ v --
+  0 <# # # # # # # # # #> type
 ;
 
-: .hex16	\ v --
-  base @ >r hex 0 <# # # # # #> type r> base !
+: .4		\ v --
+  0 <# # # # # #> type
 ;
 
-: .hex8		\ v --
-  base @ >r hex 0 <# # # #> type r> base !
+: .2		\ v --
+  0 <# # # #> type
 ;
 	
-: .hex		\ v --
-  base @ >r hex 0 <# #s #> type r> base !
+: .N		\ v --
+  0 <# #s #> type
 ;
 
 forth-wordlist set-current
 
 : dump		\ a-addr len --														\ \ PROGRAMMING-TOOLS
+  base @ >r hex
   over +	
 
   begin			\ ptr end --
 	2dup <
   while
     cr
-    over .hex32 ." : "
+    over .8 ." : "
 
 	16 0 do	
-		over i + over < if over i + c@ .hex8 bl emit else 3 spaces then
+		over i + over < if over i + c@ .2 bl emit else 3 spaces then
 		i 7 = if space then
 	loop
 
@@ -1992,6 +1993,7 @@ forth-wordlist set-current
   repeat
   2drop
   cr
+  r> base !
 ;
 
 internals set-current
@@ -2029,30 +2031,32 @@ internals set-current
 ;
 
 : dis-branch
-  ." branch" dup 1+ w@ [char] [ emit over + 3 + .hex16 [char] ] emit 3 +
+  ." branch" dup 1+ w@ [char] [ emit over + 3 + .4 [char] ] emit 3 +
 ;
 
 : dis		\ a-addr len --														
+  base @ >r hex
   over + swap		\ end p --
   begin
     2dup u>
   while
-    cr dup .hex32 ." : " 
-	dup c@ .hex8 space dup c@ aschar emit ."  | " 
+    cr dup .8 ." : " 
+	dup c@ .2 space dup c@ aschar emit ."  | " 
 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if dup 1+ w@ >name ctype 3 +	else
 	dup c@ opCALL = 	    if dup 1+ @ >name ctype 1+ cell+ else
-	dup c@ opDOLIT = 	    if dup 1+ @ .hex 1+ cell+ else
-	dup c@ opDOLIT_U8 =     if dup 1+ c@ .hex8 2 + else
+	dup c@ opDOLIT = 	    if dup 1+ @ .N 1+ cell+ else
+	dup c@ opDOLIT_U8 =     if dup 1+ c@ .2 2 + else
 	dup c@ opRET = 		    if ." Ret" drop dup	else
 	dup c@ opBRANCH = 		if dis-branch else
 	dup c@ opQBRANCH = 		if [char] ? emit dis-branch else
 	dup c@ opcodename ?dup 	if type 1+ else
-	dup c@ ." code " .hex 1+ 
+	dup c@ ." code " .N 1+ 
     then then then then then then then then
   repeat
   2drop
+  r> base !
 ;
 forth-wordlist set-current
 
@@ -2082,7 +2086,7 @@ internals set-current
     1- 0 begin
       2dup <>
     while
-      dup 3 + pick cr 10 spaces .hex32
+      dup 3 + pick cr 10 .r
   	  1+
     repeat
     2drop 
