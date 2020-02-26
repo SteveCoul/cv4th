@@ -437,7 +437,7 @@ internals set-current
 forth-wordlist set-current
 
 internals set-current
-: known-literal-opcodes 
+: litops
   opLITM1 -1
   opLIT0 0
   opLIT1 1
@@ -452,7 +452,7 @@ internals set-current
 ;
 
 : [literal]
-  >r known-literal-opcodes 
+  >r litops
   begin
     ?dup 
   while					\ pairs count -- | R: lookfor --
@@ -748,7 +748,7 @@ forth-wordlist set-current
 
 internals set-current
 
-: stash-exception-info
+: >except
   ?dup if
 	exception-info @ if
 	  drop 
@@ -769,14 +769,14 @@ internals set-current
   then
 ;
 
-: text_abort"
+: ab"
   [ ahead 
     7 c, char a c, char b c, char o c, char r c, char t c, char " c, bl c, 
     then 
     here 8 - literal ]
 ;
 
-: text_unhandled_exception
+: "ue"
   [ ahead
     21 c, char U c, char n c, char h c, char a c, char n c, char d c, char l c,
     char e c, char d c, bl c, char E c, char x c, char c c, char e c, char p c,
@@ -785,13 +785,13 @@ internals set-current
     here 22 - literal ]
 ;
 
-: show-exception
+: .except
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
- 	  cr text_abort" count type here 1 cells + count type [char] " emit
+ 	  cr ab" count type here 1 cells + count type [char] " emit
     else
-      cr text_unhandled_exception count type here @ . 
+      cr "ue" count type here @ . 
 	  cr here 3 cells + here 2 cells + @ type
 	  cr
 	  here 3 cells +
@@ -827,7 +827,7 @@ forth-wordlist set-current
   ?dup if
 
 	exception-handler @ 0= if
-		show-exception
+		.except
 		(abort)
 	then
 
@@ -1813,7 +1813,7 @@ forth-wordlist set-current
   begin refill while
 	['] (evaluate) catch
 	?dup if
-		dup stash-exception-info
+		dup >except
 		source-id close-file drop
 		nr> restore-input
 		throw
@@ -2163,11 +2163,11 @@ variable updated
 variable block_file
 variable actual_blk
 
-: openblockfile
+: obf
   s" block:/" r/w open-file if cr ." failed to open blockfile" -69 throw then block_file !
 ;
 
-: closeblockfile
+: cbf
   block_file @ close-file drop
 ;
 forth-wordlist set-current
@@ -2184,10 +2184,10 @@ variable scr																	\ \ BLOCK
 
 : save-buffers																	\ \ BLOCK
   updated @ if
-	openblockfile
+	obf
 	actual_blk @ 1- 1024 um* block_file @ reposition-file if -34 throw then
 	block_buffer 1024 block_file @ write-file if -34 throw then
-	closeblockfile
+	cbf
     0 updated !
   then
 ;
@@ -2199,12 +2199,12 @@ variable scr																	\ \ BLOCK
     >r
     save-buffers
     r@ 0= if -35 throw then
-    openblockfile
-    block_file @ file-size if closeblockfile -33 throw then
+    obf
+    block_file @ file-size if cbf -33 throw then
     r@ 1- 1024 um* 2swap 1024 s>d d- du< 0= if -33 throw then
-    r@ 1- 1024 um* block_file @ reposition-file if closeblockfile -33 throw then
-    block_buffer 1024 block_file @ read-file nip if closeblockfile -33 throw then
-    closeblockfile
+    r@ 1- 1024 um* block_file @ reposition-file if cbf -33 throw then
+    block_buffer 1024 block_file @ read-file nip if cbf -33 throw then
+    cbf
     r> actual_blk !
     0 updated !
   else drop then
@@ -2229,7 +2229,7 @@ forth-wordlist set-current
 : load																			\ \ BLOCK
   save-input n>r
   ['] (load) catch 
-  dup stash-exception-info
+  dup >except
   nr> restore-input
   throw
 ;
@@ -2303,9 +2303,9 @@ forth-wordlist set-current
     refill
   while
 	['] (evaluate) catch
-    dup stash-exception-info
+    dup >except
 	0= if prompt? else
-	show-exception postpone [ prompt? then
+	.except postpone [ prompt? then
   repeat
   bye	
 ; 
