@@ -32,7 +32,7 @@ variable	mode
 : color_status	esc ." 33m" ;
 : hline color_border width begin ?dup while [char] - emit 1- repeat ;
 
-: locate xpos @ 1 + ypos @ 3 + at-xy ;
+: locate xpos @ 3 + ypos @ 3 + at-xy ;
 
 width 1+ buffer: status-buffer
 0 status-buffer c!
@@ -55,28 +55,30 @@ width 1+ buffer: status-buffer
 : drawedges
   color_border
   height 6 + 0 ?do
-    0 i at-xy [char] | emit
-    width 1+ i at-xy [char] | emit
+    0 i at-xy 
+	i 3 - 0 16 within if i 3 - 2 .r else 2 spaces then
+	[char] | emit
+    width 3 + i at-xy [char] | emit
   loop
 ;
 
 : drawstatus
-  1 height 3 + at-xy hline
+  3 height 3 + at-xy hline
   color_status
-  1 height 4 + at-xy status-buffer count dup >r type width r> - spaces
-  1 height 5 + at-xy hline
+  3 height 4 + at-xy status-buffer count dup >r type width r> - spaces
+  3 height 5 + at-xy hline
   locate
 ;
 
 : drawtitle 
-  1 0 at-xy hline
-  1 1 at-xy
+  3 0 at-xy hline
+  3 1 at-xy
   current_block @ 0 <# bl hold #s s" block " holds #> 
   width over - 2 / dup >r spaces
   color_title
   dup >r type
   width r> - r> - spaces
-  1 2 at-xy hline locate
+  3 2 at-xy hline locate
 ;  
 
 : drawblock
@@ -171,38 +173,12 @@ width 1+ buffer: status-buffer
   width * ^buffer @ + width bl fill
 ;
 
-: splitline
-  ^buffer @ ypos @ 2 + width * +
-  dup width +
-  width height *
-  ypos @ 2 + width * -
-  cmove>
-  
-
-  ypos @ 1+ fill-line
-  ^buffer @ ypos @ width * + xpos @ +
-  ^buffer @ ypos @ 1+ width * +
-  width xpos @ -
-  cmove>
-  ^buffer @ ypos @ width * + xpos @ + width xpos @ - bl fill
-  0 xpos !
-  1 ypos +!
-;
-
 : set-last-line-empty
   height 1- fill-line
 ;
 
-: remove-line	 \ i --
-  dup height 1- = if	\ don't need to remove the actual last line, just overwrite it
-	drop
-  else
-	dup width * ^buffer @ +
-	dup width + swap			\ i buffer+line buffer --
-	rot 1+ height swap - width *
-	cmove>
-  then
-  set-last-line-empty
+: splitline
+  \ todo
 ;
 
 : is-line-blank?	\ line# -- flag
@@ -213,14 +189,25 @@ width 1+ buffer: status-buffer
   true
 ;
 
+: remove-line	 \ i --
+  dup height 1- = if	\ don't need to remove the actual last line, just overwrite it
+	drop
+  else
+	dup width * ^buffer @ +
+	dup width + swap			\ i buffer+line buffer --
+	rot 1+ height swap - width *
+cr 2 pick ^buffer @ - . ." to " 1 pick ^buffer @ - . ."  for " dup . ."  bytes " dup 64 / . ."  lines"
+	cmove>
+  then
+  set-last-line-empty
+;
+
 : remove-any-blank-line-after? \ i -- flag
-  cr ." remove any blank line after " dup .
   height 1-
   begin
     2dup <>
   while
 	dup is-line-blank? if
-		cr ." line " dup . ." looks blank"
 		nip remove-line true exit
 	then
 	1-
@@ -253,12 +240,10 @@ width 1+ buffer: status-buffer
 		drawblock
 	then
   else r@ 10 = if
-	color_text 0 25 at-xy 20 0 ?do 0 25 i + at-xy 100 spaces loop 0 25 at-xy
 	ypos @ height 1- = if
 		beep
 	else
 		last-line-is-blank? if
-			cr ." last line is blank"
 			splitline
 		else
 			ypos @ remove-any-blank-line-after? if
@@ -338,13 +323,15 @@ width 1+ buffer: status-buffer
   repeat
 ;
 
+: d console_clear drawedges drawstatus drawtitle drawblock 0 25 at-xy ;
+
 \ widEditor set-current
 
 : vi
   1 ['] runeditor catch 
   save-buffers
   color_text 
-  console_clear
+0 25 at-xy \  console_clear
   throw ;
 
 \ forth-wordlist set-current
