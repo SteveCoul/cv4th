@@ -148,7 +148,12 @@ forth-wordlist set-current
 : chars ;																		\ \ CORE
 : char+ 1+ ;																	\ \ CORE
 
+: unused																		\ \ CORE-EXT
+  SIZE_FORTH here -
+;
+
 : allot																			\ \ CORE
+  -8 over unused < 0= [ opQTHROW here c! 1 A_HERE +! ]
   A_HERE +!	
 ;
 
@@ -1431,10 +1436,6 @@ forth-wordlist set-current
     2 pick over =
   until
   nip nip	
-;
-
-: unused																		\ \ CORE-EXT
-  SIZE_FORTH here -
 ;
 
 internals set-current
