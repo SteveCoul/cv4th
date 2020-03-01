@@ -57,7 +57,8 @@ machine.o: common.h io.h io_file.h opcode.h io_platform.h machine.h machine.c
 	$(CC) $(CFLAGS) -c -o $@ machine.c
 
 kernel.img.c: kernel.img toC
-	cat kernel.img | ./toC > $@
+	echo "#include \"kernel_image.h\"" > $@
+	cat kernel.img | ./toC >> $@
 
 toC: toC.c
 	$(CC) $(CFLAGS) -o $@ $^
@@ -67,4 +68,32 @@ kernel.img: bootstrap core.fth
 
 bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.o
 	$(CC) $(CFLAGS) -o $@ $^
+
+
+
+arduino_build_tree: kernel.img.c
+	rm -rf arduino
+	mkdir arduino
+	ln -s ../forth.h arduino/forth.h
+	ln -s ../kernel.img.c arduino/kernel.cpp
+	ln -s ../kernel_image.h arduino/kernel_image.h
+	ln -s ../common.h arduino/common.h
+	ln -s ../common.c arduino/common.cpp
+	ln -s ../machine.h arduino/machine.h
+	ln -s ../machine.c arduino/machine.cpp
+	ln -s ../io.h arduino/io.h
+	ln -s ../io.c arduino/io.cpp
+	ln -s ../io_file.h arduino/io_file.h
+	ln -s ../io_file.c arduino/io_file.cpp
+	ln -s ../io_block.h arduino/io_block.h
+	ln -s ../io_block.c arduino/io_block.cpp
+	ln -s ../io_platform.h arduino/io_platform.h
+	ln -s ../opcode.h arduino/opcode.h
+	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
+	echo "all:" > arduino/Makefile
+	echo "\tarduino-cli compile -v -b esp8266:esp8266:d1" >> arduino/Makefile
+	ln -s ../runner.c arduino/arduino.ino
+
+arduino: arduino_build_tree
+	make -C arduino
 
