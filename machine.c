@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -825,13 +824,14 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		/* io */
 		case opEKEY:
 			{
-				unsigned char c[3];
-				int ret = read( STDIN_FILENO, c, 3 );	
-				/* I'm expecting either 1 byte or 3 ( 27 x y ) */
-				if ( ret == 1 ) tmp = c[0];
-				else tmp = ( c[1] << 8 ) | c[2];
-				DP++;
-				datastack[DP-1] = tmp;
+				int rc = io_platform_read_term();	/* May timeout */
+				if ( rc < 0 ) {
+					/* timeout - fiddle instruction pointer so we go back again */
+					IP--;
+				} else {
+					DP++;
+					datastack[DP-1] = rc;
+				}
 			}
 			break;
 		case opEMIT:
@@ -839,9 +839,8 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 				unsigned char c;
 				tmp = datastack[DP-1];
 				DP--;
-				c = ( tmp & 255 );
-				if ( write( STDOUT_FILENO, &c, 1 ))
-					;
+				c = tmp & 255;
+				io_platform_write_term( c );
 			}
 			break;
 		/* logic */
