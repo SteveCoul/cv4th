@@ -25,31 +25,30 @@ int main( int argc, char** argv ) {
 	
 	quit			=	p[4];
 
-	printf("\nCell size %d, Head %x\n", sizeof(cell_t), head );
+	printf("\nCell size %d, Head %x\n", (int)sizeof(cell_t), head );
 
 	machine_init( &machine );
-	machine_set_endian( &machine, ENDIAN_NATIVE );
+	machine_set_endian( &machine, ENDIAN_NATIVE, 1 );
 
 	if ( head != HEADER_ID ) {
-		printf("Non=native endianness\n");
-		machine_set_endian( &machine, ENDIAN_SWAP );
-		size = machine.swapCELL( size );
-		dstacksize = machine.swapCELL( dstacksize );
-		rstacksize = machine.swapCELL( rstacksize );
-		quit = machine.swapCELL( quit );
+		machine_set_endian( &machine, ENDIAN_SWAP, 1 );
+		size = machine.swapCell( size );
+		dstacksize = machine.swapCell( dstacksize );
+		rstacksize = machine.swapCell( rstacksize );
+		quit = machine.swapCell( quit );
 	}
 
 	printf("Dictonary size: %d bytes\n", size );
 	machine.memory = (cell_t*)malloc( size );
-	printf("\tPointer %p", machine.memory );
+	printf("\tPointer %p\n", machine.memory );
 
 	printf("Datastack : %d cells\n", dstacksize );
 	machine.datastack = (cell_t*)malloc( dstacksize * CELL_SIZE );
-	printf("\tPointer %p\n", machine.datastack );
+	printf("\tPointer %p\n", (void*)(machine.datastack) );
 
 	printf("Returnstack : %d cells\n", rstacksize );
 	machine.returnstack = (cell_t*)malloc( rstacksize * CELL_SIZE );
-	printf("\tPointer %p\n", machine.returnstack );
+	printf("\tPointer %p\n", (void*)(machine.returnstack) );
 
 	printf("Copy data\n");
 	memset( machine.memory, 0, size );

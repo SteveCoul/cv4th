@@ -166,6 +166,7 @@ int main( int argc, char** argv ) {
 	const char*			post_action = NULL;
 	cell_t 				current_word = 0;
 	int					i;
+	int					alignment_workaround = 0;
 
 	for ( i = 1; i < argc; i++ ) {
 		if ( ( strcmp( argv[i], "-h" ) == 0 ) || ( strcmp( argv[i], "-help" ) == 0 ) ) {
@@ -175,6 +176,7 @@ int main( int argc, char** argv ) {
 			printf("-p <string>		Text to run on start but after include\n" );
 			printf("-be				Select big endian\n");
 			printf("-le				Select little endian\n");
+			printf("-a				Enable alignment capable fetch and store\n");
 			printf("				Default endian is host native\n");
 			exit(0);
 		}
@@ -187,6 +189,8 @@ int main( int argc, char** argv ) {
 			endian = ENDIAN_BIG;
 		} else if ( strcmp( argv[i], "-le" ) == 0 ) { 
 			endian = ENDIAN_LITTLE;
+		} else if ( strcmp( argv[i], "-a" ) == 0 ) {
+			alignment_workaround = 1;
 		} else {
 			printf("invalid switch %s\n", argv[i] );
 			exit(0);
@@ -200,7 +204,7 @@ int main( int argc, char** argv ) {
 	machine->datastack = malloc( SIZE_DATA_STACK );
 	machine->returnstack = malloc( SIZE_RETURN_STACK );
 
-	machine_set_endian( machine, endian );
+	machine_set_endian( machine, endian, alignment_workaround );
 
 	memset( machine->memory, 0, SIZE_FORTH );
 

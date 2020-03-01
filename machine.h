@@ -17,16 +17,28 @@ typedef int32_t s_cell_t;
 #define CELL_BITS 32
 #endif
 
-typedef struct {
+typedef struct tagMachine_t {
 	void*		memory;
 	cell_t*		datastack;
 	cell_t*		returnstack;
 	cell_t		DP;
 	cell_t		RP;
 	cell_t		LP;
-	uint16_t	(*swap16)( uint16_t v );
-	cell_t		(*swapCELL)( cell_t v );
+	cell_t		(*swapCell)( cell_t v );
+	uint16_t	(*getWord)( struct tagMachine_t* machine, cell_t r_address );
+	void		(*putWord)( struct tagMachine_t* machine, cell_t r_address, cell_t value );
+	cell_t		(*getCell)( struct tagMachine_t* machine, cell_t r_address );
+	void		(*putCell)( struct tagMachine_t* machine, cell_t r_address, cell_t value );
 } machine_t;
+
+#define GET_BYTE(mach,r_addr)           ((uint8_t*)( ((uint8_t*)(mach->memory) + r_addr) ))[0]
+#define WRITE_BYTE(mach,r_addr, value)  ((uint8_t*)(mach->memory))[ r_addr ] = (uint8_t)value
+
+#define GET_CELL( machine, r_address )	(machine)->getCell( machine, r_address )
+#define GET_WORD( machine, r_address )	(machine)->getWord( machine, r_address )
+
+#define WRITE_CELL( machine, r_address, value )	(machine)->putCell( machine, r_address, value )
+#define WRITE_WORD( machine, r_address, value )	(machine)->putWord( machine, r_address, value )
 
 typedef enum {
 	ENDIAN_LITTLE,
@@ -36,18 +48,10 @@ typedef enum {
 } machine_endian_t;
 
 extern void machine_init( machine_t* machine );
-extern void machine_set_endian( machine_t* machine, machine_endian_t which );
+extern void machine_set_endian( machine_t* machine, machine_endian_t which, int unaligned_workaround );
 
 #define CELL_SIZE						sizeof(cell_t)
 #define ABS_PTR( mach, r_addr )			(void*)(((uint8_t*)(mach->memory))+r_addr)
-
-#define GET_BYTE(mach,r_addr)	 		((uint8_t*)( ((uint8_t*)(mach->memory) + r_addr) ))[0]
-#define WRITE_BYTE(mach,r_addr, value)	((uint8_t*)(mach->memory))[ r_addr ] = (uint8_t)value
-
-#define GET_CELL(mach,r_addr)	 		(mach->swapCELL(((cell_t*)(((uint8_t*)(mach->memory) + r_addr)))[0]))
-#define WRITE_CELL(mach,r_addr, value) 	((cell_t*)(((uint8_t*)(mach->memory) + r_addr)))[0] = mach->swapCELL(value)
-#define GET_WORD(mach,r_addr)	 		(mach->swap16(((uint16_t*)(((uint8_t*)(mach->memory) + r_addr)))[0]))
-#define WRITE_WORD(mach,r_addr, value) 	((uint16_t*)(((uint8_t*)(mach->memory) + r_addr)))[0] = mach->swap16(value)
 
 extern void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_once );
 
