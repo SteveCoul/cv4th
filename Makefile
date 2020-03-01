@@ -70,6 +70,11 @@ bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.
 	$(CC) $(CFLAGS) -o $@ $^
 
 
+#ARDUINO_PLATFORM?="esp8266:esp8266:d1"
+#ARDUINO_PORT?="/dev/cu.usbserial-20"
+
+ARDUINO_PORT?="/dev/cu.usbmodem201" 
+ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
 
 arduino_build_tree: kernel.img.c
 	rm -rf arduino
@@ -91,8 +96,8 @@ arduino_build_tree: kernel.img.c
 	ln -s ../opcode.h arduino/opcode.h
 	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
 	echo "all:" > arduino/Makefile
-	echo "\tarduino-cli compile -v -b esp8266:esp8266:d1" >> arduino/Makefile
-	echo "\tarduino-cli upload -v -b esp8266:esp8266:d1 -p /dev/cu.usbserial-20" >> arduino/Makefile
+	echo "\tarduino-cli compile -v -b $(ARDUINO_PLATFORM)" >> arduino/Makefile
+	echo "\tarduino-cli upload -v -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
 	ln -s ../runner.c arduino/arduino.ino
 
 arduino: arduino_build_tree

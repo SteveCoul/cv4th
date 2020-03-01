@@ -2190,6 +2190,8 @@ variable scr																	\ \ BLOCK
 	cbf
     0 updated !
   then
+
+-1 actual_blk !	\ force reload?
 ;
 
 : flush save-buffers ;															\ \ BLOCK
