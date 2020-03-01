@@ -5,7 +5,7 @@
 #SIZE_FLAGS?=-DVM_16BIT
 ENDIAN_FLAGS?=-be
 
-CFLAGS=-Wall -Wpedantic -Werror -Os$(SIZE_FLAGS)
+CFLAGS=-Wall -Wpedantic -Werror -Os $(SIZE_FLAGS)
 STRIP=strip
 
 default: forth
