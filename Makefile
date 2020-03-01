@@ -92,6 +92,7 @@ arduino_build_tree: kernel.img.c
 	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
 	echo "all:" > arduino/Makefile
 	echo "\tarduino-cli compile -v -b esp8266:esp8266:d1" >> arduino/Makefile
+	echo "\tarduino-cli upload -v -b esp8266:esp8266:d1 -p /dev/cu.usbserial-20" >> arduino/Makefile
 	ln -s ../runner.c arduino/arduino.ino
 
 arduino: arduino_build_tree
