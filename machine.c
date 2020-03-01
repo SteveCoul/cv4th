@@ -194,8 +194,8 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 													}\
 													break; \
 												}
-void machine_execute( machine_t* machine, cell_t a_throw, int run_once ) {
-
+void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
+	int instruction_counter = 0;
 	cell_t tmp;
 	cell_t tmp2;
 	cell_t tmp3;
@@ -208,9 +208,10 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_once ) {
 #define LP machine->LP
 #define IP machine->IP
 
-	for (;;) {
+	while ( ( run_mode <= 0 ) || ( run_mode > instruction_counter ) ) {
 		unsigned char opcode;
 
+		instruction_counter++;
 		opcode = GET_BYTE( machine, IP ); IP++;
 
 		switch( opcode ) {
@@ -420,7 +421,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_once ) {
 			break;
 		case opRET:
 			if ( RP == 0 ) {
-				if ( run_once )
+				if ( run_mode == 0 )
 					return;			/* run a single word from boot strap interpreter */
 				/* stack underflow */
 				printf("return stack underflow\n");

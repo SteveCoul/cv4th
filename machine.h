@@ -54,7 +54,9 @@ extern void machine_set_endian( machine_t* machine, machine_endian_t which, int 
 #define CELL_SIZE						sizeof(cell_t)
 #define ABS_PTR( mach, r_addr )			(void*)(((uint8_t*)(mach->memory))+r_addr)
 
-extern void machine_execute( machine_t* machine, cell_t a_throw, int run_once );
+/* runmode, -ve means run forever, 0 means run_once ( IE run until opRET on top of stack ) +ve means
+	run for N instructions */
+extern void machine_execute( machine_t* machine, cell_t a_throw, int run_mode );
 
 #endif
 

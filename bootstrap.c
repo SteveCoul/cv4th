@@ -487,7 +487,7 @@ aborted:
 					printf("\nBoot via vector\n");
 					machine->IP = GET_CELL( machine, A_QUIT );
 					/* reset stacks? */
-					machine_execute( machine, A_THROW, 1 );
+					machine_execute( machine, A_THROW, 0 );	/* run until complete */
 				}
 				exit(0);
 			}
@@ -612,7 +612,7 @@ rescan:
 
 					if ( ( STATE == 0 ) || ( header[ CELL_SIZE ] == opIMMEDIATE ) ) {
 						machine->IP = xt;
-						machine_execute( machine, A_THROW, 1 );
+						machine_execute( machine, A_THROW, 0 );	/* run until we are done */
 						/* TODO report any exception? */
 					} else if ( header[CELL_SIZE] == opNONE ) {
 						if ( xt < 65536 ) {

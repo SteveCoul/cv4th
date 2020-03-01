@@ -61,10 +61,11 @@ int main( int argc, char** argv ) {
 
 void loop() {
 	if ( ( machine.memory == NULL ) || ( machine.datastack == NULL ) || ( machine.returnstack == NULL ) ) return;
-	machine_execute( &machine, A_THROW, 0 );
+	machine_execute( &machine, A_THROW, 50000 );	/* pop out every N instructions */
+	printf("Out for a smoke\n");
 }
 #else
-	machine_execute( &machine, A_THROW, 0 );
+	machine_execute( &machine, A_THROW, -1 );	/* run forever */
 	return 0;
 }
 #endif
