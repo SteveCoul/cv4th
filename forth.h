@@ -6,7 +6,7 @@
 
 #define SIZE_DATA_STACK					256
 #define SIZE_RETURN_STACK				256
-#define SIZE_FORTH						32*1024
+#define SIZE_FORTH						29*1024
 #define SIZE_INPUT_BUFFER				128
 #define SIZE_PICTURED_NUMERIC			64
 #define SIZE_ORDER						10
