@@ -29,9 +29,9 @@ int main( int argc, char** argv ) {
 		quit = machine.swapCELL( quit );
 	}
 
-	machine.memory = malloc( size );
-	machine.datastack = malloc( dstacksize * CELL_SIZE );
-	machine.returnstack = malloc( rstacksize * CELL_SIZE );
+	machine.memory = (cell_t*)malloc( size );
+	machine.datastack = (cell_t*)malloc( dstacksize * CELL_SIZE );
+	machine.returnstack = (cell_t*)malloc( rstacksize * CELL_SIZE );
 
 	memset( machine.memory, 0, size );
 	memmove( machine.memory, image_data+(5*CELL_SIZE), image_data_len-(5*CELL_SIZE) );
