@@ -54,15 +54,17 @@ int main( int argc, char** argv ) {
 	memset( machine.memory, 0, size );
 	memmove( machine.memory, image_data+(5*CELL_SIZE), image_data_len-(5*CELL_SIZE) );
 	printf("Setup complete\n\n");
+
+	machine.IP = quit;
 #ifdef ARDUINO
 }
 
 void loop() {
 	if ( ( machine.memory == NULL ) || ( machine.datastack == NULL ) || ( machine.returnstack == NULL ) ) return;
-	machine_execute( &machine, quit, A_THROW, 0 );
+	machine_execute( &machine, A_THROW, 0 );
 }
 #else
-	machine_execute( &machine, quit, A_THROW, 0 );
+	machine_execute( &machine, A_THROW, 0 );
 	return 0;
 }
 #endif

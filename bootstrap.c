@@ -485,7 +485,9 @@ aborted:
 				/* TODO report any exception? */
 				for (;;) {
 					printf("\nBoot via vector\n");
-					machine_execute( machine, GET_CELL( machine, A_QUIT ), A_THROW, 1 );
+					machine->IP = GET_CELL( machine, A_QUIT );
+					/* reset stacks? */
+					machine_execute( machine, A_THROW, 1 );
 				}
 				exit(0);
 			}
@@ -609,7 +611,8 @@ rescan:
 					uint8_t* header = ((uint8_t*)(machine->memory))+v;
 
 					if ( ( STATE == 0 ) || ( header[ CELL_SIZE ] == opIMMEDIATE ) ) {
-						machine_execute( machine, xt, A_THROW, 1 );
+						machine->IP = xt;
+						machine_execute( machine, A_THROW, 1 );
 						/* TODO report any exception? */
 					} else if ( header[CELL_SIZE] == opNONE ) {
 						if ( xt < 65536 ) {

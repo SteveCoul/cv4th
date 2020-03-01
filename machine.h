@@ -24,6 +24,7 @@ typedef struct tagMachine_t {
 	cell_t		DP;
 	cell_t		RP;
 	cell_t		LP;
+	cell_t		IP;
 	cell_t		(*swapCell)( cell_t v );
 	uint16_t	(*getWord)( struct tagMachine_t* machine, cell_t r_address );
 	void		(*putWord)( struct tagMachine_t* machine, cell_t r_address, cell_t value );
@@ -53,7 +54,7 @@ extern void machine_set_endian( machine_t* machine, machine_endian_t which, int 
 #define CELL_SIZE						sizeof(cell_t)
 #define ABS_PTR( mach, r_addr )			(void*)(((uint8_t*)(mach->memory))+r_addr)
 
-extern void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_once );
+extern void machine_execute( machine_t* machine, cell_t a_throw, int run_once );
 
 #endif
 

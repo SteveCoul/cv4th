@@ -194,19 +194,19 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 													}\
 													break; \
 												}
-void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_once ) {
+void machine_execute( machine_t* machine, cell_t a_throw, int run_once ) {
 
 	cell_t tmp;
 	cell_t tmp2;
 	cell_t tmp3;
 	cell_t tmp4;
 
-	cell_t IP=xt;
 	cell_t* datastack = machine->datastack;
 	cell_t* returnstack = machine->returnstack;
 #define DP machine->DP
 #define RP machine->RP
 #define LP machine->LP
+#define IP machine->IP
 
 	for (;;) {
 		unsigned char opcode;
