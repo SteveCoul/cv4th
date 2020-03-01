@@ -103,7 +103,7 @@ ior_t parse( const char* name, size_t name_len, char** p_type, char** p_path ) {
 	p_type[0] = type_buffer;
 	p_path[0] = path_buffer;
 
-	return 0;
+	return IOR_OK;
 }
 
 ior_t ioOpen( const char* name, size_t name_len, unsigned int mode, int* pfd ) {
