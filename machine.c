@@ -117,7 +117,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			tmp3 = datastack[ DP-2 ];			
 			{
 				int fd;
-				int ior = ioCreate( ABS_PTR( machine, tmp3 ), tmp2, tmp, &fd );
+				int ior = ioCreate( (const char*)ABS_PTR( machine, tmp3 ), tmp2, tmp, &fd );
 				datastack[ DP-2 ] = (cell_t)fd;
 				datastack[ DP-1 ] = (cell_t)ior;
 			}
@@ -129,7 +129,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			tmp3 = datastack[ DP-2 ];			
 			{
 				int fd;
-				int ior = ioOpen( ABS_PTR( machine, tmp3 ), tmp2, tmp, &fd );
+				int ior = ioOpen( (const char*)ABS_PTR( machine, tmp3 ), tmp2, tmp, &fd );
 				datastack[ DP-2 ] = (cell_t)fd;
 				datastack[ DP-1 ] = (cell_t)ior;
 			}
@@ -523,7 +523,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			tmp3 = datastack[ DP-2 ];
 			tmp4 = datastack[ DP-1 ];
 			DP-=3;
-			datastack[ DP-1 ] = cmp( ABS_PTR( machine, tmp ), tmp2, ABS_PTR( machine, tmp3 ), tmp4, 0 );
+			datastack[ DP-1 ] = cmp( (const char*)ABS_PTR( machine, tmp ), tmp2, (const char*)ABS_PTR( machine, tmp3 ), tmp4, 0 );
 			break;
 		case opCOMPARE:
 			tmp = datastack[ DP-4 ];
@@ -531,7 +531,7 @@ void machine_execute( machine_t* machine, cell_t xt, cell_t a_throw, int run_onc
 			tmp3 = datastack[ DP-2 ];
 			tmp4 = datastack[ DP-1 ];
 			DP-=3;
-			datastack[ DP-1 ] = cmp( ABS_PTR( machine, tmp ), tmp2, ABS_PTR( machine, tmp3 ), tmp4, 1 );
+			datastack[ DP-1 ] = cmp( (const char*)ABS_PTR( machine, tmp ), tmp2, (const char*)ABS_PTR( machine, tmp3 ), tmp4, 1 );
 			break;
 		case opMOVE:
 			tmp = datastack[ DP-3 ];
