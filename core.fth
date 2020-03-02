@@ -73,6 +73,13 @@
 \ rename-file																	\ \ FILE
 \ reposition-file																\ \ FILE
 \ INTERNALS																		\ \ INTERNAL
+\ d8@																			\ \ INTERNAL
+\ d16@																			\ \ INTERNAL
+\ d32@																			\ \ INTERNAL
+\ d8!																			\ \ INTERNAL
+\ d16!																			\ \ INTERNAL
+\ d32!																			\ \ INTERNAL
+\ rel>abs																		\ \ INTERNAL
 \ A_LIST_OF_WORDLISTS															\ \ INTERNAL
 \ locals-wordlist																\ \ INTERNAL
 \ IMAGE_HEADER_ID																\ \ INTERNAL

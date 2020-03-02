@@ -330,7 +330,16 @@ int main( int argc, char** argv ) {
 	opword( opUM_SLASH_MOD, "um/mod" );
 	opword( opSM_SLASH_REM, "sm/rem" );
     opword( opINVERT, "invert" );
+	internals_definitions();
+	opword( opREL2ABS, "rel>abs" );
+	opword( opD8FETCH, "d8@" );
+	opword( opD16FETCH, "d16@" );
+	opword( opD32FETCH, "d32@" );
+	opword( opD8STORE, "d8!" );
+	opword( opD16STORE, "d16!" );
+	opword( opD32STORE, "d32!" );
 
+	forth_definitions();
 	lay_header( opNONE, "cells" );
 	if ( CELL_SIZE == 4 ) {
 		c_comma( opLIT4 ); c_comma( opMULT ); c_comma( opRET );
@@ -356,6 +365,12 @@ int main( int argc, char** argv ) {
 	opword( opBYE, "bye" );
 
 	opconstant( opNONE );
+	opconst_db( opD8FETCH );
+	opconst_db( opD16FETCH );
+	opconst_db( opD32FETCH );
+	opconst_db( opD8STORE );
+	opconst_db( opD16STORE );
+	opconst_db( opD32STORE );
 	opconst_db( op2DROP );
 	opconst_db( op2DUP );
 	opconst_db( op2OVER );
@@ -427,6 +442,7 @@ int main( int argc, char** argv ) {
 	opconst_db( opQDUP );
 	opconstant( opQTHROW );
 	opconst_db( opREAD_FILE );
+	opconst_db( opREL2ABS );
 	opconst_db( opRENAME_FILE );
 	opconst_db( opREPOSITION_FILE );
 	opconst_db( opRESIZE_FILE );

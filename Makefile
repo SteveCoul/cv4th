@@ -3,7 +3,7 @@
 #> SIZE_FLAGS="-DVM_16BIT" CROSS_CFLAGS="-DNO_FILE -mmcu=avrxmega7 -Wl,--defsym=__heap_end=0" CROSS_CC=avr-gcc make cross-forth
 
 #SIZE_FLAGS?=-DVM_16BIT
-ENDIAN_FLAGS?=-a
+ENDIAN_FLAGS?=-a 
 
 CFLAGS=-Wall -Wpedantic -Werror -Os $(SIZE_FLAGS)
 STRIP=strip

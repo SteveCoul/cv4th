@@ -22,6 +22,13 @@ enum {
 	opCREATE_FILE,
 	opCSTORE,
 
+	opD8FETCH,
+	opD16FETCH,
+	opD32FETCH,
+	opD8STORE,
+	opD16STORE,
+	opD32STORE,
+
 	opDEC,
 	opDELETE_FILE,
 	opDEPTH,
@@ -89,8 +96,9 @@ enum {
 	opQBRANCH,
 	opQDUP,
     opQTHROW,
-
+	
 	opREAD_FILE,
+	opREL2ABS,
 	opRENAME_FILE,
 	opREPOSITION_FILE,
 	opRESIZE_FILE,

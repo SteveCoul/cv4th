@@ -20,62 +20,56 @@ static uint16_t swapCELL( uint16_t v ) { return ((v>>8)&0xFF)|((v<<8)&0xFF00); }
 #else
 static cell_t swapCELL( cell_t v ) { return ((v>>24)&0xFF)|((v>>8)&0xFF00)|((v<<8)&0xFF0000)|((v<<24)&0xFF000000); }
 
-static void putWord_LE_Unaligned( machine_t* machine, cell_t r_address, cell_t value ) {
+static void putWord_NativeOrder_AlignmentSafe( machine_t* machine, cell_t r_address, cell_t value ) {
 	uint8_t* ptr;
+	uint16_t* ptr2;
+	uint16_t word = value;
 	ptr = (uint8_t*)(machine->memory);
 	ptr = ptr + r_address;
-	ptr[0] = ( value & 255 );
-	ptr[1] = ( value >> 8 ) & 255;
+	ptr2 = (uint16_t*)ptr;
+	memmove( ptr2, &word, sizeof(word) );
 }
-static void putCell_LE_Unaligned( machine_t* machine, cell_t r_address, cell_t value ) {
+static void putCell_NativeOrder_AlignmentSafe( machine_t* machine, cell_t r_address, cell_t value ) {
 	uint8_t* ptr;
+	cell_t* ptr2;
+	cell_t word = value;
 	ptr = (uint8_t*)(machine->memory);
 	ptr = ptr + r_address;
-	ptr[0] = ( value & 255 );
-	ptr[1] = ( value >> 8 ) & 255;
-	ptr[2] = ( value >> 16 ) & 255;
-	ptr[3] = ( value >> 24 ) & 255;
+	ptr2 = (cell_t*)ptr;
+	memmove( ptr2, &word, sizeof(word) );
 }
-static uint16_t getWord_LE_Unaligned( machine_t* machine, cell_t r_address ) {
+static uint16_t getWord_NativeOrder_AlignmentSafe( machine_t* machine, cell_t r_address ) {
 	uint8_t* ptr;
+	uint16_t* ptr2;
+	uint16_t value;
 	ptr = (uint8_t*)(machine->memory);
 	ptr = ptr + r_address;
-	return ( ptr[1] << 8 ) | ptr[0];
+	ptr2 = (uint16_t*)ptr;
+	memmove( &value, ptr2, sizeof(uint16_t) );
+	return value;
 }
-static cell_t getCell_LE_Unaligned( machine_t* machine, cell_t r_address ) {
+static cell_t getCell_NativeOrder_AlignmentSafe( machine_t* machine, cell_t r_address ) {
 	uint8_t* ptr;
+	cell_t* ptr2;
+	cell_t value;
 	ptr = (uint8_t*)(machine->memory);
 	ptr = ptr + r_address;
-	return ( ptr[3] << 24 ) | ( ptr[2] << 16 ) | ( ptr[1] << 8 ) | ptr[0];
+	ptr2 = (cell_t*)ptr;
+	memmove( &value, ptr2, sizeof(cell_t) );
+	return value;
 }
 
-static void putWord_BE_Unaligned( machine_t* machine, cell_t r_address, cell_t value ) {
-	uint8_t* ptr;
-	ptr = (uint8_t*)(machine->memory);
-	ptr = ptr + r_address;
-	ptr[1] = ( value & 255 );
-	ptr[0] = ( value >> 8 ) & 255;
+static void putWord_Swap_AlignmentSafe( machine_t* machine, cell_t r_address, cell_t value ) {
+	putWord_NativeOrder_AlignmentSafe( machine, r_address, swap16( value ) );
 }
-static void putCell_BE_Unaligned( machine_t* machine, cell_t r_address, cell_t value ) {
-	uint8_t* ptr;
-	ptr = (uint8_t*)(machine->memory);
-	ptr = ptr + r_address;
-	ptr[3] = ( value & 255 );
-	ptr[2] = ( value >> 8 ) & 255;
-	ptr[1] = ( value >> 16 ) & 255;
-	ptr[0] = ( value >> 24 ) & 255;
+static void putCell_Swap_AlignmentSafe( machine_t* machine, cell_t r_address, cell_t value ) {
+	putCell_NativeOrder_AlignmentSafe( machine, r_address, swapCELL( value ) );
 }
-static uint16_t getWord_BE_Unaligned( machine_t* machine, cell_t r_address ) {
-	uint8_t* ptr;
-	ptr = (uint8_t*)(machine->memory);
-	ptr = ptr + r_address;
-	return ( ptr[0] << 8 ) | ptr[1];
+static uint16_t getWord_Swap_AlignmentSafe( machine_t* machine, cell_t r_address ) {
+	return swap16( getWord_NativeOrder_AlignmentSafe( machine, r_address ) );
 }
-static cell_t getCell_BE_Unaligned( machine_t* machine, cell_t r_address ) {
-	uint8_t* ptr;
-	ptr = (uint8_t*)(machine->memory);
-	ptr = ptr + r_address;
-	return ( ptr[0] << 24 ) | ( ptr[1] << 16 ) | ( ptr[2] << 8 ) | ptr[3];
+static cell_t getCell_Swap_AlignmentSafe( machine_t* machine, cell_t r_address ) {
+	return swapCELL( getCell_NativeOrder_AlignmentSafe( machine, r_address ) );
 }
 
 static void putWord_NativeOrder_NoAlignment( machine_t* machine, cell_t r_address, cell_t value ) {
@@ -143,6 +137,13 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 	machine_endian_t me = (p[3] == (HEADER_ID & 255)) ? ENDIAN_BIG : ENDIAN_LITTLE;
 
 	printf("Machine is %s endian\n", me == ENDIAN_BIG ? "Big" : "Little" );
+	switch(which){
+	case ENDIAN_BIG: printf("\trequest was for big endian\n"); break;
+	case ENDIAN_LITTLE: printf("\trequest was for little endian\n"); break;
+	case ENDIAN_NATIVE: printf("\trequest was for native endian\n"); break;
+	case ENDIAN_SWAP: printf("\trequest was for swapped-native endian\n"); break;
+	default: printf("\trequest was for unknown endian\n"); break;
+	}
 
 	if ( which == ENDIAN_NATIVE ) which = me;
 	else if ( which == ENDIAN_SWAP ) {
@@ -150,18 +151,18 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 	}
 
 	if ( unaligned_workaround ) {	/* for now, anything with alignment restrictions uses these slow words */
-		if ( me == ENDIAN_BIG ) {
-			printf("Using big endian alignment safe\n");
-			machine->getWord = getWord_BE_Unaligned;
-			machine->putWord = putWord_BE_Unaligned;
-			machine->getCell = getCell_BE_Unaligned;
-			machine->putCell = putCell_BE_Unaligned;
+		if ( me == which ) {
+			printf("Using native order, alignment safe\n");
+			machine->getWord = getWord_NativeOrder_AlignmentSafe;
+			machine->putWord = putWord_NativeOrder_AlignmentSafe;
+			machine->getCell = getCell_NativeOrder_AlignmentSafe;
+			machine->putCell = putCell_NativeOrder_AlignmentSafe;
 		} else {
-			printf("Using little endian alignment safe\n");
-			machine->getWord = getWord_LE_Unaligned;
-			machine->putWord = putWord_LE_Unaligned;
-			machine->getCell = getCell_LE_Unaligned;
-			machine->putCell = putCell_LE_Unaligned;
+			printf("Using swapped-native order, alignment safe\n");
+			machine->getWord = getWord_Swap_AlignmentSafe;
+			machine->putWord = putWord_Swap_AlignmentSafe;
+			machine->getCell = getCell_Swap_AlignmentSafe;
+			machine->putCell = putCell_Swap_AlignmentSafe;
 		}
 	} else {
 		if ( me == which ) {
@@ -214,6 +215,135 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		opcode = GET_BYTE( machine, IP ); IP++;
 
 		switch( opcode ) {
+		/* device access. Note addresses are 2 cells! */
+		case opREL2ABS:
+			ATHROW( DP<1, ;, -4 );
+			{
+				uint64_t a = datastack[ DP-1 ];
+				a = a + (uint64_t)(machine->memory);
+				DP++;
+				datastack[ DP-2 ] = ( a & CELL_MASK );
+				a >>= CELL_BITS;
+				datastack[ DP-1 ] = ( a & CELL_MASK );
+			}
+			break;
+		case opD8FETCH:
+			ATHROW( DP<2, ;, -4 );
+			{
+				uint64_t address;
+				uint8_t* ptr = NULL;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				DP--;
+				ptr = (uint8_t*)address;
+				datastack[DP-1] = ptr[0];
+			}
+			break;
+		case opD16FETCH:
+			ATHROW( DP<2, ;, -4 );
+			{
+				uint64_t address;
+				uint16_t* ptr = NULL;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				DP--;
+				ptr = (uint16_t*)address;
+				datastack[DP-1] = ptr[0];
+			}
+			break;
+		case opD32FETCH:
+#ifdef VM_16BIT
+			ATHROW( DP<2, ;, -4 );
+			{
+				uint64_t address;
+				uint32_t* ptr = NULL;
+				uint32_t v;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				ptr = (uint32_t*)address;
+				v = ptr[0];
+				datastack[DP-2] = ( v & CELL_MASK );
+				v>>=CELL_BITS;
+				datastack[DP-1] = ( v & CELL_MASK );
+			}
+#else
+			ATHROW( DP<2, ;, -4 );
+			{
+				uint64_t address;
+				uint32_t* ptr = NULL;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				DP--;
+				ptr = (uint32_t*)address;
+				datastack[DP-1] = ptr[0];
+			}
+#endif
+			break;
+		case opD8STORE:
+			ATHROW( DP<3, ;, -4 );
+			{
+				uint64_t address;
+				uint8_t* ptr = NULL;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				ptr = (uint8_t*)address;
+				DP-=2;
+				ptr[0] = ( datastack[DP-1] & 255 );
+				DP--;
+			}
+			break;
+		case opD16STORE:
+			ATHROW( DP<3, ;, -4 );
+			{
+				uint64_t address;
+				uint16_t* ptr = NULL;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				ptr = (uint16_t*)address;
+				DP-=2;
+				ptr[0] = ( datastack[DP-1] & 0xFFFF );
+				DP--;
+			}
+			break;
+		case opD32STORE:
+#ifdef VM_16BIT
+			ATHROW( DP<4, ;, -4 );
+			{
+				uint64_t address;
+				uint32_t* ptr = NULL;
+				uint32_t v;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				ptr = (uint32_t*)address;
+				DP-=2;
+				v = datastack[ DP-1 ];
+				v <<=CELL_BITS
+				v |= datastack[ DP-2 ];
+				DP-=2;
+				ptr[0] = v;
+			}
+#else
+			ATHROW( DP<3, ;, -4 );
+			{
+				uint64_t address;
+				uint32_t* ptr = NULL;
+				address =  datastack[DP-1];
+				address <<= CELL_BITS;
+				address |= datastack[DP-2];
+				ptr = (uint32_t*)address;
+				DP-=2;
+				ptr[0] = datastack[DP-1];
+				DP--;
+			}
+#endif
+			break;
 		/* literals */
 		case opLITM1: DP++; datastack[DP-1] = -1; break;
 		case opLIT0: DP++; datastack[DP-1] = 0; break;
