@@ -975,10 +975,12 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			break;
 		/* logic */
 		case opLSHIFT:
-			datastack[ DP-1 ] = datastack[DP-1] << 1;
+			tmp = datastack[DP-1]; DP--;
+			datastack[ DP-1 ] = datastack[DP-1] << tmp;
 			break;
 		case opRSHIFT:
-			datastack[ DP-1 ] = datastack[DP-1] >> 1;
+			tmp = datastack[DP-1]; DP--;
+			datastack[ DP-1 ] = datastack[DP-1] >> tmp;
 			break;
 		case opINVERT:
 			{

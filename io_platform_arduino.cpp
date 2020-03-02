@@ -38,9 +38,6 @@ static int dummy_fd = -1;
 ior_t io_platform_read_block( unsigned int number, void* where ) {
 	unsigned int addr = FLASH_BASE + ( number * 1024 );
 
-
-	Serial.print( "NVMCTRL " ); Serial.println( (uint32_t)NVMCTRL, HEX );
-
 	Serial.print("Read block "); Serial.print(number); Serial.print(" from address 0x"); Serial.println(addr);
 
 	memcpy( where, (uint8_t*)addr, 1024 );
