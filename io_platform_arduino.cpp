@@ -11,6 +11,17 @@ int io_platform_read_term( void ) {
 	else
 		rc = -1;
 	if ( rc == 13 ) rc = 10;
+
+
+	if ( rc == 27 ) {
+		if ( Serial.available() < 2 ) delay(250);
+		if ( Serial.available() >= 2 ) {
+			if ( Serial.peek() == '[' ) {
+				rc = ( ( Serial.read() & 255 ) << 8 ) | ( Serial.read() & 255 );
+			}
+		}
+	}
+
 	return rc;
 }
 
