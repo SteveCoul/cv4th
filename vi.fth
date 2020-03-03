@@ -169,54 +169,33 @@ width 1+ buffer: status-buffer
   endcase
 ;
 
-: fill-line
-  width * ^buffer @ + width bl fill
+: fill-line		\ index char --
+  swap
+  width * ^buffer @ + width rot fill
 ;
 
-: set-last-line-empty
-  height 1- fill-line
+: copy-line-down		\ idx --
+  height @ 1- over = if drop exit then
+  width * ^buffer @ + dup width + width cmove>
 ;
 
-: splitline
-  \ todo
+: insert-line-after		\ idx --
+  dup height 1- ?do
+	i copy-line-down
+  -1 +loop
+  1+ bl fill-line
 ;
 
-: is-line-blank?	\ line# -- flag
-  ^buffer @ 
-  swap width * +
-  width 0 do dup i + c@ bl <> if unloop drop false exit then loop
-  drop
-  true
+: line-is-blank?		\ idx -- flag
+  width * ^buffer @ +
+  width 0 ?do
+	dup i + c@ bl <> if drop false unloop exit then
+  loop
+  drop true
 ;
 
-: remove-line	 \ i --
-  dup height 1- = if	\ don't need to remove the actual last line, just overwrite it
-	drop
-  else
-	dup width * ^buffer @ +
-	dup width + swap			\ i buffer+line buffer --
-	rot 1+ height swap - width *
-cr 2 pick ^buffer @ - . ." to " 1 pick ^buffer @ - . ."  for " dup . ."  bytes " dup 64 / . ."  lines"
-	cmove>
-  then
-  set-last-line-empty
-;
-
-: remove-any-blank-line-after? \ i -- flag
-  height 1-
-  begin
-    2dup <>
-  while
-	dup is-line-blank? if
-		nip remove-line true exit
-	then
-	1-
-  repeat
-  2drop
-;
-
-: last-line-is-blank?
-  height 1- is-line-blank?
+: last-line-blank?		\ -- flag
+  height 1- line-is-blank?
 ;
 
 : insert_key	\ key --
@@ -240,20 +219,11 @@ cr 2 pick ^buffer @ - . ." to " 1 pick ^buffer @ - . ."  for " dup . ."  bytes "
 		drawblock
 	then
   else r@ 10 = if
-	ypos @ height 1- = if
-		beep
+	ypos @ height 1- <> last-line-blank? and if
+		ypos @ insert-line-after
+\		split-line
 	else
-		last-line-is-blank? if
-			splitline
-		else
-			ypos @ remove-any-blank-line-after? if
-				splitline
-			else
-				beep
-			then
-		then
-		locate
-		drawblock
+		beep
 	then
   else
 	at-eol? if
@@ -263,7 +233,7 @@ cr 2 pick ^buffer @ - . ." to " 1 pick ^buffer @ - . ."  for " dup . ."  bytes "
 	    beep
 	  then
 	else
-	  get_rest_current_line + 1- c@ bl = if
+	  lastcharonline bl = if
 		get_rest_current_line over 1+ swap 1- cmove>
 		r@ replace_cur_char cursor_right drawblock
 	  else
@@ -323,7 +293,7 @@ cr 2 pick ^buffer @ - . ." to " 1 pick ^buffer @ - . ."  for " dup . ."  bytes "
   repeat
 ;
 
-: d console_clear drawedges drawstatus drawtitle drawblock 0 25 at-xy ;
+: d console_clear drawtitle drawedges drawblock drawstatus 0 25 at-xy ;
 
 \ widEditor set-current
 
@@ -331,7 +301,7 @@ cr 2 pick ^buffer @ - . ." to " 1 pick ^buffer @ - . ."  for " dup . ."  bytes "
   1 ['] runeditor catch 
   save-buffers
   color_text 
-0 25 at-xy \  console_clear
+  0 25 at-xy console_clear
   throw ;
 
 \ forth-wordlist set-current
