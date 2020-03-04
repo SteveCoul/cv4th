@@ -84,8 +84,8 @@ static void constant( const char* name, cell_t value ) {
 
 #define opconstant( name ) constant( #name, name )
 
-#define opconst_db( name ) {}
-//#define opconst_db( name ) constant( #name, name )
+//#define opconst_db( name ) {}
+#define opconst_db( name ) constant( #name, name )
 
 static void internals_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST ); }
 static void forth_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST ); }
