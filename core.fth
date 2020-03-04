@@ -2199,6 +2199,7 @@ internals set-current
 variable updated
 variable block_file
 variable actual_blk
+-1 actual_blk !
 
 : obf
   s" block:/" r/w open-file if cr ." failed to open blockfile" -69 throw then block_file !
@@ -2220,15 +2221,16 @@ variable scr																	\ \ BLOCK
 ;
 
 : save-buffers																	\ \ BLOCK
-  updated @ if
-	obf
-	actual_blk @ 1- 1024 um* block_file @ reposition-file if -34 throw then
-	block_buffer 1024 block_file @ write-file if -34 throw then
-	cbf
-    0 updated !
+  actual_blk @ 0 > if
+    updated @ if
+	  obf
+	  actual_blk @ 1- 1024 um* block_file @ reposition-file if cbf -34 throw then
+	  block_buffer 1024 block_file @ write-file if cbf -34 throw then
+	  cbf
+      0 updated !
+    then
+    -1 actual_blk !	\ force reload?
   then
-
--1 actual_blk !	\ force reload?
 ;
 
 : flush save-buffers ;															\ \ BLOCK
@@ -2240,7 +2242,7 @@ variable scr																	\ \ BLOCK
     r@ 0= if -35 throw then
     obf
     block_file @ file-size if cbf -33 throw then
-    r@ 1- 1024 um* 2swap 1024 s>d d- du< 0= if -33 throw then
+    r@ 1- 1024 um* 2swap 1024 s>d d- du< 0= if cbf -33 throw then
     r@ 1- 1024 um* block_file @ reposition-file if cbf -33 throw then
     block_buffer 1024 block_file @ read-file nip if cbf -33 throw then
     cbf
