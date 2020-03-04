@@ -1,9 +1,9 @@
 here pad !
-\ get-order internals swap 1 + set-order definitions
+get-order internals swap 1 + set-order definitions
 wordlist constant widEditor
-\ get-order widEditor swap 1 + set-order definitions
+get-order widEditor swap 1 + set-order definitions
 wordlist constant widEditorInternals
-\ get-order widEditorInternals swap 1+ set-order definitions
+get-order widEditorInternals swap 1+ set-order definitions
 
 64 constant	width
 16 constant height
@@ -99,6 +99,10 @@ width 1+ buffer: status-buffer
   xpos @ width 1- =
 ;
 
+: current_char
+  ypos @ width * xpos @ + ^buffer @ + c@
+;
+
 : replace_cur_char \ key --
   ^buffer @ ypos @ width * + xpos @ + c!
 ;
@@ -124,7 +128,19 @@ width 1+ buffer: status-buffer
 : cursor_up		ypos @ 0> if -1 ypos +! then locate ;
 : cursor_down	ypos @ height 1- < if 1 ypos +! then locate ;
 
-: switch_block
+: cursor_end_of_line
+  width 1- xpos !
+  begin
+    current_char bl =
+    xpos @ 0 >
+    and
+  while
+	-1 xpos +!
+  repeat
+  locate
+;
+
+: switch_block 
   current_block !
   current_block @ block ^buffer !
   \ not sure about this - might be better if 0 counted as white space in the interpreter
@@ -145,28 +161,6 @@ width 1+ buffer: status-buffer
   current_block @ 65535 = if 7 emit else 
 	current_block @ 1 + switch_block
   then
-;
-
-: command_key	\ key --
-  case
-  27 of endof	\ already in command mode
-  4 of nextblock endof
-  21 of prevblock endof
-  k-up of cursor_up endof
-  k-down of cursor_down endof
-  k-left of cursor_left endof
-  k-right of cursor_right endof
-  [char] h of cursor_left endof
-  [char] l of cursor_right endof
-  [char] j of cursor_down endof
-  [char] 10 of cursor_down endof
-  [char] k of cursor_up endof
-  [char] 11 of cursor_up endof
-  [char] : of mode_lastline mode ! new-status s" :" >status drawstatus 0 lastline c! endof
-  [char] x of delete_current_char drawblock endof
-  [char] i of mode_insert mode !  new-status s" -- INSERT --" >status drawstatus endof
-  new-status s" Unhandled command key " >status dup n>status drawstatus beep
-  endcase
 ;
 
 : fill-line		\ index char --
@@ -241,6 +235,76 @@ width 1+ buffer: status-buffer
   height 1- line-is-blank?
 ;
 
+: firstchar			\ c-addr u -- c-addr u char
+  dup 0= if -1 else
+  over c@ then
+;
+
+: lastchar			\ c-addr u -- c-addr u char
+  dup 0= if -1 else
+  2dup 1- + c@ then
+;
+
+: strip				\ c-addr u --
+  begin
+	firstchar bl =
+  while
+    1 - swap 1 + swap
+  repeat
+  begin
+    lastchar bl =
+  while
+    1-
+  repeat
+;
+
+: merge_next_line 
+  ypos @ height 1- <> if 
+    ^buffer @ ypos @ 1 + width * + width	
+	strip
+	?dup 0= if
+	  drop exit
+    else
+	  width xpos @ -		\ c-addr u space --
+	  over > 0= if
+		2drop beep
+	  else
+		cursor_end_of_line
+		cursor_right 
+		cursor_right 
+		^buffer @ ypos @ width * + xpos @ + swap move
+		ypos @ 1+ remove-line
+		drawblock
+	  then
+    then
+  then
+;
+
+: command_key	\ key --
+  case
+  27 of endof	\ already in command mode
+  4 of nextblock endof
+  21 of prevblock endof
+  k-up of cursor_up endof
+  k-down of cursor_down endof
+  k-left of cursor_left endof
+  k-right of cursor_right endof
+  [char] h of cursor_left endof
+  [char] l of cursor_right endof
+  [char] j of cursor_down endof
+  [char] 10 of cursor_down endof
+  [char] k of cursor_up endof
+  [char] 11 of cursor_up endof
+  [char] : of mode_lastline mode ! new-status s" :" >status drawstatus 0 lastline c! endof
+  [char] x of delete_current_char drawblock endof
+  [char] i of mode_insert mode !  new-status s" -- INSERT --" >status drawstatus endof
+  [char] a of cursor_right [char] i recurse endof
+  [char] A of cursor_end_of_line [char] a recurse endof
+  [char] J of merge_next_line endof
+  new-status s" Unhandled command key " >status dup n>status drawstatus beep
+  endcase
+;
+
 : insert_key	\ key --
   >r
   r@ k-up = if 
@@ -251,6 +315,13 @@ width 1+ buffer: status-buffer
 	cursor_left
   else r@ k-right = if  
     cursor_right 
+  else r@ 9 = if
+	bl recurse
+	xpos @ width 1- <> if
+		xpos @ 1 and if
+		  bl recurse
+        then
+    then
   else r@ 27 = if
 	mode_command mode ! new-status drawstatus 
   else r@ 127 = if
@@ -305,7 +376,7 @@ width 1+ buffer: status-buffer
 		beep
 	  then
 	then
-  then then then then then then then
+  then then then then then then then then
   r> drop
 ;
 
@@ -367,7 +438,7 @@ width 1+ buffer: status-buffer
 
 : d console_clear drawtitle drawedges drawblock drawstatus 0 25 at-xy ;
 
-\ widEditor set-current
+widEditor set-current
 
 : vi
   1 ['] runeditor catch 
@@ -376,10 +447,10 @@ width 1+ buffer: status-buffer
   0 25 at-xy console_clear
   throw ;
 
-\ forth-wordlist set-current
+forth-wordlist set-current
 
 : editor get-order widEditor swap 1+ set-order ;
 
-\ only forth definitions
+only forth definitions
 here pad @ - cr .( Editor took ) . .(  bytes ) cr
 
