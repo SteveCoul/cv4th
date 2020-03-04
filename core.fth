@@ -716,6 +716,7 @@ forth-wordlist set-current
 internals set-current
 : exception-handler	[fake-variable] ;
 : exception-info [fake-variable] ;
+: line# [fake-variable] ;
 forth-wordlist set-current
 
 0 exception-info !
@@ -755,6 +756,16 @@ forth-wordlist set-current
 
 internals set-current
 
+\ Exception information is stored at HERE
+\		offset			use
+\		0				exception code
+\		4				>in value
+\		8				#tib value
+\		12				line# value
+\		16+				input-text
+\
+\ ( for abort" the input-text is actually the abort" text and >in/#tib are not used )
+
 : >except
   ?dup if
 	exception-info @ if
@@ -763,13 +774,17 @@ internals set-current
   	  \ abort" is a special case, it already has a string at here that I need to move
 	  \ and I don't store any input buffer information
 	  dup -2 = if
-		here here 1 cells + here c@ 1+ cmove>
+		here here 4 cells + here c@ 1+ cmove>
 		here !
+		0 here 1 cells + !
+		0 here 2 cells + !
+		line# @ here 3 cells + !
 	  else 
 		here !
 		>in @ here 1 cells + !
 		#tib @ here 2 cells + !
-		tib @ here 3 cells + #tib @ cmove>
+		line# @ here 3 cells + !
+		tib @ here 4 cells + #tib @ cmove>
 	  then	
 	  1 exception-info !
     then
@@ -796,13 +811,13 @@ internals set-current
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
- 	  cr ab" count type here 1 cells + count type [char] " emit
+ 	  cr ab" count type here 4 cells + count type [char] " emit
     else
       cr "ue" count type here @ . 
-	  cr here 3 cells + here 2 cells + @ type
+	  cr here 4 cells + here 3 cells + @ type
 	  cr
-	  here 3 cells +
-	  here 1 cells + @ 
+	  here 4 cells +
+	  here 2 cells + @ 
 	  begin
 		?dup
 	  while
@@ -814,6 +829,9 @@ internals set-current
 	  repeat
 	  drop [char] ^ emit
     then
+	here 3 cells + @ 0 > if
+		4 spaces [char] @ emit here 3 cells + @ .
+ 	then
   then
 ;
 
@@ -997,7 +1015,7 @@ forth-wordlist set-current
 	postpone if
 	
 	opDOLIT c,					\ get the resolv address at runtime N bytes on from here
-	here cell+ 9 + ,			\ depends on instruction count below!
+	here cell+ 10 + ,			\ depends on instruction count below! ( and 1 byte fr the opDOLIT in do )
 
 	opFETCH c,
 	opDUP c, opTOR c,		\ push 3 numbers to return stack for unloop
@@ -1265,21 +1283,23 @@ variable blk																	\ \ BLOCK
 : aligned ;	( I dont currently have any alignment requirements )				\ \ CORE
 
 : save-input																	\ \ CORE-EXT
+  line# @
   tib @
   #tib @
   >in @
   blk @
   source-id
-  5
+  6
 ;
 
 : restore-input																	\ \ CORE-EXT
-  5 <> if -12 throw then
+  6 <> if -12 throw then
   to source-id
   blk !
   >in !
   #tib !
   tib !
+  line# !
 ;
 
 : .r																			\ \ CORE-EXT
@@ -1402,6 +1422,7 @@ forth-wordlist set-current
   0 >in !
   0 blk !
   -1 to source-id
+  -1 line# !
   ['] (evaluate) catch >r
   restore-input r> throw
 ;
@@ -1502,6 +1523,8 @@ forth-wordlist set-current
   0 of tib @ SIZE_INPUT_BUFFER accept #tib ! 0 >in ! true swap endof
 
   drop 
+
+  1 line# +!
 
   tib @ SIZE_INPUT_BUFFER 2 - source-id read-line if 
 	2drop false 
@@ -1823,6 +1846,7 @@ forth-wordlist set-current
 : include-file																	\ \ FILE
   save-input n>r 
   to source-id
+  0 line# !
   begin refill while
 	['] (evaluate) catch
 	?dup if
@@ -2312,6 +2336,7 @@ forth-wordlist set-current
   0 rsp!
   0 to source-id
   0 blk !
+  -1 line# !
 
   postpone [
   begin
