@@ -2079,7 +2079,7 @@ internals set-current
     2dup u>
   while
     cr dup .8 ." : " 
-	dup c@ .2 space dup c@ aschar emit ."  | " 
+\	dup c@ .2 space dup c@ aschar emit ."  | " 
 
 	\ I ned to process anything here that has inline data, anything else can be in opcodename
   	dup c@ opSHORT_CALL =   if dup 1+ w@ >name ctype 3 +	else
@@ -2089,9 +2089,10 @@ internals set-current
 	dup c@ opRET = 		    if ." Ret" drop dup	else
 	dup c@ opBRANCH = 		if dis-branch else
 	dup c@ opQBRANCH = 		if [char] ? emit dis-branch else
+	dup c@ opDOCSTR =		if [char] c emit [char] " emit space dup 1+ count type [char] " emit 1+ dup c@ 1+ + else
 	dup c@ opcodename ?dup 	if type 1+ else
 	dup c@ ." code " .N 1+ 
-    then then then then then then then then
+    then then then then then then then then then
   repeat
   2drop
   r> base !
