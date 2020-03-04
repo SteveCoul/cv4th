@@ -8,6 +8,9 @@ get-order widEditorInternals swap 1+ set-order definitions
 64 constant	width
 16 constant height
 
+variable yank_length
+1024 buffer: yank_buffer
+
 variable current_block
 
 variable ^buffer
@@ -15,24 +18,87 @@ variable ^buffer
 variable	xpos
 variable	ypos
 
+variable	visual_start
+variable	visual_end
+
+variable	mode
 0 constant mode_quit
 1 constant mode_command
 2 constant mode_lastline
 3 constant mode_insert
+4 constant mode_visual
+5 constant mode_visual_line
 
-variable	mode
-64 buffer:  lastline
+defer enter_command_mode
+
+\ -------------------------------------------------------------------------------------
+\ 
+\ General 
+\
+\ -------------------------------------------------------------------------------------
+
+: minmax			\ a b -- min max
+  2dup > if swap then
+;
+
+: firstchar			\ c-addr u -- c-addr u char
+  dup 0= if -1 else
+  over c@ then
+;
+
+: lastchar			\ c-addr u -- c-addr u char
+  dup 0= if -1 else
+  2dup 1- + c@ then
+;
+
+: strip				\ c-addr u --
+  begin
+	firstchar bl =
+  while
+    1 - swap 1 + swap
+  repeat
+  begin
+    lastchar bl =
+  while
+    1-
+  repeat
+;
+
+\ -------------------------------------------------------------------------------------
+\ 
+\ -------------------------------------------------------------------------------------
 
 : beep 7 emit ;
 : esc 27 emit [char] [ emit ;
 : console_clear	esc ." 2J" ;
-: color_text	esc ." 39m" ;
-: color_border	esc ." 31m" ;
-: color_title	esc ." 32m" ;
-: color_status	esc ." 33m" ;
+: color_text	esc ." 0m";
+: color_itext	esc ." 39;49m" esc ." 7m" ;
+: color_border	esc ." 31;49m" ;
+: color_title	esc ." 32;49m" ;
+: color_status	esc ." 33;49m" ;
 : hline color_border width begin ?dup while [char] - emit 1- repeat ;
-
 : locate xpos @ 3 + ypos @ 3 + at-xy ;
+: hide esc ." ?25l" ;
+: show esc ." ?25h" ;
+
+\ -------------------------------------------------------------------------------------
+\
+\ -------------------------------------------------------------------------------------
+
+: drawtitle 
+  3 0 at-xy hline
+  3 1 at-xy
+  current_block @ 0 <# bl hold #s s" block " holds #> 
+  width over - 2 / dup >r spaces
+  color_title
+  dup >r type
+  width r> - r> - spaces
+  3 2 at-xy hline locate
+;  
+
+\ -------------------------------------------------------------------------------------
+\ 
+\ -------------------------------------------------------------------------------------
 
 width 1+ buffer: status-buffer
 0 status-buffer c!
@@ -52,6 +118,18 @@ width 1+ buffer: status-buffer
   0 status-buffer c!
 ;
 
+: drawstatus
+  3 height 3 + at-xy hline
+  color_status
+  3 height 4 + at-xy status-buffer count dup >r type width r> - spaces
+  3 height 5 + at-xy hline
+  locate
+;
+
+\ -------------------------------------------------------------------------------------
+\
+\ -------------------------------------------------------------------------------------
+
 : drawedges
   color_border
   height 6 + 0 ?do
@@ -62,65 +140,43 @@ width 1+ buffer: status-buffer
   loop
 ;
 
-: drawstatus
-  3 height 3 + at-xy hline
-  color_status
-  3 height 4 + at-xy status-buffer count dup >r type width r> - spaces
-  3 height 5 + at-xy hline
-  locate
-;
-
-: drawtitle 
-  3 0 at-xy hline
-  3 1 at-xy
-  current_block @ 0 <# bl hold #s s" block " holds #> 
-  width over - 2 / dup >r spaces
-  color_title
-  dup >r type
-  width r> - r> - spaces
-  3 2 at-xy hline locate
-;  
+\ -------------------------------------------------------------------------------------
+\
+\ -------------------------------------------------------------------------------------
 
 : drawblock
-  color_text
+  hide
   xpos @ >r ypos @ >r 0 xpos !
+  ^buffer @
   height 0 ?do
     i ypos ! locate
 	width 0 ?do
-	  ^buffer @ j width * + i + c@ emit
+	  dup visual_start @ visual_end @ 1+ within if color_itext else color_text then
+	  dup c@ emit 1+
 	loop
   loop	
+  drop
   r> ypos ! 
   r> xpos !
+  color_text
+  show
   locate
 ;
 
-: at-eol?
-  xpos @ width 1- =
-;
+\ -------------------------------------------------------------------------------------
+\
+\ -------------------------------------------------------------------------------------
 
 : current_char
   ypos @ width * xpos @ + ^buffer @ + c@
 ;
 
-: replace_cur_char \ key --
-  ^buffer @ ypos @ width * + xpos @ + c!
-;
+\ -------------------------------------------------------------------------------------
+\
+\ -------------------------------------------------------------------------------------
 
-: lastcharonline \ -- c
-  ^buffer @ ypos @ width * + width 1- + c@
-;
-
-: get_rest_current_line	\ -- c-addr u
-  ^buffer @ ypos @ width * + xpos @ +
-  width xpos @ -
-;
-
-: delete_current_char
-  ^buffer @ ypos @ width * + xpos @ + 
-  dup 1+ swap
-  width xpos @ - move
-  bl ^buffer @ ypos @ width * + width 1 - + c!
+: at-eol?
+  xpos @ width 1- =
 ;
 
 : cursor_left   xpos @ 0 > if -1 xpos +! then locate ;
@@ -140,27 +196,27 @@ width 1+ buffer: status-buffer
   locate
 ;
 
+\ -------------------------------------------------------------------------------------
+\
+\ -------------------------------------------------------------------------------------
+
 : switch_block 
   current_block !
   current_block @ block ^buffer !
-  \ not sure about this - might be better if 0 counted as white space in the interpreter
-  \ otherwise - this will update non-source (binary) blocks if I just view them
   1024 0 do ^buffer @ i + c@ 0= if bl ^buffer @ i + c! then loop
   drawtitle
   drawblock
   drawstatus
 ;
 
-: prevblock
-  current_block @ 1 = if 7 emit else 
-	current_block @ 1 - switch_block
-  then
-;
+: prevblock current_block @ 1 = if beep else current_block @ 1 - switch_block then ;
 
-: nextblock
-  current_block @ 65535 = if 7 emit else 
-	current_block @ 1 + switch_block
-  then
+: nextblock current_block @ 65535 = if beep else current_block @ 1 + switch_block then ;
+
+\ -------------------------------------------------------------------------------------
+
+: ^bufferpos	\ x y -- c-addr
+  width * + ^buffer @ +
 ;
 
 : fill-line		\ index char --
@@ -235,29 +291,6 @@ width 1+ buffer: status-buffer
   height 1- line-is-blank?
 ;
 
-: firstchar			\ c-addr u -- c-addr u char
-  dup 0= if -1 else
-  over c@ then
-;
-
-: lastchar			\ c-addr u -- c-addr u char
-  dup 0= if -1 else
-  2dup 1- + c@ then
-;
-
-: strip				\ c-addr u --
-  begin
-	firstchar bl =
-  while
-    1 - swap 1 + swap
-  repeat
-  begin
-    lastchar bl =
-  while
-    1-
-  repeat
-;
-
 : merge_next_line 
   ypos @ height 1- <> if 
     ^buffer @ ypos @ 1 + width * + width	
@@ -280,30 +313,33 @@ width 1+ buffer: status-buffer
   then
 ;
 
-: command_key	\ key --
-  case
-  27 of endof	\ already in command mode
-  4 of nextblock endof
-  21 of prevblock endof
-  k-up of cursor_up endof
-  k-down of cursor_down endof
-  k-left of cursor_left endof
-  k-right of cursor_right endof
-  [char] h of cursor_left endof
-  [char] l of cursor_right endof
-  [char] j of cursor_down endof
-  [char] 10 of cursor_down endof
-  [char] k of cursor_up endof
-  [char] 11 of cursor_up endof
-  [char] : of mode_lastline mode ! new-status s" :" >status drawstatus 0 lastline c! endof
-  [char] x of delete_current_char drawblock endof
-  [char] i of mode_insert mode !  new-status s" -- INSERT --" >status drawstatus endof
-  [char] a of cursor_right [char] i recurse endof
-  [char] A of cursor_end_of_line [char] a recurse endof
-  [char] J of merge_next_line endof
-  new-status s" Unhandled command key " >status dup n>status drawstatus beep
-  endcase
+: replace_cur_char \ key --
+  ^buffer @ ypos @ width * + xpos @ + c!
 ;
+
+: lastcharonline \ -- c
+  ^buffer @ ypos @ width * + width 1- + c@
+;
+
+: get_rest_current_line	\ -- c-addr u
+  ^buffer @ ypos @ width * + xpos @ +
+  width xpos @ -
+;
+
+: delete_current_char
+  ^buffer @ ypos @ width * + xpos @ + 
+  dup 1+ swap
+  width xpos @ - move
+  bl ^buffer @ ypos @ width * + width 1 - + c!
+;
+
+
+
+\ -------------------------------------------------------------------------------------
+\
+\ Edit Mode
+\
+\ -------------------------------------------------------------------------------------
 
 : insert_key	\ key --
   >r
@@ -323,7 +359,7 @@ width 1+ buffer: status-buffer
         then
     then
   else r@ 27 = if
-	mode_command mode ! new-status drawstatus 
+	enter_command_mode
   else r@ 127 = if
 	xpos @ 0= if
 		beep
@@ -380,11 +416,19 @@ width 1+ buffer: status-buffer
   r> drop
 ;
 
+\ -------------------------------------------------------------------------------------
+\
+\ Last Line Mode
+\
+\ -------------------------------------------------------------------------------------
+
+64 buffer:  lastline
+0 lastline c!
+
 : lastline_key \ key --
   case
   27 of
-	mode_command mode !
-	new-status drawstatus
+	enter_command_mode
     endof
   10 of
     lastline 1+ c@ [char] q = if
@@ -399,7 +443,7 @@ width 1+ buffer: status-buffer
 		then
 	then
 	mode @ mode_quit <> if
-		mode_command mode !
+		enter_command_mode
 		0 lastline c!
 	then
 	endof
@@ -410,11 +454,149 @@ width 1+ buffer: status-buffer
   endcase
 ;
 
-: runeditor
+\ -------------------------------------------------------------------------------------
+\
+\ Visual Mode
+\
+\ -------------------------------------------------------------------------------------
+
+variable visual_start_x
+variable visual_start_y
+
+: update_visual_range
+  mode @ mode_visual_line = if
+	0 visual_start_y @ ypos @ minmax width 1- swap
+	2>r ^bufferpos 2r> ^bufferpos
+  else
+	visual_start_x @ visual_start_y @ ^bufferpos
+	xpos @ ypos @ ^bufferpos
+    minmax
+  then
+  new-status S" range " >status over n>status s"  -> " >status dup n>status s"   : " >status ^buffer @ n>status drawstatus
+  visual_end !
+  visual_start !
+  drawblock
+;
+
+: enter_visual_mode
+  mode !
+  new-status S" -- VISUAL --" >status drawstatus
+  xpos @ visual_start_x ! 
+  ypos @ visual_start_y ! 
+  update_visual_range
+;
+
+: yank_range beep 0 visual_start ! 0 visual_end ! enter_command_mode ;
+: delete_range beep 0 visual_start ! 0 visual_end ! enter_command_mode ;
+
+: visual_key
+  case
+  27 of
+	0 visual_start !
+	0 visual_end !
+	drawblock
+	enter_command_mode
+    endof
+  [char] d of delete_range endof
+  [char] y of yank_range endof
+  k-up of cursor_up update_visual_range endof
+  k-down of cursor_down update_visual_range endof
+  k-left of cursor_left update_visual_range endof
+  k-right of cursor_right update_visual_range endof
+  [char] h of cursor_left update_visual_range endof
+  [char] l of cursor_right update_visual_range endof
+  [char] j of cursor_down update_visual_range endof
+  [char] 10 of cursor_down update_visual_range endof
+  [char] k of cursor_up update_visual_range endof
+  [char] 11 of cursor_up update_visual_range endof
+  \ default
+  beep
+  endcase
+;
+
+\ -------------------------------------------------------------------------------------
+\
+\ Command Mode
+\
+\ -------------------------------------------------------------------------------------
+
+variable number_prefix
+0 number_prefix !
+
+: +number number_prefix @ 10 * + number_prefix ! ;
+
+:noname
   mode_command mode !
+  0 number_prefix !
+  new-status drawstatus
+  drawblock
+;
+ 
+' enter_command_mode defer!
+
+: command_key	\ key --
+  case
+  27 of 0 number_prefix ! endof	\ already in command mode
+  [char] : of mode_lastline mode ! new-status s" :" >status drawstatus 0 lastline c! endof
+  [char] i of mode_insert mode !  new-status s" -- INSERT --" >status drawstatus endof
+  [char] h of cursor_left endof
+  [char] l of cursor_right endof
+  [char] j of cursor_down endof
+  [char] 10 of cursor_down endof
+  [char] k of cursor_up endof
+  [char] 11 of cursor_up endof
+  [char] 0 of	number_prefix @ 0= if 0 xpos ! locate else dup +number then endof
+  [char] 1 of dup +number endof
+  [char] 2 of dup +number endof
+  [char] 3 of dup +number endof
+  [char] 4 of dup +number endof
+  [char] 5 of dup +number endof
+  [char] 6 of dup +number endof
+  [char] 7 of dup +number endof
+  [char] 8 of dup +number endof
+  [char] 9 of dup +number endof
+  [char] $ of cursor_end_of_line endof
+\ ^  cursor to first non space on line
+\ w cursor next word
+\ b cursor back one word
+\ G cursor end of file ( in my case block )
+\ gg start of file ( or if number prefix then line )
+\ o new line below cursor
+\ O new line above cursor
+  [char] a of cursor_right [char] i recurse endof
+  [char] A of cursor_end_of_line [char] a recurse endof
+  [char] J of merge_next_line endof
+  [char] x of delete_current_char drawblock endof
+\ dw delete word
+\ d0 delete to beginning
+\ d$ delete to end
+\ dd delete line ( and count )
+\ yy yank
+\ p paste
+  [char] v of mode_visual enter_visual_mode  endof
+  [char] V of mode_visual_line enter_visual_mode endof
+  4 of nextblock endof
+  21 of prevblock endof
+  k-up of cursor_up endof
+  k-down of cursor_down endof
+  k-left of cursor_left endof
+  k-right of cursor_right endof
+  new-status s" Unhandled command key " >status dup n>status drawstatus beep
+  endcase
+;
+
+\ -------------------------------------------------------------------------------------
+\
+\ Main
+\
+\ -------------------------------------------------------------------------------------
+
+: runeditor
+  enter_command_mode
   0 current_block !
   0 xpos !
   0 ypos !
+  0 yank_length !
   new-status
   console_clear
   drawedges
@@ -430,13 +612,27 @@ width 1+ buffer: status-buffer
 	mode_command of swap command_key endof
 	mode_lastline of swap lastline_key endof
 	mode_insert of swap insert_key endof
+	mode_visual of swap visual_key endof
+	mode_visual_line of swap visual_key endof
 	nip	\ unknown mode, lose key
     new-status s" unknown mode, " >status dup n>status s" , drop key" >status drawstatus
 	endcase
   repeat
 ;
 
+\ -------------------------------------------------------------------------------------
+\
+\ Debug
+\
+\ -------------------------------------------------------------------------------------
+
 : d console_clear drawtitle drawedges drawblock drawstatus 0 25 at-xy ;
+
+\ -------------------------------------------------------------------------------------
+\
+\ Entrypoints
+\
+\ -------------------------------------------------------------------------------------
 
 widEditor set-current
 
