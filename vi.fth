@@ -129,7 +129,7 @@ width 1+ buffer: status-buffer
   current_block @ block ^buffer !
   \ not sure about this - might be better if 0 counted as white space in the interpreter
   \ otherwise - this will update non-source (binary) blocks if I just view them
-  1024 0 do ^buffer @ i + c@ 0= if bl ^buffer @ i + c! update then loop
+  1024 0 do ^buffer @ i + c@ 0= if bl ^buffer @ i + c! then loop
   drawtitle
   drawblock
   drawstatus
@@ -174,15 +174,43 @@ width 1+ buffer: status-buffer
   width * ^buffer @ + width rot fill
 ;
 
+: split-line
+  ^buffer @ ypos @ width * + xpos @ +
+  ^buffer @ ypos @ 1+ width * +
+  width xpos @ -
+  move
+  ^buffer @ ypos @ width * + xpos @ + width xpos @ - bl fill
+;
+
 : copy-line-down		\ idx --
   height @ 1- over = if drop exit then
   width * ^buffer @ + dup width + width cmove>
 ;
 
+: copy-line-up			\ idx --
+  ?dup if
+	width * ^buffer @ +
+	dup width -
+	width move
+  then
+;
+
+: remove-line			\ idx --
+  dup height 1- = if drop else
+	height swap 1+ ?do
+	  i copy-line-up
+	loop
+  then
+  height 1- bl fill-line
+;
+
 : insert-line-after		\ idx --
-  dup height 1- ?do
-	i copy-line-down
-  -1 +loop
+  dup height 1- = if drop exit then
+  dup height 2 - <> if
+ 	 dup height 2 - ?do
+		i copy-line-down
+  	-1 +loop
+  then
   1+ bl fill-line
 ;
 
@@ -192,6 +220,21 @@ width 1+ buffer: status-buffer
 	dup i + c@ bl <> if drop false unloop exit then
   loop
   drop true
+;
+
+: find-blank-line-before \ idx -- position | -1
+  0 ?do
+	i line-is-blank? if i unloop exit then
+  loop
+  -1
+;
+
+: find-blank-line-after	\ idx -- position | -1
+  1+ height 1- 
+  ?do
+    i line-is-blank? if i unloop exit then
+  -1 +loop
+  -1
 ;
 
 : last-line-blank?		\ -- flag
@@ -221,9 +264,31 @@ width 1+ buffer: status-buffer
   else r@ 10 = if
 	ypos @ height 1- <> last-line-blank? and if
 		ypos @ insert-line-after
-\		split-line
+		split-line
+		1 ypos +!
+		0 xpos !
+		drawblock
 	else
-		beep
+		ypos @ find-blank-line-after dup 0 < if
+			drop 
+			ypos @ find-blank-line-before dup 0< if
+				drop beep
+			else
+				remove-line -1 ypos +!
+				ypos @ insert-line-after
+				split-line
+				1 ypos +!
+				0 xpos !
+				drawblock
+			then
+		else
+			remove-line
+			ypos @ insert-line-after
+			split-line
+			1 ypos +!
+			0 xpos !
+			drawblock
+		then
 	then
   else
 	at-eol? if
@@ -255,7 +320,14 @@ width 1+ buffer: status-buffer
 		new-status s" QUIT" >status drawstatus
 		mode_quit mode !
 	else
-		new-status s" unknown command" >status drawstatus
+		lastline 1+ c@ [char] w = if
+			update save-buffers
+			new-status s" saved" >status drawstatus
+		else
+			new-status s" unknown command" >status drawstatus
+		then
+	then
+	mode @ mode_quit <> if
 		mode_command mode !
 		0 lastline c!
 	then
