@@ -1020,12 +1020,18 @@ forth-wordlist set-current
 internals set-current
 : (+loop)		\ N -- | R: exit-addr idx limit return --
   r> swap			\ return N -- | exit-addr idx limit --
-  r> r>				\ return N limit idx -- | exit-addr --
-  rot +				\ return limit idx+N | exit-addr --
-  2dup > 0=			\ return limit idx+N flag | exit-addr --
+  dup 0 > if
+    r> r>				\ return N limit idx -- | exit-addr --
+    rot +				\ return limit idx+N | exit-addr --
+    2dup > 0=			\ return limit idx+N flag | exit-addr --
+  else
+    r> r>				\ return N limit idx -- | exit-addr --
+    rot +				\ return limit idx+N | exit-addr --
+    2dup > 		\ return limit idx+N flag | exit-addr --
+  then
   swap >r			\ return limit flag | exit-addr idxN --
   swap >r			\ return flag | exit-addr idxN limit --
-  swap >r			\ flag | exit-addr idxN limit flag --
+  swap >r			\ flag | exit-addr idxN limit return --
 ; 
 forth-wordlist set-current
 
