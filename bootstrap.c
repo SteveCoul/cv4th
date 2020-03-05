@@ -9,7 +9,6 @@
 
 #include "common.h"
 #include "io.h"
-#include "forth.h"
 #include "machine.h"
 #include "opcode.h"
 

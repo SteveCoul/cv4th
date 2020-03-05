@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "forth.h"
 #include "machine.h"
 #include "kernel_image.h"
 

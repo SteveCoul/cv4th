@@ -39,11 +39,11 @@ kernel.img.c: kernel.img toC
 toC: toC.c
 	$(CC) $(CFLAGS) -o $@ $^
 	
-kernel.img: bootstrap core.fth
+kernel.img: bootstrap core.fth 
 	./bootstrap $(ENDIAN_FLAGS) -f core.fth -p "get-order internals swap 1+ set-order trim-dict ' bye ' save only definitions execute kernel.img execute"
 
 bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.o 
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(DICTIONARY_SIZE) -o $@ $^
 
 
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
@@ -60,7 +60,6 @@ ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
 arduino_build_tree: kernel.img.c
 	rm -rf arduino
 	mkdir arduino
-	ln -s ../forth.h arduino/forth.h
 	ln -s ../kernel.img.c arduino/kernel.cpp
 	ln -s ../kernel_image.h arduino/kernel_image.h
 	ln -s ../common.h arduino/common.h
