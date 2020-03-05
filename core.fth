@@ -161,6 +161,7 @@ forth-wordlist set-current
 
 \ throwing places exception information at HERE so don't get too close
 \ to the edge of dictionary before doing this throw. yuk.
+\ todo - also need space for locals dict
 : allot																			\ \ CORE
   -8 over unused 512 - < 0= [ opQTHROW here c! 1 A_HERE +! ]
   A_HERE +!	

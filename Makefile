@@ -49,8 +49,9 @@ bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
 
 ARDUINO_PORT?="/dev/cu.usbmodem201" 
-ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-#ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+#ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
+ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
 
 arduino_build_tree: kernel.img.c
 	rm -rf arduino
@@ -72,7 +73,7 @@ arduino_build_tree: kernel.img.c
 	ln -s ../opcode.h arduino/opcode.h
 	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
 	echo "all:" > arduino/Makefile
-	echo "\tarduino-cli compile -v -b $(ARDUINO_PLATFORM)" >> arduino/Makefile
+	echo "\tarduino-cli compile -v -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS)\"" >> arduino/Makefile
 	echo "\tarduino-cli upload -v -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
 	ln -s ../runner.c arduino/arduino.ino
 

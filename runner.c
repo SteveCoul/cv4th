@@ -37,6 +37,10 @@ int main( int argc, char** argv ) {
 		quit = machine.swapCell( quit );
 	}
 
+#ifdef DICTIONARY_SIZE
+#error not implemented yet
+#endif
+
 	printf("Dictonary size: %d bytes\n", size );
 	machine.memory = (cell_t*)malloc( size );
 	printf("\tPointer %p\n", machine.memory );
