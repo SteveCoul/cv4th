@@ -1,5 +1,6 @@
 #SIZE_FLAGS?=-DVM_16BIT
 ENDIAN_FLAGS?=-a 
+#DICTIONARY_SIZE?=-DDICTIONARY_SIZE=32*1024
 
 CFLAGS=-Wall -Wpedantic -Werror -Os $(SIZE_FLAGS)
 STRIP=strip
@@ -10,7 +11,7 @@ clean:
 	rm -f forth toC bootstrap kernel.img kernel.img.c *.o blockfile
 
 forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o io_block.o
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(DICTIONARY_SIZE) $(CFLAGS) -o $@ $^
 	$(STRIP) $@
 
 common.o: common.c common.h
@@ -48,10 +49,13 @@ bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
 
-ARDUINO_PORT?="/dev/cu.usbmodem201" 
 #ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
+#ARDUINO_PORT?="/dev/cu.usbmodem201" 
+#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024 -DVM_16BIT"
+
 ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
-#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
+ARDUINO_PORT?="/dev/cu.usbmodem201" 
+ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
 
 arduino_build_tree: kernel.img.c
 	rm -rf arduino

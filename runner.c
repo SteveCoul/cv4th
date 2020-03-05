@@ -19,6 +19,7 @@ int main( int argc, char** argv ) {
 
 	cell_t head			=	p[ A_HEADER / CELL_SIZE ];
 	cell_t size			=	p[ A_DICTIONARY_SIZE / CELL_SIZE ];
+	cell_t request_size;
 	cell_t dstacksize	=	p[ A_SIZE_DATASTACK / CELL_SIZE ];
 	cell_t rstacksize	=	p[ A_SIZE_RETURNSTACK / CELL_SIZE ];
 	
@@ -38,10 +39,12 @@ int main( int argc, char** argv ) {
 	}
 
 #ifdef DICTIONARY_SIZE
-#error not implemented yet
+	request_size = DICTIONARY_SIZE;
+#else
+	request_size = size;
 #endif
 
-	printf("Dictonary size: %d bytes\n", size );
+	printf("Dictonary size: %d bytes ( %d in image)\n", request_size, size );
 	machine.memory = (cell_t*)malloc( size );
 	printf("\tPointer %p\n", machine.memory );
 
@@ -58,6 +61,7 @@ int main( int argc, char** argv ) {
 	if ( machine.memory ) {
 		memset( machine.memory, 0, size );
 		memmove( machine.memory, image_data, image_data_len );
+		WRITE_CELL( &machine, A_DICTIONARY_SIZE, request_size );
 	}
 	printf("Setup complete\n\n");
 
