@@ -8,9 +8,6 @@ get-order widEditorInternals swap 1+ set-order definitions
 64 constant	width
 16 constant height
 
-variable yank_length
-1024 buffer: yank_buffer
-
 variable current_block
 
 variable ^buffer
@@ -333,7 +330,29 @@ width 1+ buffer: status-buffer
   bl ^buffer @ ypos @ width * + width 1 - + c!
 ;
 
-
+: newline-after		\ idx -- success-flag
+  >r
+  r@ height 1- <> last-line-blank? and if
+    r@ insert-line-after
+	true
+  else
+    r@ find-blank-line-after dup 0 < if
+	  drop 
+	  r@ find-blank-line-before dup 0< if
+	    drop false
+      else
+		remove-line 
+		r@ 1- insert-line-after
+		true
+	  then
+	else
+	  remove-line
+	  r@ insert-line-after
+      true
+    then
+  then
+  r> drop
+;
 
 \ -------------------------------------------------------------------------------------
 \
@@ -368,7 +387,7 @@ width 1+ buffer: status-buffer
 		delete_current_char
 		drawblock
 	then
-  else r@ 10 = if
+  else r@ 10 = if		\ refactor this as a generic insert-line
 	ypos @ height 1- <> last-line-blank? and if
 		ypos @ insert-line-after
 		split-line
@@ -397,6 +416,7 @@ width 1+ buffer: status-buffer
 			drawblock
 		then
 	then
+
   else
 	at-eol? if
 	  lastcharonline bl = if
@@ -452,6 +472,29 @@ width 1+ buffer: status-buffer
     lastline c@ 1+ lastline c!
     new-status s" :" >status lastline count >status drawstatus
   endcase
+;
+
+\ -------------------------------------------------------------------------------------
+\
+\ Yank buffer
+\
+\ -------------------------------------------------------------------------------------
+
+variable yank_length
+1024 buffer: yank_buffer
+
+: yank-line			\ idx --
+  width * ^buffer @ + yank_buffer width move
+  width yank_length !
+;
+
+: yank-paste
+  yank_length @ width <> if beep beep beep exit then	\ not done
+
+  ypos @ insert-line-after 0= if beep else
+	1 ypos +!
+	yank_buffer 0 ypos @ ^bufferpos width move
+  then
 ;
 
 \ -------------------------------------------------------------------------------------
@@ -535,17 +578,13 @@ variable number_prefix
 ' enter_command_mode defer!
 
 : command_key	\ key --
-  case
-  27 of 0 number_prefix ! endof	\ already in command mode
+  dup case
+  27 of endof	\ already in command mode
   [char] : of mode_lastline mode ! new-status s" :" >status drawstatus 0 lastline c! endof
   [char] i of mode_insert mode !  new-status s" -- INSERT --" >status drawstatus endof
-  [char] h of cursor_left endof
-  [char] l of cursor_right endof
-  [char] j of cursor_down endof
-  [char] 10 of cursor_down endof
-  [char] k of cursor_up endof
-  [char] 11 of cursor_up endof
-  [char] 0 of	number_prefix @ 0= if 0 xpos ! locate else dup +number then endof
+  [char] v of mode_visual enter_visual_mode  endof
+  [char] V of mode_visual_line enter_visual_mode endof
+  [char] 0 of number_prefix @ 0= if 0 xpos ! locate else dup +number then endof
   [char] 1 of dup +number endof
   [char] 2 of dup +number endof
   [char] 3 of dup +number endof
@@ -555,7 +594,21 @@ variable number_prefix
   [char] 7 of dup +number endof
   [char] 8 of dup +number endof
   [char] 9 of dup +number endof
+  4 of nextblock endof
+  21 of prevblock endof
   [char] $ of cursor_end_of_line endof
+
+  [char] h of cursor_left endof
+  k-left of cursor_left endof
+  [char] l of cursor_right endof
+  k-right of cursor_right endof
+  [char] k of cursor_up endof
+  [char] 11 of cursor_up endof
+  k-up of cursor_up endof
+  [char] j of cursor_down endof
+  [char] 10 of cursor_down endof
+  k-down of cursor_down endof
+
 \ ^  cursor to first non space on line
 \ w cursor next word
 \ b cursor back one word
@@ -567,22 +620,28 @@ variable number_prefix
   [char] A of cursor_end_of_line [char] a recurse endof
   [char] J of merge_next_line endof
   [char] x of delete_current_char drawblock endof
-\ dw delete word
-\ d0 delete to beginning
-\ d$ delete to end
-\ dd delete line ( and count )
-\ yy yank
-\ p paste
-  [char] v of mode_visual enter_visual_mode  endof
-  [char] V of mode_visual_line enter_visual_mode endof
-  4 of nextblock endof
-  21 of prevblock endof
-  k-up of cursor_up endof
-  k-down of cursor_down endof
-  k-left of cursor_left endof
-  k-right of cursor_right endof
+  [char] d of key case
+				  [char] w of beep endof				\ delete-word
+				  [char] 0 of beep endof				\ delete to start of line	
+				  [char] $ of beep endof				\ delete to end of line
+				  [char] d of ypos @ dup yank-line remove-line endof
+				  \ default
+				  beep
+				  endcase
+				  drawblock
+  endof
+  [char] y of key case
+				  [char] y of ypos @ yank-line endof
+				  \ default
+				  beep
+				  endcase
+  endof
+  [char] p of ypos @ yank-paste drawblock endof
+
   new-status s" Unhandled command key " >status dup n>status drawstatus beep
   endcase
+
+  [char] 0 [char] 9 1+ within 0= if 0 number_prefix ! then
 ;
 
 \ -------------------------------------------------------------------------------------
