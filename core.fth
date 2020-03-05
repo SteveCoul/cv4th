@@ -2241,7 +2241,18 @@ variable scr																	\ \ BLOCK
 
 : update 1 updated +! ;															\ \ BLOCK
 
-: list dup scr ! block 1024 dump ;												\ \ BLOCK
+: list 																			\ \ BLOCK
+  dup scr !
+  block
+  16 0 do
+    cr 
+	64 0 do
+		dup c@ 32 127 within if dup c@ else [char] . then emit
+		1+
+    loop	
+  loop
+  drop
+;
 
 internals set-current
 : (load) 
