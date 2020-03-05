@@ -75,6 +75,7 @@ bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.
 
 ARDUINO_PORT?="/dev/cu.usbmodem201" 
 ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
+#ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
 
 arduino_build_tree: kernel.img.c
 	rm -rf arduino
