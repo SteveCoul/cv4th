@@ -11,7 +11,6 @@ static cell_t	quit;
 
 #ifdef ARDUINO
 void setup() {
-	Serial.begin(115200);
 #else
 int main( int argc, char** argv ) {
 #endif
@@ -25,10 +24,10 @@ int main( int argc, char** argv ) {
 	
 	quit			=	p[4];
 
-	printf("\nCell size %d, Head %x\n", (int)sizeof(cell_t), head );
-
 	machine_init( &machine );
 	machine_set_endian( &machine, ENDIAN_NATIVE, 1 );
+
+	printf("\nCell size %d, Head %x\n", (int)sizeof(cell_t), head );
 
 	if ( head != HEADER_ID ) {
 		machine_set_endian( &machine, ENDIAN_SWAP, 1 );

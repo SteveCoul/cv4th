@@ -3,6 +3,10 @@
 
 #include "io_platform.h"
 
+#ifdef __SAMD21G18A__
+#define Serial SerialUSB
+#endif
+
 int io_platform_read_term( void ) {
 	yield();
 	int rc;
