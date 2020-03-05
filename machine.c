@@ -16,9 +16,9 @@ static uint16_t swap16( uint16_t v ) { return ((v>>8)&0xFF)|((v<<8)&0xFF00); }
 
 #ifdef VM_16BIT
 static uint16_t swapCELL( uint16_t v ) { return ((v>>8)&0xFF)|((v<<8)&0xFF00); }
-#error TODO
 #else
 static cell_t swapCELL( cell_t v ) { return ((v>>24)&0xFF)|((v>>8)&0xFF00)|((v<<8)&0xFF0000)|((v<<24)&0xFF000000); }
+#endif
 
 static void putWord_NativeOrder_AlignmentSafe( machine_t* machine, cell_t r_address, cell_t value ) {
 	uint8_t* ptr;
@@ -117,8 +117,6 @@ static uint16_t getWord_Swap_NoAlignment( machine_t* machine, cell_t r_address )
 static cell_t getCell_Swap_NoAlignment( machine_t* machine, cell_t r_address ) {
 	return swapCELL( getCell_NativeOrder_NoAlignment( machine, r_address ) );
 }
-
-#endif
 
 void machine_init( machine_t* machine ) {
 	ioInit();
@@ -324,7 +322,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 				ptr = (uint32_t*)address;
 				DP-=2;
 				v = datastack[ DP-1 ];
-				v <<=CELL_BITS
+				v <<=CELL_BITS;
 				v |= datastack[ DP-2 ];
 				DP-=2;
 				ptr[0] = v;
