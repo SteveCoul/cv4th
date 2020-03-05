@@ -18,11 +18,11 @@ int main( int argc, char** argv ) {
 	cell_t* p = (cell_t*)image_data;
 
 	cell_t head			=	p[0];
-	cell_t size			=	p[1];
-	cell_t dstacksize	=	p[2];
-	cell_t rstacksize	=	p[3];
+	cell_t size			=	p[ (A_DICTIONARY_SIZE / CELL_SIZE) + 3 ];
+	cell_t dstacksize	=	p[1];
+	cell_t rstacksize	=	p[2];
 	
-	quit			=	p[4];
+	quit			=	p[ (A_QUIT / CELL_SIZE) + 3];
 
 	machine_init( &machine );
 	machine_set_endian( &machine, ENDIAN_NATIVE, 1 );
@@ -49,10 +49,11 @@ int main( int argc, char** argv ) {
 	machine.returnstack = (cell_t*)malloc( rstacksize * CELL_SIZE );
 	printf("\tPointer %p\n", (void*)(machine.returnstack) );
 
+	printf("\tquit = %x\n", quit );
 	printf("Copy data\n");
 	if ( machine.memory ) {
 		memset( machine.memory, 0, size );
-		memmove( machine.memory, image_data+(5*CELL_SIZE), image_data_len-(5*CELL_SIZE) );
+		memmove( machine.memory, image_data+(3*CELL_SIZE), image_data_len-(3*CELL_SIZE) );
 	}
 	printf("Setup complete\n\n");
 

@@ -85,7 +85,7 @@
 \ IMAGE_HEADER_ID																\ \ INTERNAL
 \ SIZE_DATA_STACK																\ \ INTERNAL
 \ SIZE_RETURN_STACK																\ \ INTERNAL
-\ SIZE_FORTH																	\ \ INTERNAL
+\ A_DICTIONARY_SIZE																\ \ INTERNAL
 \ SIZE_INPUT_BUFFER																\ \ INTERNAL
 \ SIZE_PICTURED_NUMERIC															\ \ INTERNAL
 \ SIZE_ORDER																	\ \ INTERNAL
@@ -156,7 +156,7 @@ forth-wordlist set-current
 : char+ 1+ ;																	\ \ CORE
 
 : unused																		\ \ CORE-EXT
-  SIZE_FORTH here -
+  A_DICTIONARY_SIZE @ here -
 ;
 
 \ throwing places exception information at HERE so don't get too close
@@ -1823,9 +1823,6 @@ variable save-tmp
 	IMAGE_HEADER_ID save-tmp !		
 	save-tmp over s" HDR" (save-cell)
 
-	here unused + save-tmp ! 
-	save-tmp over s" Dict# " (save-cell)
-
 	[ get-order environment-wid swap 1+ set-order ]
 	STACK-CELLS save-tmp !
 	save-tmp over s" DStack#" (save-cell)
@@ -1833,8 +1830,6 @@ variable save-tmp
 	RETURN-STACK-CELLS save-tmp !
 	save-tmp over s" RStack#" (save-cell)
 	[ get-order nip 1- set-order ]
-
-	A_QUIT over s" boot" (save-cell)
 
 	dup 0 here rot write-file if -75 throw then
 	close-file if -62 throw then
