@@ -180,6 +180,7 @@ int main( int argc, char** argv ) {
 			printf("-be				Select big endian\n");
 			printf("-le				Select little endian\n");
 			printf("-a				Enable alignment capable fetch and store\n");
+			printf("-ds <num>		Initial dictionary size in K (default 32)\n");
 			printf("				Default endian is host native\n");
 			exit(0);
 		}
@@ -194,6 +195,8 @@ int main( int argc, char** argv ) {
 			endian = ENDIAN_LITTLE;
 		} else if ( strcmp( argv[i], "-a" ) == 0 ) {
 			alignment_workaround = 1;
+		} else if ( strcmp( argv[i], "-ds" ) == 0 ) {
+			dictionary_size = atoi( argv[i+1] ) * 1024; i++;
 		} else {
 			printf("invalid switch %s\n", argv[i] );
 			exit(0);

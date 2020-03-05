@@ -1809,6 +1809,10 @@ forth-wordlist set-current
 
 internals set-current
 
+: trim-dict			\ trim dictionary size down to here + local_dict_size aligned to 1k
+  here local_dict_size + 1023 + 1024 / 1024 * A_DICTIONARY_SIZE !
+;
+
 : save
   parse-name
   0 create-file if 

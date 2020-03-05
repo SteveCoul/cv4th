@@ -39,7 +39,7 @@ toC: toC.c
 	$(CC) $(CFLAGS) -o $@ $^
 	
 kernel.img: bootstrap core.fth
-	./bootstrap $(ENDIAN_FLAGS) -f core.fth -p "get-order internals swap 1+ set-order ' bye ' save only definitions execute kernel.img execute"
+	./bootstrap $(ENDIAN_FLAGS) -f core.fth -p "get-order internals swap 1+ set-order trim-dict ' bye ' save only definitions execute kernel.img execute"
 
 bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.o 
 	$(CC) $(CFLAGS) -o $@ $^
