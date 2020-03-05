@@ -17,12 +17,12 @@ int main( int argc, char** argv ) {
 
 	cell_t* p = (cell_t*)image_data;
 
-	cell_t head			=	p[0];
-	cell_t size			=	p[ (A_DICTIONARY_SIZE / CELL_SIZE) + 3 ];
-	cell_t dstacksize	=	p[1];
-	cell_t rstacksize	=	p[2];
+	cell_t head			=	p[ A_HEADER / CELL_SIZE ];
+	cell_t size			=	p[ A_DICTIONARY_SIZE / CELL_SIZE ];
+	cell_t dstacksize	=	p[ A_SIZE_DATASTACK / CELL_SIZE ];
+	cell_t rstacksize	=	p[ A_SIZE_RETURNSTACK / CELL_SIZE ];
 	
-	quit			=	p[ (A_QUIT / CELL_SIZE) + 3];
+	quit			=	p[ (A_QUIT / CELL_SIZE) ];
 
 	machine_init( &machine );
 	machine_set_endian( &machine, ENDIAN_NATIVE, 1 );
@@ -53,7 +53,7 @@ int main( int argc, char** argv ) {
 	printf("Copy data\n");
 	if ( machine.memory ) {
 		memset( machine.memory, 0, size );
-		memmove( machine.memory, image_data+(3*CELL_SIZE), image_data_len-(3*CELL_SIZE) );
+		memmove( machine.memory, image_data, image_data_len );
 	}
 	printf("Setup complete\n\n");
 

@@ -168,6 +168,8 @@ int main( int argc, char** argv ) {
 	int					i;
 	int					alignment_workaround = 0;
 	cell_t				dictionary_size = 32*1024;
+	cell_t				dstack_size = 256;
+	cell_t				rstack_size = 256;
 
 	for ( i = 1; i < argc; i++ ) {
 		if ( ( strcmp( argv[i], "-h" ) == 0 ) || ( strcmp( argv[i], "-help" ) == 0 ) ) {
@@ -202,16 +204,19 @@ int main( int argc, char** argv ) {
 
 	machine_init( machine );
 	machine->memory = malloc( dictionary_size );
-	machine->datastack = malloc( SIZE_DATA_STACK );
-	machine->returnstack = malloc( SIZE_RETURN_STACK );
+	machine->datastack = malloc( dstack_size );
+	machine->returnstack = malloc( rstack_size );
 
 	machine_set_endian( machine, endian, alignment_workaround );
 
 	memset( machine->memory, 0, dictionary_size );
 
 	/** init vars */
+	WRITE_CELL( machine, A_HEADER, HEADER_ID );
 	WRITE_CELL( machine, A_HERE, START_HERE );
 	WRITE_CELL( machine, A_DICTIONARY_SIZE, dictionary_size );
+	WRITE_CELL( machine, A_SIZE_DATASTACK, dstack_size );
+	WRITE_CELL( machine, A_SIZE_RETURNSTACK, rstack_size );
 	WRITE_CELL( machine, A_FORTH_WORDLIST-CELL_SIZE, 0 );
 	WRITE_CELL( machine, A_FORTH_WORDLIST, 0 );
 	WRITE_CELL( machine, A_INTERNALS_WORDLIST-CELL_SIZE, A_FORTH_WORDLIST );
@@ -254,9 +259,8 @@ int main( int argc, char** argv ) {
 	constant( "r/w", IO_RDWR );
 
 	internals_definitions();
-	constant( "IMAGE_HEADER_ID", HEADER_ID );
-	constant( "SIZE_DATA_STACK", SIZE_DATA_STACK );
-	constant( "SIZE_RETURN_STACK", SIZE_RETURN_STACK );
+	constant( "A_SIZE_DATASTACK", A_SIZE_DATASTACK );
+	constant( "A_SIZE_RETURNSTACK", A_SIZE_RETURNSTACK );
 	constant( "A_DICTIONARY_SIZE", A_DICTIONARY_SIZE );
 	constant( "SIZE_INPUT_BUFFER", SIZE_INPUT_BUFFER );
 	constant( "SIZE_PICTURED_NUMERIC", SIZE_PICTURED_NUMERIC );

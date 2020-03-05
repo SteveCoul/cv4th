@@ -83,8 +83,8 @@
 \ A_LIST_OF_WORDLISTS															\ \ INTERNAL
 \ locals-wordlist																\ \ INTERNAL
 \ IMAGE_HEADER_ID																\ \ INTERNAL
-\ SIZE_DATA_STACK																\ \ INTERNAL
-\ SIZE_RETURN_STACK																\ \ INTERNAL
+\ A_SIZE_DATASTACK																\ \ INTERNAL
+\ A_SIZE_RETURNSTACK															\ \ INTERNAL
 \ A_DICTIONARY_SIZE																\ \ INTERNAL
 \ SIZE_INPUT_BUFFER																\ \ INTERNAL
 \ SIZE_PICTURED_NUMERIC															\ \ INTERNAL
@@ -1607,8 +1607,8 @@ get-order ENVIRONMENT-wid swap 1+ set-order definitions
 : MAX-N					1 abort" max-n environment not done" ;
 : MAX-U					1 abort" max-u environment not done" ;
 : MAX-UD				1 abort" max-ud environment not done" ;
-: RETURN-STACK-CELLS	SIZE_RETURN_STACK ;
-: STACK-CELLS			SIZE_DATA_STACK ;
+: RETURN-STACK-CELLS	A_SIZE_RETURNSTACK @ ;
+: STACK-CELLS			A_SIZE_DATASTACK @ ;
 
 internals forth-wordlist 2 set-order definitions
 
@@ -1808,11 +1808,6 @@ forth-wordlist set-current
 ;
 
 internals set-current
-variable save-tmp
-
-: (save-cell)		( ptr fd c-addr u -- ) 
-  cr type space over @ hex . decimal
-  1 cells swap write-file if -75 throw then ;
 
 : save
   parse-name
@@ -1820,17 +1815,6 @@ variable save-tmp
     -63 throw
   else
 	\ fd --
-	IMAGE_HEADER_ID save-tmp !		
-	save-tmp over s" HDR" (save-cell)
-
-	[ get-order environment-wid swap 1+ set-order ]
-	STACK-CELLS save-tmp !
-	save-tmp over s" DStack#" (save-cell)
-
-	RETURN-STACK-CELLS save-tmp !
-	save-tmp over s" RStack#" (save-cell)
-	[ get-order nip 1- set-order ]
-
 	dup 0 here rot write-file if -75 throw then
 	close-file if -62 throw then
   then
