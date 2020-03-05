@@ -45,7 +45,7 @@ int main( int argc, char** argv ) {
 #endif
 
 	printf("Dictonary size: %d bytes ( %d in image)\n", request_size, size );
-	machine.memory = (cell_t*)malloc( size );
+	machine.memory = (cell_t*)malloc( request_size );
 	printf("\tPointer %p\n", machine.memory );
 
 	printf("Datastack : %d cells\n", dstacksize );
@@ -59,7 +59,7 @@ int main( int argc, char** argv ) {
 	printf("\tquit = %x\n", quit );
 	printf("Copy data\n");
 	if ( machine.memory ) {
-		memset( machine.memory, 0, size );
+		memset( machine.memory, 0, request_size );
 		memmove( machine.memory, image_data, image_data_len );
 		WRITE_CELL( &machine, A_DICTIONARY_SIZE, request_size );
 	}
