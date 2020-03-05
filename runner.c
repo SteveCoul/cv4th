@@ -50,8 +50,10 @@ int main( int argc, char** argv ) {
 	printf("\tPointer %p\n", (void*)(machine.returnstack) );
 
 	printf("Copy data\n");
-	memset( machine.memory, 0, size );
-	memmove( machine.memory, image_data+(5*CELL_SIZE), image_data_len-(5*CELL_SIZE) );
+	if ( machine.memory ) {
+		memset( machine.memory, 0, size );
+		memmove( machine.memory, image_data+(5*CELL_SIZE), image_data_len-(5*CELL_SIZE) );
+	}
 	printf("Setup complete\n\n");
 
 	machine.IP = quit;
