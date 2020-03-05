@@ -1,7 +1,3 @@
-
-# Cross compiling example
-#> SIZE_FLAGS="-DVM_16BIT" CROSS_CFLAGS="-DNO_FILE -mmcu=avrxmega7 -Wl,--defsym=__heap_end=0" CROSS_CC=avr-gcc make cross-forth
-
 #SIZE_FLAGS?=-DVM_16BIT
 ENDIAN_FLAGS?=-a 
 
@@ -11,32 +7,11 @@ STRIP=strip
 default: forth
 
 clean:
-	rm -f cross-forth forth toC bootstrap kernel.img kernel.img.c *.o blockfile
-
-cross-forth: runner.c kernel.img.c common-target.o machine-target.o io-target.o io_file-target.o io_platform-target.o io_block-target.o
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -o $@ $^
+	rm -f forth toC bootstrap kernel.img kernel.img.c *.o blockfile
 
 forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o io_block.o
 	$(CC) $(CFLAGS) -o $@ $^
 	$(STRIP) $@
-
-common-target.o: common.c common.h
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ common.c
-
-io-target.o: common.h io.h io.c
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io.c
-
-io_platform-target.o: common.h io.h io_platform.h io_platform_nix.c
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_platform_nix.c
-
-io_block-target.o: common.h io.h io_block.h io_block.c io_platform.h
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_block.c
-
-io_file-target.o: common.h io.h io_file.h io_file.c
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ io_file.c
-
-machine-target.o: common.h io.h io_file.h io_platform.h opcode.h machine.h machine.c
-	$(CROSS_CC) $(CFLAGS) $(CROSS_CFLAGS) -c -o $@ machine.c
 
 common.o: common.c common.h
 	$(CC) $(CFLAGS) -c -o $@ common.c
