@@ -126,7 +126,11 @@
   A_CURRENT !
 ;
 
-: cell+ 1 cells + ;																\ \ CORE
+internals set-current
+: cells+ cells + ;
+forth-wordlist set-current
+
+: cell+ 1 cells+ ;																\ \ CORE
 
 internals set-current
 : link>flag			cell+ ;														
@@ -331,7 +335,7 @@ forth-wordlist set-current
   0 0 begin
     dup SIZE_ORDER <>
   while						\ widN .. wid1 N i --
-	A_ORDER over cells + @	\ widN .. wid1 N i ? --
+	A_ORDER over cells+ @	\ widN .. wid1 N i ? --
     dup if
       rot 1+ rot			\ widN .. wid1 ? N+1 i --
     else
@@ -373,7 +377,7 @@ get-order internals swap 1+ set-order
 internals set-current
 
 : [fake-variable]
-  opCALL c, here 2 cells + , 0 , opRFROM c,
+  opCALL c, here 2 cells+ , 0 , opRFROM c,
 ; immediate
 
 : locals-count [fake-variable] ;
@@ -665,7 +669,7 @@ internals set-current
   r> drop 
 ;
 
-: flag>link 1 cells - ;
+: flag>link -1 cells+ ;
 : name>flag 1- ;
 
 : >link
@@ -762,17 +766,17 @@ internals set-current
   	  \ abort" is a special case, it already has a string at here that I need to move
 	  \ and I don't store any input buffer information
 	  dup -2 = if
-		here here 4 cells + here c@ 1+ cmove>
+		here here 4 cells+ here c@ 1+ cmove>
 		here !
-		0 here 1 cells + !
-		0 here 2 cells + !
-		line# @ here 3 cells + !
+		0 here 1 cells+ !
+		0 here 2 cells+ !
+		line# @ here 3 cells+ !
 	  else 
 		here !
-		>in @ here 1 cells + !
-		#tib @ here 2 cells + !
-		line# @ here 3 cells + !
-		tib @ here 4 cells + #tib @ cmove>
+		>in @ here 1 cells+ !
+		#tib @ here 2 cells+ !
+		line# @ here 3 cells+ !
+		tib @ here 4 cells+ #tib @ cmove>
 	  then	
 	  1 exception-info !
     then
@@ -799,13 +803,13 @@ internals set-current
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
- 	  cr ab" count type here 4 cells + count type [char] " emit
+ 	  cr ab" count type here 4 cells+ count type [char] " emit
     else
       cr "ue" count type here @ . 
-	  cr here 4 cells + here 3 cells + @ type
+	  cr here 4 cells+ here 3 cells+ @ type
 	  cr
-	  here 4 cells +
-	  here 2 cells + @ 
+	  here 4 cells+
+	  here 2 cells+ @ 
 	  begin
 		?dup
 	  while
@@ -817,8 +821,8 @@ internals set-current
 	  repeat
 	  drop [char] ^ emit
     then
-	here 3 cells + @ 0 > if
-		4 spaces [char] @ emit here 3 cells + @ .
+	here 3 cells+ @ 0 > if
+		4 spaces [char] @ emit here 3 cells+ @ .
  	then
   then
 ;
@@ -1658,7 +1662,7 @@ forth-wordlist set-current
 
 	locals-wordlist @ over ! 
     dup locals-wordlist !
-	1 cells +
+	1 cells+
 
 	opIMMEDIATE over c!  1+
 	
@@ -1670,9 +1674,9 @@ forth-wordlist set-current
 	+							\ locals here
 
 	opDOLIT over c! 1+
-	locals-count @ 1+ over ! 1 cells +		
+	locals-count @ 1+ over ! 1 cells+		
 	opCALL over c! 1+
-	['] compile-l@ over ! 1 cells +
+	['] compile-l@ over ! 1 cells+
 
 	opRET over c!  1+
 
@@ -2113,7 +2117,7 @@ internals set-current
     r@ @ ?dup
   while		
 	@ swap 1+
-    r> @ 1 cells - >r
+    r> @ -1 cells+ >r
   repeat  
   r> drop
   \ N...1 count --
@@ -2246,7 +2250,7 @@ forth-wordlist set-current
 	A_LIST_OF_WORDLISTS @
 	begin
 		dup r@ @ (trim) 
-		1 cells - @
+		-1 cells+ @
 		?dup 0=
 	until
 
@@ -2254,7 +2258,7 @@ forth-wordlist set-current
 		A_LIST_OF_WORDLISTS @ r@ @ 
 		>
     while
-		A_LIST_OF_WORDLISTS @ 1 cells - @ A_LIST_OF_WORDLISTS !
+		A_LIST_OF_WORDLISTS @ -1 cells+ @ A_LIST_OF_WORDLISTS !
 	repeat
 
 	r@ cell+ @ set-current
