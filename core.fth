@@ -126,7 +126,7 @@
   A_CURRENT !
 ;
 
-internals set-current
+ext-wordlist set-current
 : cells+ cells + ;
 forth-wordlist set-current
 
@@ -173,7 +173,7 @@ forth-wordlist set-current
 
 : c, here 1 allot c!  ;															\ \ CORE
 
-internals set-current
+ext-wordlist set-current
 : w,																			
   here 2 allot w!
 ;
@@ -372,8 +372,6 @@ forth-wordlist set-current
   2drop
 ;
 
-get-order internals swap 1+ set-order
-
 internals set-current
 
 : [fake-variable]
@@ -444,7 +442,7 @@ forth-wordlist set-current
 
 : count dup 1+ swap c@ ;														\ \ CORE
 
-internals set-current
+ext-wordlist set-current
 : ctype count type ;		
 forth-wordlist set-current
 
@@ -631,6 +629,7 @@ internals set-current
 
 : forget-locals	0 locals-wordlist !	;											
 
+ext-wordlist set-current
 : $find		\ c-addr u -- 0 | xt 1 | xt -1 
   2>r
   get-order locals-wordlist swap 1+ 
@@ -1308,7 +1307,7 @@ variable blk																	\ \ BLOCK
   spaces type
 ;
 
-internals set-current
+ext-wordlist set-current
 : islower [char] a [char] z 1+ within ;
 : toupper dup islower if 32 - then ;
 forth-wordlist set-current
@@ -1565,7 +1564,7 @@ forth-wordlist set-current
 
 internals set-current
 wordlist constant ENVIRONMENT-wid
-get-order ENVIRONMENT-wid swap 1+ set-order definitions
+ENVIRONMENT-wid set-current
 
 : /COUNTED_STRING		255 ;
 : /HOLD					SIZE_PICTURED_NUMERIC ;
@@ -1580,7 +1579,7 @@ get-order ENVIRONMENT-wid swap 1+ set-order definitions
 : RETURN-STACK-CELLS	A_SIZE_RETURNSTACK @ ;
 : STACK-CELLS			A_SIZE_DATASTACK @ ;
 
-internals forth-wordlist 2 set-order definitions
+forth-wordlist set-current
 
 : environment?																	\ \ CORE
 	ENVIRONMENT-wid search-wordlist if
@@ -1777,6 +1776,7 @@ internals set-current
   here local_dict_size + 1023 + 1024 / 1024 * A_DICTIONARY_SIZE !
 ;
 
+ext-wordlist set-current
 : save
   parse-name
   0 create-file if 
@@ -1820,7 +1820,7 @@ forth-wordlist set-current
 \ 
 \ ---------------------------------------------------------------------------------------------
 
-internals set-current
+ext-wordlist set-current
 : stub:
   create
     immediate
@@ -1854,7 +1854,7 @@ stub: search 	STRING
 
 \ ---------------------------------------------------------------------------------------------
 
-get-order internals swap 1+ set-order
+ext-wordlist set-current
  
 : ?	@ . ;																		\ \ PROGRAMMING-TOOLS
 : [defined] parse-name $find if drop true else false then ; immediate			\ \ PROGRAMMING-TOOLS
@@ -1927,7 +1927,7 @@ forth-wordlist set-current
   ['] (words) get-current traverse-wordlist
 ;  
 
-internals set-current
+ext-wordlist set-current
 
 : aschar 
   dup bl < if drop [char] . else
@@ -1935,6 +1935,7 @@ internals set-current
   then then
 ;
 
+internals set-current
 : .8		\ v --
   0 <# # # # # # # # # #> type
 ;
@@ -2064,7 +2065,7 @@ forth-wordlist set-current
 
 : see parse-name $find if 20000 dis then ;										\ \ PROGRAMMING-TOOLS
 
-internals set-current
+ext-wordlist set-current
 : .rs
   cr
   rsp@ >r nr> 
@@ -2137,6 +2138,8 @@ internals set-current
 ;
 
 : (allwords) name>string type space true ;
+ext-wordlist set-current
+
 : allwords ['] (allwords) traverse-all-wordlists ;
 forth-wordlist set-current
 
@@ -2325,6 +2328,6 @@ forth-wordlist set-current
 ; 
 
 ' quit A_QUIT !	
-only definitions
+only forth definitions
 
 

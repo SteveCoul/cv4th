@@ -19,6 +19,7 @@ static machine_t*	machine;
 #define FORTH_WORDLIST					GET_CELL( machine, A_FORTH_WORDLIST )
 #define INTERNALS_WORDLIST				GET_CELL( machine, A_INTERNALS_WORDLIST )
 #define LOCALS_WORDLIST					GET_CELL( machine, A_LOCALS_WORDLIST )
+#define EXT_WORDLIST					GET_CELL( machine, A_EXT_WORDLIST )
 #define HASH_TIB						GET_CELL( machine, A_HASH_TIB )
 #define TOIN							GET_CELL( machine, A_TOIN )
 #define STATE							GET_CELL( machine, A_STATE )
@@ -88,6 +89,7 @@ static void constant( const char* name, cell_t value ) {
 
 static void internals_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST ); }
 static void forth_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST ); }
+//static void ext_definitions( void ) { WRITE_CELL( machine, A_CURRENT, A_EXT_WORDLIST ); }
 
 uint32_t find( const char* name ) {
 	uint32_t i = 0;	
@@ -225,7 +227,9 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_INTERNALS_WORDLIST, 0 );
 	WRITE_CELL( machine, A_LOCALS_WORDLIST-CELL_SIZE, A_INTERNALS_WORDLIST );
 	WRITE_CELL( machine, A_LOCALS_WORDLIST, 0 );
-	WRITE_CELL( machine, A_LIST_OF_WORDLISTS, A_LOCALS_WORDLIST );
+	WRITE_CELL( machine, A_EXT_WORDLIST-CELL_SIZE, A_LOCALS_WORDLIST );
+	WRITE_CELL( machine, A_EXT_WORDLIST, 0 );
+	WRITE_CELL( machine, A_LIST_OF_WORDLISTS, A_EXT_WORDLIST );
 	WRITE_CELL( machine, A_QUIT, 0 );
 	WRITE_CELL( machine, A_BASE, 10 );
 	WRITE_CELL( machine, A_STATE, 0 );
@@ -234,10 +238,12 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_TOIN, 0 );
 	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST );
 	WRITE_CELL( machine, A_THROW, 0 );
-	WRITE_CELL( machine, A_ORDER, A_INTERNALS_WORDLIST );
-	WRITE_CELL( machine, A_ORDER +CELL_SIZE, A_FORTH_WORDLIST );
+	WRITE_CELL( machine, A_ORDER, A_INTERNALS_WORDLIST );		// bootstrap has a search order of internals-ext-forth
+	WRITE_CELL( machine, A_ORDER+CELL_SIZE, A_EXT_WORDLIST );
+	WRITE_CELL( machine, A_ORDER +CELL_SIZE+CELL_SIZE, A_FORTH_WORDLIST );
 
 	constant( "INTERNALS", A_INTERNALS_WORDLIST );		
+	constant( "ext-wordlist", A_EXT_WORDLIST );
 	constant( "forth-wordlist", A_FORTH_WORDLIST );		// this one is actually a forth word
 
 	internals_definitions();
