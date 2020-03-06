@@ -2145,67 +2145,17 @@ forth-wordlist set-current
 
 \ ---------------------------------------------------------------------------------------------
 
-internals set-current
-1024 buffer: block_buffer
-variable updated
-variable block_file
-variable actual_blk
--1 actual_blk !
-
-: obf
-  s" block:/" r/w open-file if cr ." failed to open blockfile" -69 throw then block_file !
-;
-
-: cbf
-  block_file @ close-file drop
-;
-forth-wordlist set-current
-
 0 blk !
 
 variable scr																	\ \ BLOCK
 0 scr !
 
-: empty-buffers																	\ \ BLOCK
-  0 updated !
-  \ I only have one buffer and you cannot unassign it
-;
-
-: save-buffers																	\ \ BLOCK
-  actual_blk @ 0 > if
-    updated @ if
-	  obf
-	  actual_blk @ 1- 1024 um* block_file @ reposition-file if cbf -34 throw then
-	  block_buffer 1024 block_file @ write-file if cbf -34 throw then
-	  cbf
-      0 updated !
-    then
-    -1 actual_blk !	\ force reload?
-  then
-;
-
-: flush save-buffers ;															\ \ BLOCK
-
-: block																			\ \ BLOCK
-  dup actual_blk @ <> if
-    >r
-    save-buffers
-    r@ 0= if -35 throw then
-    obf
-    block_file @ file-size if cbf -33 throw then
-    r@ 1- 1024 um* 2swap 1024 s>d d- du< 0= if cbf -33 throw then
-    r@ 1- 1024 um* block_file @ reposition-file if cbf -33 throw then
-    block_buffer 1024 block_file @ read-file nip if cbf -33 throw then
-    cbf
-    r> actual_blk !
-    0 updated !
-  else drop then
-  block_buffer
-;
-
-: buffer block ;																\ \ BLOCK
-
-: update 1 updated +! ;															\ \ BLOCK
+defer empty-buffers																\ \ BLOCK
+defer save-buffers																\ \ BLOCK
+defer flush																		\ \ BLOCK
+defer block																		\ \ BLOCK
+defer buffer																	\ \ BLOCK
+defer update																	\ \ BLOCK
 
 : list 																			\ \ BLOCK
   dup scr !
@@ -2222,8 +2172,9 @@ variable scr																	\ \ BLOCK
 
 internals set-current
 : (load) 
+  dup >r 
   block tib ! 1024 #tib ! 0 >in ! 
-  actual_blk @ blk !
+  r> blk !
   (evaluate) 
   0 blk !
 ;

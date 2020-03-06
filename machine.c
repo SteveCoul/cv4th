@@ -7,7 +7,6 @@
 #include "common.h"
 #include "io.h"
 #include "io_file.h"
-#include "io_block.h"
 #include "io_platform.h"
 #include "machine.h"
 #include "opcode.h"
@@ -121,7 +120,6 @@ static cell_t getCell_Swap_NoAlignment( machine_t* machine, cell_t r_address ) {
 void machine_init( machine_t* machine ) {
 	ioInit();
 	ioRegister( &io_file );
-	ioRegister( &io_block );
 	machine->DP = 0;
 	machine->RP = 0;
 	machine->LP = 0;	

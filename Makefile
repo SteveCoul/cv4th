@@ -8,9 +8,9 @@ STRIP=strip
 default: forth
 
 clean:
-	rm -f forth toC bootstrap kernel.img kernel.img.c *.o blockfile
+	rm -f forth toC bootstrap kernel.img kernel.img.c *.o 
 
-forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o io_block.o
+forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o 
 	$(CC) $(DICTIONARY_SIZE) $(CFLAGS) -o $@ $^
 	$(STRIP) $@
 
@@ -22,9 +22,6 @@ io.o: common.h io.h io.c
 
 io_platform.o: common.h io.h io_platform.h io_platform_nix.c
 	$(CC) $(CFLAGS) -c -o $@ io_platform_nix.c
-
-io_block.o: common.h io.h io_block.h io_block.c io_platform.h
-	$(CC) $(CFLAGS) -c -o $@ io_block.c
 
 io_file.o: common.h io.h io_file.h io_file.c
 	$(CC) $(CFLAGS) -c -o $@ io_file.c
@@ -40,9 +37,9 @@ toC: toC.c
 	$(CC) $(CFLAGS) -o $@ $^
 	
 kernel.img: bootstrap core.fth 
-	./bootstrap $(ENDIAN_FLAGS) -f core.fth -p "get-order internals swap 1+ set-order trim-dict ' bye ' save only definitions execute kernel.img execute"
+	./bootstrap $(ENDIAN_FLAGS) -f core.fth -p "internals ext-wordlist get-order 2 + set-order trim-dict ' bye ' save only forth definitions execute kernel.img execute"
 
-bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_block.o 
+bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o
 	$(CC) $(CFLAGS) $(DICTIONARY_SIZE) -o $@ $^
 
 
@@ -70,8 +67,6 @@ arduino_build_tree: kernel.img.c
 	ln -s ../io.c arduino/io.cpp
 	ln -s ../io_file.h arduino/io_file.h
 	ln -s ../io_file.c arduino/io_file.cpp
-	ln -s ../io_block.h arduino/io_block.h
-	ln -s ../io_block.c arduino/io_block.cpp
 	ln -s ../io_platform.h arduino/io_platform.h
 	ln -s ../opcode.h arduino/opcode.h
 	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
