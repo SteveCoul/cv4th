@@ -923,7 +923,7 @@ forth-wordlist set-current
 \ [compile]																		\ \ CORE-EXT
 
 : postpone																		\ \ CORE
-	bl word find ?dup 0= if		
+	parse-name $find ?dup 0= if
 		-13 throw
 	else
 		1 = if 
@@ -1232,10 +1232,10 @@ variable blk																	\ \ BLOCK
 0 value source-id																\ \ CORE-EXT
 
 : to																			\ \ CORE-EXT
-	bl word 
+	parse-name
 
-	dup count locals-wordlist search-wordlist if
-		nip
+	2dup locals-wordlist search-wordlist if
+		nip nip
 		1+ @		\ get the literal from the first instruction in the word
 		opDOLIT c,
 		,
@@ -1243,7 +1243,7 @@ variable blk																	\ \ BLOCK
 		exit
 	then
 
-	find 0= if -13 throw then
+	$find 0= if -13 throw then
 	state @ if
 		[literal]
 		postpone >body
@@ -1357,12 +1357,10 @@ forth-wordlist set-current
 internals set-current
 : (evaluate)																	
   begin
-    bl word 
-    dup c@
+	bl word dup c@
   while
 	find ?dup 0= if	
 		count
-	
 		over c@ [char] - = 
 		if 
 			1- swap 1+ swap 
@@ -1894,8 +1892,8 @@ stub: search 	STRING
 get-order internals swap 1+ set-order
  
 : ?	@ . ;																		\ \ PROGRAMMING-TOOLS
-: [defined] bl word find nip 0<> ; immediate									\ \ PROGRAMMING-TOOLS
-: [undefined] bl word find nip 0= ; immediate									\ \ PROGRAMMING-TOOLS
+: [defined] parse-name $find if drop true else false then ; immediate			\ \ PROGRAMMING-TOOLS
+: [undefined] parse-name $find if drop false else true then ; immediate			\ \ PROGRAMMING-TOOLS
 : [then] ; immediate															\ \ PROGRAMMING-TOOLS
 : [else]																		\ \ PROGRAMMING-TOOLS
   1 begin
