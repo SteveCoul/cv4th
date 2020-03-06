@@ -410,7 +410,7 @@ forth-wordlist set-current
 ;
 
 : forth																			\ \ SEARCH-ORDER
-  get-order forth-wordlist swap 1+ set-order
+  get-order nip forth-wordlist swap set-order
 ;
 
 : only																			\ \ SEARCH-ORDER
