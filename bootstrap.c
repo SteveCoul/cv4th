@@ -89,7 +89,7 @@ static void constant( const char* name, cell_t value ) {
 
 static void internals_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST ); }
 static void forth_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST ); }
-//static void ext_definitions( void ) { WRITE_CELL( machine, A_CURRENT, A_EXT_WORDLIST ); }
+static void ext_definitions( void ) { WRITE_CELL( machine, A_CURRENT, A_EXT_WORDLIST ); }
 
 uint32_t find( const char* name ) {
 	uint32_t i = 0;	
@@ -344,7 +344,7 @@ int main( int argc, char** argv ) {
 	opword( opUM_SLASH_MOD, "um/mod" );
 	opword( opSM_SLASH_REM, "sm/rem" );
     opword( opINVERT, "invert" );
-	internals_definitions();
+	ext_definitions();
 	opword( opREL2ABS, "rel>abs" );
 	opword( opD8FETCH, "d8@" );
 	opword( opD16FETCH, "d16@" );
@@ -376,6 +376,7 @@ int main( int argc, char** argv ) {
 	opword( opSPSTORE, "sp!" );
 	opword( opWFETCH, "w@" );
 	opword( opWSTORE, "w!" );
+	ext_definitions();
 	opword( opBYE, "bye" );
 
 	opconstant( opNONE );
