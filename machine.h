@@ -18,7 +18,7 @@ typedef int32_t s_cell_t;
 #endif
 
 #define SIZE_INPUT_BUFFER				128
-#define SIZE_PICTURED_NUMERIC			64
+#define SIZE_PICTURED_NUMERIC			66
 #define SIZE_ORDER						10
 
 #define A_HEADER						0

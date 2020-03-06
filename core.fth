@@ -126,7 +126,11 @@
   A_CURRENT !
 ;
 
-: cell+ 1 cells + ;																\ \ CORE
+internals set-current
+: cells+ cells + ;
+forth-wordlist set-current
+
+: cell+ 1 cells+ ;																\ \ CORE
 
 internals set-current
 : link>flag			cell+ ;														
@@ -331,7 +335,7 @@ forth-wordlist set-current
   0 0 begin
     dup SIZE_ORDER <>
   while						\ widN .. wid1 N i --
-	A_ORDER over cells + @	\ widN .. wid1 N i ? --
+	A_ORDER over cells+ @	\ widN .. wid1 N i ? --
     dup if
       rot 1+ rot			\ widN .. wid1 ? N+1 i --
     else
@@ -373,7 +377,7 @@ get-order internals swap 1+ set-order
 internals set-current
 
 : [fake-variable]
-  opCALL c, here 2 cells + , 0 , opRFROM c,
+  opCALL c, here 2 cells+ , 0 , opRFROM c,
 ; immediate
 
 : locals-count [fake-variable] ;
@@ -548,19 +552,6 @@ forth-wordlist set-current
   bl bl (parse)
 ;
 
-internals set-current
-: ^word-buffer [fake-variable] ;
-here SIZE_INPUT_BUFFER allot ^word-buffer !
-forth-wordlist set-current
-
-: word																			\ \ CORE
-  ^word-buffer @ >r
-  bl (parse)
-  dup r@ c!
-  r@ 1+ swap move
-  r>
-;
-
 : char																			\ \ CORE
   parse-name 0= if
     drop 0			
@@ -678,7 +669,7 @@ internals set-current
   r> drop 
 ;
 
-: flag>link 1 cells - ;
+: flag>link -1 cells+ ;
 : name>flag 1- ;
 
 : >link
@@ -775,17 +766,17 @@ internals set-current
   	  \ abort" is a special case, it already has a string at here that I need to move
 	  \ and I don't store any input buffer information
 	  dup -2 = if
-		here here 4 cells + here c@ 1+ cmove>
+		here here 4 cells+ here c@ 1+ cmove>
 		here !
-		0 here 1 cells + !
-		0 here 2 cells + !
-		line# @ here 3 cells + !
+		0 here 1 cells+ !
+		0 here 2 cells+ !
+		line# @ here 3 cells+ !
 	  else 
 		here !
-		>in @ here 1 cells + !
-		#tib @ here 2 cells + !
-		line# @ here 3 cells + !
-		tib @ here 4 cells + #tib @ cmove>
+		>in @ here 1 cells+ !
+		#tib @ here 2 cells+ !
+		line# @ here 3 cells+ !
+		tib @ here 4 cells+ #tib @ cmove>
 	  then	
 	  1 exception-info !
     then
@@ -812,13 +803,13 @@ internals set-current
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
- 	  cr ab" count type here 4 cells + count type [char] " emit
+ 	  cr ab" count type here 4 cells+ count type [char] " emit
     else
       cr "ue" count type here @ . 
-	  cr here 4 cells + here 3 cells + @ type
+	  cr here 4 cells+ here 3 cells+ @ type
 	  cr
-	  here 4 cells +
-	  here 2 cells + @ 
+	  here 4 cells+
+	  here 2 cells+ @ 
 	  begin
 		?dup
 	  while
@@ -830,8 +821,8 @@ internals set-current
 	  repeat
 	  drop [char] ^ emit
     then
-	here 3 cells + @ 0 > if
-		4 spaces [char] @ emit here 3 cells + @ .
+	here 3 cells+ @ 0 > if
+		4 spaces [char] @ emit here 3 cells+ @ .
  	then
   then
 ;
@@ -923,7 +914,7 @@ forth-wordlist set-current
 \ [compile]																		\ \ CORE-EXT
 
 : postpone																		\ \ CORE
-	bl word find ?dup 0= if		
+	parse-name $find ?dup 0= if
 		-13 throw
 	else
 		1 = if 
@@ -1232,10 +1223,10 @@ variable blk																	\ \ BLOCK
 0 value source-id																\ \ CORE-EXT
 
 : to																			\ \ CORE-EXT
-	bl word 
+	parse-name
 
-	dup count locals-wordlist search-wordlist if
-		nip
+	2dup locals-wordlist search-wordlist if
+		nip nip
 		1+ @		\ get the literal from the first instruction in the word
 		opDOLIT c,
 		,
@@ -1243,7 +1234,7 @@ variable blk																	\ \ BLOCK
 		exit
 	then
 
-	find 0= if -13 throw then
+	$find 0= if -13 throw then
 	state @ if
 		[literal]
 		postpone >body
@@ -1347,6 +1338,12 @@ forth-wordlist set-current
 	0 until
 ;
 
+: /string																		\ \ STRING
+  ?dup if
+    tuck - rot rot + swap
+  then
+;
+
 : 2literal swap postpone literal postpone literal ; immediate					\ \ DOUBLE
 
 internals set-current
@@ -1357,57 +1354,29 @@ forth-wordlist set-current
 internals set-current
 : (evaluate)																	
   begin
-    bl word 
-    dup c@
+	parse-name ?dup
   while
-	find ?dup 0= if	
-		count
-	
-		over c@ [char] - = 
-		if 
-			1- swap 1+ swap 
-			-1 >r 
-		else
-			1 >r
-			over c@ [char] + = 
-			if 
-				1- swap 1+ swap
-			then
-		then
-
-		0 0 2swap >number
-		\ ud c-addr u -- : R: multiplier --
-		dup 0= if
-			\ used all the chars it should be a single cell number
-			2drop 
-			if 
-				-24 throw
-			then
-			r> *
-			state @ if
-				[literal] 
-			then
-		else
-			S" ." compare 0= if
-				\ terminated by a . means it's a double
-				r> -1 = if dnegate then
-				state @ if 
-					[2literal] 
-				then
-			else
-				2drop
-				-13 throw
-			then
-		then
-	else
+	2dup $find ?dup if
+		rot drop rot drop
 		1 = if
 			execute
 		else
-			state @ if
-				compile,
-			else
-				execute
+			state @ if compile, else execute then
+		then
+	else
+		over c@ dup	[char] - = if drop -1 >r 1 /string else [char] + = if 1 /string then 1 >r then
+
+		0 0 2swap >number ?dup 0= if
+			drop
+			if -24 throw then
+			r> * state @ if [literal] then
+		else
+			S" ." compare if
+				2drop
+				-13 throw
 			then
+			r> -1 = if dnegate then
+			state @ if [2literal] then
 		then
 	then
   repeat
@@ -1632,12 +1601,6 @@ internals forth-wordlist 2 set-order definitions
   again
 ;
 
-: /string																		\ \ STRING
-  ?dup if
-    tuck - rot rot + swap
-  then
-;
-
 : blank bl fill ;																\ \ STRING
 
 : cmove 																		\ \ STRING
@@ -1699,7 +1662,7 @@ forth-wordlist set-current
 
 	locals-wordlist @ over ! 
     dup locals-wordlist !
-	1 cells +
+	1 cells+
 
 	opIMMEDIATE over c!  1+
 	
@@ -1711,9 +1674,9 @@ forth-wordlist set-current
 	+							\ locals here
 
 	opDOLIT over c! 1+
-	locals-count @ 1+ over ! 1 cells +		
+	locals-count @ 1+ over ! 1 cells+		
 	opCALL over c! 1+
-	['] compile-l@ over ! 1 cells +
+	['] compile-l@ over ! 1 cells+
 
 	opRET over c!  1+
 
@@ -1894,8 +1857,8 @@ stub: search 	STRING
 get-order internals swap 1+ set-order
  
 : ?	@ . ;																		\ \ PROGRAMMING-TOOLS
-: [defined] bl word find nip 0<> ; immediate									\ \ PROGRAMMING-TOOLS
-: [undefined] bl word find nip 0= ; immediate									\ \ PROGRAMMING-TOOLS
+: [defined] parse-name $find if drop true else false then ; immediate			\ \ PROGRAMMING-TOOLS
+: [undefined] parse-name $find if drop false else true then ; immediate			\ \ PROGRAMMING-TOOLS
 : [then] ; immediate															\ \ PROGRAMMING-TOOLS
 : [else]																		\ \ PROGRAMMING-TOOLS
   1 begin
@@ -2154,7 +2117,7 @@ internals set-current
     r@ @ ?dup
   while		
 	@ swap 1+
-    r> @ 1 cells - >r
+    r> @ -1 cells+ >r
   repeat  
   r> drop
   \ N...1 count --
@@ -2298,7 +2261,7 @@ forth-wordlist set-current
 	A_LIST_OF_WORDLISTS @
 	begin
 		dup r@ @ (trim) 
-		1 cells - @
+		-1 cells+ @
 		?dup 0=
 	until
 
@@ -2306,7 +2269,7 @@ forth-wordlist set-current
 		A_LIST_OF_WORDLISTS @ r@ @ 
 		>
     while
-		A_LIST_OF_WORDLISTS @ 1 cells - @ A_LIST_OF_WORDLISTS !
+		A_LIST_OF_WORDLISTS @ -1 cells+ @ A_LIST_OF_WORDLISTS !
 	repeat
 
 	r@ cell+ @ set-current
@@ -2314,6 +2277,19 @@ forth-wordlist set-current
 
 	r> @ 
     A_HERE !
+;
+
+internals set-current
+: ^word-buffer [fake-variable] ;
+here 33 allot ^word-buffer !
+forth-wordlist set-current
+
+: word																			\ \ CORE
+  ^word-buffer @ >r
+  bl (parse) dup 33 > if -18 throw then
+  dup r@ c!
+  r@ 1+ swap move
+  r>
 ;
 
 \ ---------------------------------------------------------------------------------------------
