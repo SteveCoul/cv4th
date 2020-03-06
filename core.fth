@@ -548,19 +548,6 @@ forth-wordlist set-current
   bl bl (parse)
 ;
 
-internals set-current
-: ^word-buffer [fake-variable] ;
-here SIZE_INPUT_BUFFER allot ^word-buffer !
-forth-wordlist set-current
-
-: word																			\ \ CORE
-  ^word-buffer @ >r
-  bl (parse)
-  dup r@ c!
-  r@ 1+ swap move
-  r>
-;
-
 : char																			\ \ CORE
   parse-name 0= if
     drop 0			
@@ -1347,6 +1334,12 @@ forth-wordlist set-current
 	0 until
 ;
 
+: /string																		\ \ STRING
+  ?dup if
+    tuck - rot rot + swap
+  then
+;
+
 : 2literal swap postpone literal postpone literal ; immediate					\ \ DOUBLE
 
 internals set-current
@@ -1357,55 +1350,29 @@ forth-wordlist set-current
 internals set-current
 : (evaluate)																	
   begin
-	bl word dup c@
+	parse-name ?dup
   while
-	find ?dup 0= if	
-		count
-		over c@ [char] - = 
-		if 
-			1- swap 1+ swap 
-			-1 >r 
-		else
-			1 >r
-			over c@ [char] + = 
-			if 
-				1- swap 1+ swap
-			then
-		then
-
-		0 0 2swap >number
-		\ ud c-addr u -- : R: multiplier --
-		dup 0= if
-			\ used all the chars it should be a single cell number
-			2drop 
-			if 
-				-24 throw
-			then
-			r> *
-			state @ if
-				[literal] 
-			then
-		else
-			S" ." compare 0= if
-				\ terminated by a . means it's a double
-				r> -1 = if dnegate then
-				state @ if 
-					[2literal] 
-				then
-			else
-				2drop
-				-13 throw
-			then
-		then
-	else
+	2dup $find ?dup if
+		rot drop rot drop
 		1 = if
 			execute
 		else
-			state @ if
-				compile,
-			else
-				execute
+			state @ if compile, else execute then
+		then
+	else
+		over c@ dup	[char] - = if drop -1 >r 1 /string else [char] + = if 1 /string then 1 >r then
+
+		0 0 2swap >number ?dup 0= if
+			drop
+			if -24 throw then
+			r> * state @ if [literal] then
+		else
+			S" ." compare if
+				2drop
+				-13 throw
 			then
+			r> -1 = if dnegate then
+			state @ if [2literal] then
 		then
 	then
   repeat
@@ -1628,12 +1595,6 @@ internals forth-wordlist 2 set-order definitions
     2dup 1- + c@ bl <> if exit then
 	1-
   again
-;
-
-: /string																		\ \ STRING
-  ?dup if
-    tuck - rot rot + swap
-  then
 ;
 
 : blank bl fill ;																\ \ STRING
@@ -2301,6 +2262,19 @@ forth-wordlist set-current
 
 	r> @ 
     A_HERE !
+;
+
+internals set-current
+: ^word-buffer [fake-variable] ;
+here 33 allot ^word-buffer !
+forth-wordlist set-current
+
+: word																			\ \ CORE
+  ^word-buffer @ >r
+  bl (parse) dup 33 > if -18 throw then
+  dup r@ c!
+  r@ 1+ swap move
+  r>
 ;
 
 \ ---------------------------------------------------------------------------------------------
