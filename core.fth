@@ -1558,6 +1558,24 @@ forth-wordlist set-current
 : */  >r m* r> sm/rem nip ;														\ \ CORE
 : */mod >r m* r> sm/rem ;														\ \ CORE
 
+ext-wordlist set-current
+: stub:
+  create
+    immediate
+	get-current @ ,
+    parse-name 
+    dup c,
+    here over allot
+    swap move
+  does>
+	cr dup @ link>name ctype 
+    space [char] ( emit 
+    cell+ ctype 
+    ." ) not implemented." cr
+	-1 throw
+;
+forth-wordlist set-current
+
 \ ---------------------------------------------------------------------------------------------
 \ environment support
 \ ---------------------------------------------------------------------------------------------
@@ -1572,10 +1590,10 @@ ENVIRONMENT-wid set-current
 : ADDRESS-UNIT-BITS		1 cells 8 * ;									
 : FLOORED				0 ;
 : MAX-CHAR				255 ;
-: MAX-D					1 abort" max-d environment not done" ;
-: MAX-N					1 abort" max-n environment not done" ;
-: MAX-U					1 abort" max-u environment not done" ;
-: MAX-UD				1 abort" max-ud environment not done" ;
+stub: MAX-D
+stub: MAX-N
+stub: MAX-U
+stub: MAX-UD
 : RETURN-STACK-CELLS	A_SIZE_RETURNSTACK @ ;
 : STACK-CELLS			A_SIZE_DATASTACK @ ;
 
@@ -1630,12 +1648,16 @@ forth-wordlist set-current
 \ ---------------------------------------------------------------------------------------------
 
 ENVIRONMENT-wid set-current
-16 constant #LOCALS
+16 value #LOCALS
 forth-wordlist set-current
 
 internals set-current
-1024 constant local_dict_size
+1024 value local_dict_size
 forth-wordlist set-current
+
+\ All the actual locals code below can move to a seperate optional file
+\ and set the #locals to 0 and the dict size to 0 above, setting the
+\ correct values at compile time if the locals.fth file is included
 
 : (local)
   2dup or 0= if
@@ -1740,6 +1762,7 @@ forth-wordlist set-current
    0 0 (local)
 ; immediate
 
+
 \ ---------------------------------------------------------------------------------------------
 \ Files
 \ ---------------------------------------------------------------------------------------------
@@ -1819,24 +1842,6 @@ forth-wordlist set-current
 \ ---------------------------------------------------------------------------------------------
 \ 
 \ ---------------------------------------------------------------------------------------------
-
-ext-wordlist set-current
-: stub:
-  create
-    immediate
-	get-current @ ,
-    parse-name 
-    dup c,
-    here over allot
-    swap move
-  does>
-	cr dup @ link>name ctype 
-    space [char] ( emit 
-    cell+ ctype 
-    ." ) not implemented." cr
-	-1 throw
-;
-forth-wordlist set-current
 
 stub: s\"	CORE-EXT,FILE
 stub: d. 	DOUBLE
