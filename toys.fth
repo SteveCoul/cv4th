@@ -1,5 +1,6 @@
 
-get-order internals swap 1+ set-order
+only forth definitions
+internals ext-wordlist get-order 2 + set-order
 
 variable last-word 
 variable line-counter
