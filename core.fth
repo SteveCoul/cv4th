@@ -1543,11 +1543,11 @@ forth-wordlist set-current
 : erase	0 fill ;																\ \ CORE-EXT
 
 : d0< 0 0 d< ;																	\ \ DOUBLE
-: s>d dup [ hex ] 80000000 [ decimal ] and if -1 else 0 then ;					\ \ CORE
+: s>d dup 1 1 cells 8 * 1 - lshift and if -1 else 0 then ;						\ \ CORE
 : d>s drop ;																	\ \ DOUBLE
-: / swap s>d rot sm/rem nip ;													\ \ CORE
-: mod swap s>d rot sm/rem drop ;												\ \ CORE
-: /mod swap s>d rot sm/rem ;													\ \ CORE
+: / >r s>d r> sm/rem nip ;														\ \ CORE		
+: mod >r s>d r> sm/rem drop ;	 												\ \ CORE
+: /mod >r s>d r> sm/rem ;														\ \ CORE
 : 2* 2 * ;																		\ \ CORE
 : 2/ 2 / ;																		\ \ CORE
 
