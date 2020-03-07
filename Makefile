@@ -42,22 +42,31 @@ kernel.img: bootstrap core.fth
 bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o
 	$(CC) $(CFLAGS) $(DICTIONARY_SIZE) -o $@ $^
 
+samd51_kernel.img.c: samd51_kernel.img
+	echo "#include \"kernel_image.h\"" > $@
+	cat samd51_kernel.img | ./toC >> $@
+
+samd51_kernel.img: forth samd51.fth samd51_flash.fth block.fth
+	./forth < samd51.fth
 
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
+#ARDUINO_KERNEL_IMAGE=kernel.img.c
 
 ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
 ARDUINO_PORT?="/dev/cu.usbmodem201" 
 ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024"
+ARDUINO_KERNEL_IMAGE=samd51_kernel.img.c
 
 #ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 
 #ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
+#ARDUINO_KERNEL_IMAGE=kernel.img.c
 
-arduino_build_tree: kernel.img.c
+arduino_build_tree: $(ARDUINO_KERNEL_IMAGE)
 	rm -rf arduino
 	mkdir arduino
-	ln -s ../kernel.img.c arduino/kernel.cpp
+	ln -s ../$(ARDUINO_KERNEL_IMAGE) arduino/kernel.cpp
 	ln -s ../kernel_image.h arduino/kernel_image.h
 	ln -s ../common.h arduino/common.h
 	ln -s ../common.c arduino/common.cpp

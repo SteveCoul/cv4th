@@ -1,4 +1,9 @@
 
+( todo reduce flash writes. when doing save buffers do them in order. also issue a flush call 
+  to flash driver when done. this will allow the flash driver to put multiple blocks into
+  what ever minimum size page it can handle an erase for )
+	
+
 ext-wordlist forth-wordlist internals 3 set-order definitions
 
 [UNDEFINED] flash_read [IF]	
