@@ -1,5 +1,3 @@
-\ /Users/stevencoul/Library/Arduino15//packages/arduino/tools/CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include/instance/nvmctrl.h
-
 
 ext-wordlist forth-wordlist internals 3 set-order definitions
 
@@ -14,6 +12,23 @@ FLASH_BLOCK_SIZE buffer: flash_block
 
 hex
 41004000 constant NVMCTRL			\ Warning samd51j20a actually.
+
+41004000 constant NVMCTRL_CTRLA
+
+41004004 constant NVMCTRL_CTRLB
+00000001 constant NVMCTRL_CTRLB_CMD_EB
+00000015 constant NVMCTRL_CTRLB_CMD_PBC
+0000A500 constant NVMCTRL_CTRLB_CMDEX_KEY
+
+41004008 constant NVMCTRL_PARAM
+
+41004010 constant NVMCTRL_INTFLAG
+00000001 constant NVMCTRL_INTFLAG_DONE
+
+41004012 constant NVMCTRL_STATUS
+00000001 constant NVMCTRL_STATUS_READY
+
+41004014 constant NVMCTRL_ADDR
 decimal
 
 : flash_read		( dest flash-address len -- errorflag )
@@ -32,15 +47,87 @@ decimal
   0
 ;
 
-: write_page		( flash-address source len -- )	
-  cr ." Flash base " FLASH_BASE .
-  cr ." Flash Write " over . ." :" dup . ."  -> " 2 pick .
+: waitReady	
+  begin
+    NVMCTRL_STATUS s>d d32@ NVMCTRL_STATUS_READY and 
+  until
+;
 
-  rot 0 FLASH_BLOCK_SIZE um/mod		( source len block-addr block-offset -- )
+: waitDone
+  begin
+    NVMCTRL_INTFLAG s>d d32@ NVMCTRL_INTFLAG_DONE and
+  until
+;
+
+: clearDone
+  NVMCTRL_INTFLAG s>d d32@ NVMCTRL_INTFLAG_DONE or NVMCTRL_INTFLAG s>d d32!
+;
+
+: setCommand		( cmd -- )
+  NVMCTRL_CTRLB_CMDEX_KEY or
+  NVMCTRL_CTRLB s>d d32!
+;
+
+: erase_block		( block-addr -- )
+  NVMCTRL_ADDR s>d d32!
+  waitReady
+  clearDone
+  NVMCTRL_CTRLB_CMD_EB setCommand
+  waitDone
+;
+
+: flash_page		( source flash -- )
+\ automatic page write
+  NVMCTRL_CTRLA s>d d32@ 48 or NVMCTRL_CTRLA s>d d32!	
+  waitReady
+  clearDone
+  NVMCTRL_CTRLB_CMD_PBC setCommand
+  waitDone
+  clearDone
+  FLASH_PAGE_SIZE 4 / 0 do
+    over @ over s>d d32!
+    4 + swap 4 + swap
+  loop
+  2drop
+  waitDone
+;
+
+: allset
+  0 ?do 
+   dup c@ 255 <> if drop false unloop exit then
+   1+
+  loop
+  drop
+  true
+;
+
+: write_page		( flash-address source len -- )	
+  rot s>d FLASH_BLOCK_SIZE um/mod FLASH_BLOCK_SIZE * swap		
 
   flash_block 2 pick FLASH_BLOCK_SIZE flash_read drop
 
-  2drop 2drop 
+  ( source len block-addr block-offset -- )
+
+  3 pick 3 pick flash_block 3 pick + over compare 0= if
+    2drop 2drop
+  else
+	dup flash_block + 4 pick allset 0= if
+		over erase_block
+		( source len block-addr block-offset -- )
+		swap >r flash_block + swap move r>
+		( block-addr -- )
+		flash_block swap FLASH_BLOCK_SIZE	\ need to write all 16 pages
+	else
+		( source len block-addr block-offset -- )
+		+ swap
+	then
+	( source flash-addr len -- )
+	0 ?do
+		2dup flash_page
+		FLASH_PAGE_SIZE + swap FLASH_PAGE_SIZE + swap
+	FLASH_PAGE_SIZE +loop
+	2drop
+  then
 ;
 
 : flash_write		( flash-address source len -- errorflag )
@@ -55,104 +142,4 @@ decimal
 ;
 
 only forth definitions
-
-0 [if]
-
-#define FLASH_BASE		(1008*1024)
-#define FLASH_SIZE		16*1024
-
-static uint32_t			page_size;
-static uint32_t*		block_buffer		=	NULL;
-
-static void waitDone( void ) {
-	while ( NVMCTRL->INTFLAG.bit.DONE == 0 ) 
-		;
-}
-
-static void waitReady( void ) {
-	while ( NVMCTRL->STATUS.bit.READY == 0 )
-		;
-}
-
-static void clearDone( void ) {
-	NVMCTRL->INTFLAG.bit.DONE = 1;
-}
-
-static void toAddr( unsigned int addr ) {
-	NVMCTRL->ADDR.reg = addr;
-}
-
-static void setCommand( unsigned int command ) {
-	command |= NVMCTRL_CTRLB_CMDEX_KEY;
-	NVMCTRL->CTRLB.reg = command;
-}
-
-static void eraseBlock( unsigned int addr ) {
-	toAddr( addr );
-	waitReady();
-	clearDone();
-	setCommand( NVMCTRL_CTRLB_CMD_EB_Val );
-	waitDone();
-}
-
-static void pageWriteMode( void ) {
-	NVMCTRL->CTRLA.reg |= 0x30;
-}
-
-static void writePage( uint32_t* dst, uint32_t* src ) {
-	unsigned int i;
-	pageWriteMode();
-	waitReady();
-	clearDone();
-	setCommand( NVMCTRL_CTRLB_CMD_PBC_Val );
-	waitDone();
-	clearDone();
-	for ( i = 0; i < page_size / 4; i++ ) {
-		*dst++ = *src++;
-	}
-	waitDone();
-}
-
-static int allbits( uint32_t* ptr, unsigned int count ) {
-	while ( count-- )
-		if ( ptr[0] != 0xFFFFFFFF ) return 0;
-  	return 1;
-}
-
-/* TODO - this needs to handle forth blocks crossing NVM block boundaries, atm this isn't an issue */
-ior_t io_platform_write_block( unsigned int number, void* what ) {
-	unsigned int dest_address = FLASH_BASE + ( number * 1024 );
-	unsigned int block = ( dest_address / ( page_size * 16 ) ) * ( page_size * 16 );
-	unsigned int block_offset = dest_address % ( page_size * 16 );
-	unsigned int page = ( dest_address / page_size ) * page_size;
-	unsigned int num_pages = 1024 / page_size;
-	unsigned int i;
-	uint32_t* src;
-	uint32_t* dst;
-
-	/* read block initial content */
-	memcpy( block_buffer, (void*)(block), page_size * 16 );
-
-	/* slot in new data */
-	src = (uint32_t*)what;
-	dst = block_buffer + (block_offset/4);
-
-	if ( memcmp( dst, src, 1024 ) == 0 ) return IOR_OK;			
-
-	if ( allbits( dst, 1024/4 ) == 0 )
-		eraseBlock( block );
-
-	memcpy( dst, what, 1024 );
-
-	src = (uint32_t*)block_buffer;
-	dst = (uint32_t*)block;
-	for ( i = 0; i < 16; i++ ) {
-		writePage( dst, src );
-		src += (page_size/4);
-		dst += (page_size/4);
-	}
-
-	return IOR_OK;
-[then]
-
 

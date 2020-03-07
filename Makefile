@@ -44,9 +44,10 @@ bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o
 
 samd51_kernel.img.c: samd51_kernel.img
 	echo "#include \"kernel_image.h\"" > $@
-	cat samd51_kernel.img | ./toC >> $@
+	./toC < samd51_kernel.img  >> $@ || rm $@ 
 
 samd51_kernel.img: forth samd51.fth samd51_flash.fth block.fth
+	rm -f $@
 	./forth < samd51.fth
 
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
@@ -80,8 +81,8 @@ arduino_build_tree: $(ARDUINO_KERNEL_IMAGE)
 	ln -s ../opcode.h arduino/opcode.h
 	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
 	echo "all:" > arduino/Makefile
-	echo "\tarduino-cli compile --build-path=\"$$PWD/arduino/build\" -v -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS)\"" >> arduino/Makefile
-	echo "\tarduino-cli upload -v -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
+	echo "\tarduino-cli compile --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS)\"" >> arduino/Makefile
+	echo "\tarduino-cli upload -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
 	ln -s ../runner.c arduino/arduino.ino
 
 arduino: arduino_build_tree

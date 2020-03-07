@@ -7,6 +7,16 @@ ext-wordlist get-order 1+ set-order
 
 include samd51_flash.fth
 include block.fth
+include vi.fth
 
-ext-wordlist get-order 1+ set-order ' bye ' save only forth definitions execute samd51_kernel.img execute
+ext-wordlist get-order 1+ set-order 
+' bye ' save
+
+[defined] done [if]
+    done
+	only forth definitions execute samd51_kernel.img execute
+[else]
+	drop execute
+[then]
+
 
