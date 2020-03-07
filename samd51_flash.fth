@@ -9,7 +9,8 @@ S" /FLASH_SIZE" environment? 0= [IF]  cr .( /FLASH_SIZE not in environment ) abo
 S" /FLASH_PAGE_SIZE" environment? 0= [IF]  cr .( /FLASH_PAGE_SIZE not in environment ) abort [THEN] constant FLASH_PAGE_SIZE
 
 \ This chip can only erase 16 pages at a time
-FLASH_PAGE_SIZE 16 * buffer: flash_block
+FLASH_PAGE_SIZE 16 * constant FLASH_BLOCK_SIZE
+FLASH_BLOCK_SIZE buffer: flash_block
 
 hex
 41004000 constant NVMCTRL			\ Warning samd51j20a actually.
@@ -35,8 +36,11 @@ decimal
   cr ." Flash base " FLASH_BASE .
   cr ." Flash Write " over . ." :" dup . ."  -> " 2 pick .
 
+  rot 0 FLASH_BLOCK_SIZE um/mod		( source len block-addr block-offset -- )
 
-  2drop drop 
+  flash_block 2 pick FLASH_BLOCK_SIZE flash_read drop
+
+  2drop 2drop 
 ;
 
 : flash_write		( flash-address source len -- errorflag )
