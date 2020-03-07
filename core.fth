@@ -1265,13 +1265,8 @@ variable blk																	\ \ BLOCK
   then
 ;
 
-: ( 																			\ \ CORE FILE
-  source-id 0> abort" i haven't implemented the file semantics of ("
-  [char] ) parse 2drop
-; immediate	
-
-: align	;	( I dont currently have any alignment requirements )				\ \ CORE
-: aligned ;	( I dont currently have any alignment requirements )				\ \ CORE
+: align	;																		\ \ CORE
+: aligned ;																		\ \ CORE
 
 : save-input																	\ \ CORE-EXT
   line# @
@@ -1512,6 +1507,24 @@ forth-wordlist set-current
   true
   0 endcase
 ;
+
+: ( 																			\ \ CORE FILE
+  source-id 0> if
+    begin
+	  begin
+	    source nip >in @ <>
+	  while
+	    source drop >in @ + c@ 
+		1 >in +!
+		[char] ) = if exit then
+	  repeat
+	  refill
+	  0=
+	until
+  else
+    [char] ) parse 2drop
+  then
+; immediate	
 
 : fill																			\ \ CORE
   begin
@@ -2156,10 +2169,11 @@ variable scr																	\ \ BLOCK
 
 defer empty-buffers																\ \ BLOCK
 defer save-buffers																\ \ BLOCK
-defer flush																		\ \ BLOCK
 defer block																		\ \ BLOCK
 defer buffer																	\ \ BLOCK
 defer update																	\ \ BLOCK
+
+: flush		save-buffers empty-buffers ;										\ \ BLOCK
 
 : list 																			\ \ BLOCK
   dup scr !
