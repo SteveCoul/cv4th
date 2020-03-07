@@ -2,7 +2,9 @@
 ( todo reduce flash writes. when doing save buffers do them in order. also issue a flush call 
   to flash driver when done. this will allow the flash driver to put multiple blocks into
   what ever minimum size page it can handle an erase for )
-	
+
+( also dont always pick the first slot to unassign, it is always better to unassign a block 
+  that hasn't been modifed , and to unassign random ones at that )
 
 ext-wordlist forth-wordlist internals 3 set-order definitions
 

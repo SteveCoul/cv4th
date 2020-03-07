@@ -8,6 +8,8 @@ ext-wordlist get-order 1+ set-order
 include samd51_flash.fth
 include block.fth
 include vi.fth
+include toys.fth
+include done.fth
 
 ext-wordlist get-order 1+ set-order 
 ' bye ' save
