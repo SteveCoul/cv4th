@@ -1160,15 +1160,19 @@ forth-wordlist set-current
   forget-locals
 ; immediate
 
+\ From this point on the bootstrap interpreter is no longer performing : and ; words
+\ but the above FORTH code is doing the job.
+
 : recurse																		\ \ CORE
   current-xt @ opCALL c, , 
 ; immediate
 
-\ From this point on the bootstrap interpreter is no longer performing : and ; words
-\ but the above FORTH code is doing the job.
+internals set-current
+: last [fake-variable] ;
+forth-wordlist set-current
 
 : create																		\ \ CORE
-  here 
+  here  dup last !
   get-current @ ,
   get-current !					\ warning, I don't really want the definition on the wordlist until it's complete !
   opNONE c,
@@ -1191,7 +1195,7 @@ forth-wordlist set-current
 
 internals set-current
 : (does>)																		
-  get-current @ link>xt 
+  last @ link>xt 
   1+ cell+ 1+		\ skip DOLIT val, opDOLIST (see create above)
   !					\ and patch the call target ( the lit pushed as >r ret jump )
 ;
