@@ -1624,6 +1624,18 @@ forth-wordlist set-current
     then
 ;
 
+ext-wordlist set-current
+: env-constant
+  get-current environment-wid set-current
+  create
+    set-current
+    ,
+  does>
+    @
+;
+
+forth-wordlist set-current
+
 \ ---------------------------------------------------------------------------------------------
 \ ---------------------------------------------------------------------------------------------
 
