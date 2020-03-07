@@ -1,3 +1,56 @@
+\ /Users/stevencoul/Library/Arduino15//packages/arduino/tools/CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include/instance/nvmctrl.h
+
+
+ext-wordlist forth-wordlist internals 3 set-order definitions
+
+1 cells 4 = 0= [IF] cr .( Driver assumes 32bit build ) abort [THEN]
+S" /FLASH_BASE" environment? 0= [IF]  cr .( /FLASH_BASE not in environment ) abort [THEN] constant FLASH_BASE
+S" /FLASH_SIZE" environment? 0= [IF]  cr .( /FLASH_SIZE not in environment ) abort [THEN] constant FLASH_SIZE
+S" /FLASH_PAGE_SIZE" environment? 0= [IF]  cr .( /FLASH_PAGE_SIZE not in environment ) abort [THEN] constant FLASH_PAGE_SIZE
+
+\ This chip can only erase 16 pages at a time
+FLASH_PAGE_SIZE 16 * buffer: flash_block
+
+hex
+41004000 constant NVMCTRL			\ Warning samd51j20a actually.
+decimal
+
+: flash_read		( dest flash-address len -- errorflag )
+  rot >r
+  begin
+    ?dup
+  while
+    over s>d d32@ 
+	r@ !
+	swap cell+ swap
+	 r> cell+ >r
+	1 cells -
+  repeat
+  r> drop
+  drop
+  0
+;
+
+: write_page		( flash-address source len -- )	
+  cr ." Flash base " FLASH_BASE .
+  cr ." Flash Write " over . ." :" dup . ."  -> " 2 pick .
+
+
+  2drop drop 
+;
+
+: flash_write		( flash-address source len -- errorflag )
+  begin
+    dup FLASH_PAGE_SIZE min >r	( fa s l -- : R: todo -- )
+    2 pick 2 pick r@
+	write_page
+	r@ - rot r@ + rot r> + rot	
+	?dup 0=
+  until
+  2drop 0
+;
+
+only forth definitions
 
 0 [if]
 
@@ -98,49 +151,4 @@ ior_t io_platform_write_block( unsigned int number, void* what ) {
 	return IOR_OK;
 [then]
 
-
-ext-wordlist forth-wordlist internals 3 set-order definitions
-
-1 cells 4 = 0= [IF] cr .( Driver assumes 32bit build ) abort [THEN]
-S" /FLASH_BASE" environment? 0= [IF]  cr .( /FLASH_BASE not in environment ) abort [THEN] constant FLASH_BASE
-S" /FLASH_SIZE" environment? 0= [IF]  cr .( /FLASH_SIZE not in environment ) abort [THEN] constant FLASH_SIZE
-S" /FLASH_PAGE_SIZE" environment? 0= [IF]  cr .( /FLASH_PAGE_SIZE not in environment ) abort [THEN] constant FLASH_PAGE_SIZE
-
-\ This chip can only erase 16 pages at a time
-FLASH_PAGE_SIZE 16 * buffer: flash_block
-
-: write_page		( flash-address source len -- )	
-  cr ." Flash base " FLASH_BASE .
-  cr ." Flash Write " over . ." :" dup . ."  -> " 2 pick .
-  2drop drop 
-;
-
-: flash_write		( flash-address source len -- errorflag )
-  begin
-    dup FLASH_PAGE_SIZE min >r	( fa s l -- : R: todo -- )
-    2 pick 2 pick r@
-	write_page
-	r@ - rot r@ + rot r> + rot	
-	?dup 0=
-  until
-  2drop 1
-;
-
-: flash_read		( dest flash-address len -- errorflag )
-  rot >r
-  begin
-    ?dup
-  while
-    over s>d d32@ 
-	r@ !
-	swap cell+ swap
-	 r> cell+ >r
-	1 cells -
-  repeat
-  r> drop
-  drop
-  0
-;
-
-only forth definitions
 
