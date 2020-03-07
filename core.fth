@@ -1494,16 +1494,20 @@ forth-wordlist set-current
 
   1 line# +!
 
-  tib @ SIZE_INPUT_BUFFER 2 - source-id read-line if 
+  tib @ SIZE_INPUT_BUFFER 2 - source-id read-line 
+  if 
 	2drop false 
 	exit
-  else
-\	tib @ 2 pick type cr
   then
+\	tib @ 2 pick type cr
 
   false = if
 	drop false
     exit
+  then
+
+  dup SIZE_INPUT_BUFFER 2 - = if 
+	cr ." input buffer overflow line " line# @ . 0 #tib ! drop false exit 
   then
 
   #tib !
@@ -1846,7 +1850,9 @@ forth-wordlist set-current
   save-input n>r 
   to source-id
   0 line# !
-  begin refill while
+  begin 
+	refill 
+  while
 	['] (evaluate) catch
 	?dup if
 		dup >except
@@ -2310,7 +2316,7 @@ forth-wordlist set-current
 
   postpone [
   begin
-    refill
+    refill 
   while
 	['] (evaluate) catch
     dup >except
