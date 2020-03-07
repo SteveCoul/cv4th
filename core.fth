@@ -1888,22 +1888,30 @@ stub: search 	STRING
 
 \ ---------------------------------------------------------------------------------------------
 
-ext-wordlist set-current
- 
+internals set-current
+: [icompare]
+  opICOMPARE c, 
+; immediate
+
+forth-wordlist set-current
+
 : ?	@ . ;																		\ \ PROGRAMMING-TOOLS
 : [defined] parse-name $find if drop true else false then ; immediate			\ \ PROGRAMMING-TOOLS
 : [undefined] parse-name $find if drop false else true then ; immediate			\ \ PROGRAMMING-TOOLS
 : [then] ; immediate															\ \ PROGRAMMING-TOOLS
 : [else]																		\ \ PROGRAMMING-TOOLS
   1 begin
-    begin parse-name dup while
-      2dup s" [if]" compare 0= if		\ FIXME case sensitivity
+    begin 
+      parse-name 
+	  dup
+    while
+      2dup s" [if]" [icompare] 0= if	
         2drop 1+
 	  else
-        2dup s" [else]" compare 0= if
+        2dup s" [else]" [icompare] 0= if
 	      2drop 1- dup if 1+ then
 		else
-		  s" [then]" compare 0= if 1- then
+		  s" [then]" [icompare] 0= if 1- then
 		then
 	  then ?dup 0= if exit then
 	repeat 2drop
