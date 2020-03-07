@@ -379,6 +379,7 @@ int main( int argc, char** argv ) {
 	ext_definitions();
 	opword( opBYE, "bye" );
 
+	internals_definitions();
 	opconstant( opNONE );
 	opconst_db( opD8FETCH );
 	opconst_db( opD16FETCH );
