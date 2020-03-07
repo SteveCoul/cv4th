@@ -1925,11 +1925,11 @@ stub: synonym PROGRAMMING-TOOLS
 ;
 
 internals set-current
-: (words) name>string type space true ;
+: (words) name>string 2dup $find 27 emit if ." [1m" drop else ." [0m" then type space true ;
 forth-wordlist set-current
 
 : words																			\ \ PROGRAMMING-TOOLS
-  ['] (words) get-current traverse-wordlist
+  ['] (words) get-current traverse-wordlist 
 ;  
 
 ext-wordlist set-current
@@ -2142,10 +2142,9 @@ internals set-current
   repeat
 ;
 
-: (allwords) name>string type space true ;
 ext-wordlist set-current
 
-: allwords ['] (allwords) traverse-all-wordlists ;
+: allwords ['] (words) traverse-all-wordlists ;
 forth-wordlist set-current
 
 \ ---------------------------------------------------------------------------------------------
@@ -2260,7 +2259,7 @@ forth-wordlist set-current
 internals set-current
 : prompt?
   state @ 0= if
-	cr [char] [ emit depth . ." ] Ok. " cr
+	cr 27 emit ." [0m" [char] [ emit depth . ." ] Ok. " cr
   then
 ;
 forth-wordlist set-current
