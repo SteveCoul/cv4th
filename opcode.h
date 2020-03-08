@@ -98,7 +98,6 @@ enum {
     opQTHROW,
 	
 	opREAD_FILE,
-	opREL2ABS,
 	opRENAME_FILE,
 	opREPOSITION_FILE,
 	opRESIZE_FILE,

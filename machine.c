@@ -212,17 +212,6 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 
 		switch( opcode ) {
 		/* device access. Note addresses are 2 cells! */
-		case opREL2ABS:
-			ATHROW( DP<1, ;, -4 );
-			{
-				uint64_t a = datastack[ DP-1 ];
-				a = a + (uint64_t)(machine->memory);
-				DP++;
-				datastack[ DP-2 ] = ( a & CELL_MASK );
-				a >>= CELL_BITS;
-				datastack[ DP-1 ] = ( a & CELL_MASK );
-			}
-			break;
 		case opD8FETCH:
 			ATHROW( DP<2, ;, -4 );
 			{

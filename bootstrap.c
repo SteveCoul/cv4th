@@ -345,7 +345,6 @@ int main( int argc, char** argv ) {
 	opword( opSM_SLASH_REM, "sm/rem" );
     opword( opINVERT, "invert" );
 	ext_definitions();
-	opword( opREL2ABS, "rel>abs" );
 	opword( opD8FETCH, "d8@" );
 	opword( opD16FETCH, "d16@" );
 	opword( opD32FETCH, "d32@" );
@@ -458,7 +457,6 @@ int main( int argc, char** argv ) {
 	opconst_db( opQDUP );
 	opconstant( opQTHROW );
 	opconst_db( opREAD_FILE );
-	opconst_db( opREL2ABS );
 	opconst_db( opRENAME_FILE );
 	opconst_db( opREPOSITION_FILE );
 	opconst_db( opRESIZE_FILE );
