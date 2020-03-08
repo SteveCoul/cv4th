@@ -10,7 +10,7 @@ default: forth
 clean:
 	rm -f forth toC bootstrap kernel.img kernel.img.c *.o 
 
-forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o 
+forth: runner.c kernel.img.c common.o machine.o io.o io_file.o io_platform.o io_platform_nix.o
 	$(CC) $(DICTIONARY_SIZE) $(CFLAGS) -o $@ $^
 	$(STRIP) $@
 
@@ -20,7 +20,10 @@ common.o: common.c common.h
 io.o: common.h io.h io.c
 	$(CC) $(CFLAGS) -c -o $@ io.c
 
-io_platform.o: common.h io.h io_platform.h io_platform_nix.c
+io_platform.o: common.h io.h io_platform.h io_platform.c
+	$(CC) $(CFLAGS) -c -o $@ io_platform.c
+
+io_platform_nix.o: common.h io.h io_platform.h io_platform_nix.c
 	$(CC) $(CFLAGS) -c -o $@ io_platform_nix.c
 
 io_file.o: common.h io.h io_file.h io_file.c
@@ -39,7 +42,7 @@ toC: toC.c
 kernel.img: bootstrap core.fth 
 	./bootstrap $(ENDIAN_FLAGS) -f core.fth -p "internals ext-wordlist get-order 2 + set-order trim-dict ' bye ' save only forth definitions execute kernel.img execute"
 
-bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o
+bootstrap: bootstrap.c common.o machine.o io.o io_file.o io_platform.o io_platform_nix.o
 	$(CC) $(CFLAGS) $(DICTIONARY_SIZE) -o $@ $^
 
 samd51_kernel.img.c: samd51_kernel.img
@@ -54,15 +57,15 @@ samd51_kernel.img: forth samd51.fth samd51_flash.fth block.fth samd51_clock.fth 
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
 #ARDUINO_KERNEL_IMAGE=kernel.img.c
 
-ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-ARDUINO_PORT?="/dev/cu.usbmodem201" 
-ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024"
-ARDUINO_KERNEL_IMAGE=samd51_kernel.img.c
-
-#ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+#ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 
-#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
-#ARDUINO_KERNEL_IMAGE=kernel.img.c
+#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024"
+#ARDUINO_KERNEL_IMAGE=samd51_kernel.img.c
+
+ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+ARDUINO_PORT?="/dev/cu.usbmodem201" 
+ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
+ARDUINO_KERNEL_IMAGE=kernel.img.c
 
 arduino_build_tree: $(ARDUINO_KERNEL_IMAGE)
 	rm -rf arduino
@@ -80,6 +83,7 @@ arduino_build_tree: $(ARDUINO_KERNEL_IMAGE)
 	ln -s ../io_platform.h arduino/io_platform.h
 	ln -s ../opcode.h arduino/opcode.h
 	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
+	ln -s ../io_platform.c arduino/io_platform.cpp
 	echo "all:" > arduino/Makefile
 	echo "\tarduino-cli compile --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS)\"" >> arduino/Makefile
 	echo "\tarduino-cli upload -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile

@@ -8,9 +8,9 @@ extern int io_platform_init( void );
 extern void io_platform_term( void );
 extern int io_platform_read_term( void );
 extern void io_platform_write_term( char c );
-extern ior_t io_platform_read_block( unsigned int number, void* where );
-extern ior_t io_platform_write_block( unsigned int number, void* what );
-extern int io_platform_block_fd( void );
-extern int io_platform_block_count( void );
+extern void io_platform_print_term( const char* t );
+extern void io_platform_printN_term( int n );
+extern void io_platform_printHEX_term( unsigned long long n );
+extern void io_platform_println_term( const char* t );
 #endif
 

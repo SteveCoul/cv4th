@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -132,13 +131,16 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 	uint8_t* p = (uint8_t*)&value;
 	machine_endian_t me = (p[3] == (HEADER_ID & 255)) ? ENDIAN_BIG : ENDIAN_LITTLE;
 
-	printf("Machine is %s endian\n", me == ENDIAN_BIG ? "Big" : "Little" );
+	io_platform_print_term("Machine is ");
+	io_platform_print_term( me == ENDIAN_BIG ? "Big" : "Little" );
+	io_platform_println_term(" endian" );
+
 	switch(which){
-	case ENDIAN_BIG: printf("\trequest was for big endian\n"); break;
-	case ENDIAN_LITTLE: printf("\trequest was for little endian\n"); break;
-	case ENDIAN_NATIVE: printf("\trequest was for native endian\n"); break;
-	case ENDIAN_SWAP: printf("\trequest was for swapped-native endian\n"); break;
-	default: printf("\trequest was for unknown endian\n"); break;
+	case ENDIAN_BIG: io_platform_println_term("\trequest was for big endian"); break;
+	case ENDIAN_LITTLE: io_platform_println_term("\trequest was for little endian"); break;
+	case ENDIAN_NATIVE: io_platform_println_term("\trequest was for native endian"); break;
+	case ENDIAN_SWAP: io_platform_println_term("\trequest was for swapped-native endian"); break;
+	default: io_platform_println_term("\trequest was for unknown endian"); break;
 	}
 
 	if ( which == ENDIAN_NATIVE ) which = me;
@@ -148,13 +150,13 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 
 	if ( unaligned_workaround ) {	/* for now, anything with alignment restrictions uses these slow words */
 		if ( me == which ) {
-			printf("Using native order, alignment safe\n");
+			io_platform_println_term("Using native order, alignment safe");
 			machine->getWord = getWord_NativeOrder_AlignmentSafe;
 			machine->putWord = putWord_NativeOrder_AlignmentSafe;
 			machine->getCell = getCell_NativeOrder_AlignmentSafe;
 			machine->putCell = putCell_NativeOrder_AlignmentSafe;
 		} else {
-			printf("Using swapped-native order, alignment safe\n");
+			io_platform_println_term("Using swapped-native order, alignment safe");
 			machine->getWord = getWord_Swap_AlignmentSafe;
 			machine->putWord = putWord_Swap_AlignmentSafe;
 			machine->getCell = getCell_Swap_AlignmentSafe;
@@ -162,13 +164,13 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 		}
 	} else {
 		if ( me == which ) {
-			printf("Using native order, ignore alignment\n");
+			io_platform_println_term("Using native order, ignore alignment");
 			machine->getWord = getWord_NativeOrder_NoAlignment;
 			machine->putWord = putWord_NativeOrder_NoAlignment;
 			machine->getCell = getCell_NativeOrder_NoAlignment;
 			machine->putCell = putCell_NativeOrder_NoAlignment;
 		} else {
-			printf("Using swapped-native order, ignore alignment\n");
+			io_platform_println_term("Using swapped-native order, ignore alignment");
 			machine->getWord = getWord_Swap_NoAlignment;
 			machine->putWord = putWord_Swap_NoAlignment;
 			machine->getCell = getCell_Swap_NoAlignment;
@@ -185,7 +187,7 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 													datastack[ DP-1 ] = throw_code; \
 													IP=GET_CELL( machine, a_throw );\
 													if ( IP == 0 ) { \
-														printf("Urk - no throw handler\n");\
+														io_platform_println_term("Urk - no throw handler");\
 														exit(0); /* FIXME */ \
 													}\
 													break; \
@@ -472,7 +474,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			break;
 		/* internal magic */
 		case opBYE:	
-			printf("\n\nBYE!!!\n\n");
+			io_platform_println_term("\n\nBYE!!!\n\n");
 			return;
 			break;
 		case opIP:
@@ -538,7 +540,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 				if ( run_mode == 0 )
 					return;			/* run a single word from boot strap interpreter */
 				/* stack underflow */
-				printf("return stack underflow\n");
+				io_platform_println_term("return stack underflow");
 				DP++;
 				datastack[ DP-1 ] = -6;
 				IP=GET_CELL( machine, a_throw );
