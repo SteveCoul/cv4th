@@ -53,27 +53,27 @@ atsamd21g18_kernel.img: forth atsamd21g18.fth
 	rm -f $@
 	echo "include atsamd21g18.fth\next-wordlist get-order 1+ set-order bye" | ./forth
 
-samd51j20a_kernel.img.c: samd51j20a_kernel.img
+atsamd51j20a_kernel.img.c: atsamd51j20a_kernel.img
 	echo "#include \"kernel_image.h\"" > $@
-	./toC < samd51j20a_kernel.img  >> $@ || rm $@ 
+	./toC < atsamd51j20a_kernel.img  >> $@ || rm $@ 
 
-samd51j20a_kernel.img: forth samd51j20a.fth samd51_flash.fth block.fth samd51_clock.fth samd51_gpio.fth
+atsamd51j20a_kernel.img: forth atsamd51j20a.fth atsamd51_flash.fth block.fth atsamd51_clock.fth atsamd51_gpio.fth
 	rm -f $@
-	echo "include samd51j20a.fth\next-wordlist get-order 1+ set-order bye" | ./forth
+	echo "include atsamd51j20a.fth\next-wordlist get-order 1+ set-order bye" | ./forth
 
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
 #ARDUINO_KERNEL_IMAGE=kernel.img.c
 
-#ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-#ARDUINO_PORT?="/dev/cu.usbmodem201" 
-#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024"
-#ARDUINO_KERNEL_IMAGE=samd51j20a_kernel.img.c
-
-ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+ARDUINO_PLATFORM?="SparkFun:samd:atsamd51_thing_plus"
 ARDUINO_PORT?="/dev/cu.usbmodem201" 
-ARDUINO_FLAGS?="-DDICTIONARY_SIZE=25*1024"
-ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
+ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024"
+ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
+
+#ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+#ARDUINO_PORT?="/dev/cu.usbmodem201" 
+#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=25*1024"
+#ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
 
 arduino_build_tree: $(ARDUINO_KERNEL_IMAGE)
 	rm -rf arduino

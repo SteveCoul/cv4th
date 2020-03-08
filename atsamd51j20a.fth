@@ -5,9 +5,9 @@ ext-wordlist get-order 1+ set-order
 1024 16 * env-constant /FLASH_SIZE
 512 env-constant /FLASH_PAGE_SIZE
 
-include samd51_flash.fth
-include samd51_clock.fth
-include samd51_gpio.fth
+include atsamd51_flash.fth
+include atsamd51_clock.fth
+include atsamd51_gpio.fth
 include block.fth
 include vi.fth
 include toys.fth
@@ -18,7 +18,7 @@ ext-wordlist get-order 1+ set-order
 
 [defined] done [if]
     done
-	only forth definitions execute samd51j20a_kernel.img execute
+	only forth definitions execute atsamd51j20a_kernel.img execute
 [else]
 	drop execute
 [then]
