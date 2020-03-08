@@ -64,7 +64,10 @@ atsamd51j20a_kernel.img: forth atsamd51j20a.fth atsamd51_flash.fth block.fth ats
 ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 ARDUINO_PORT?="/dev/cu.usbserial-20"
 ARDUINO_KERNEL_IMAGE=kernel.img.c
-ARDUINO_FLAGS?="-DDICTIONARY_SIZE=25*1024"
+ARDUINO_FLAGS?="-DDICTIONARY_SIZE=40*1024 -DXIP"
+		# XIP is a bit dodgy since we pretend we have DICTIONARY_SIZE bytes in RAM
+		# but actually we only have whatever the trimmed size of the kernell was
+		# needs some work
 
 #ARDUINO_PLATFORM?="SparkFun:samd:atsamd51_thing_plus"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 

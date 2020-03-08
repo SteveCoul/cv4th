@@ -51,7 +51,11 @@ int main( int argc, char** argv ) {
 	request_size = size;
 #endif
 
+#ifdef XIP
+	machine.memory = (cell_t*)image_data;
+#else
 	machine.memory = (cell_t*)malloc( request_size );
+#endif
 	io_platform_print_term("Dictionary size "); io_platform_printN_term( request_size );
 	io_platform_print_term(" bytes ( "); io_platform_printN_term( size );
 	io_platform_print_term(" bytes required by image) --> pointer = " );
@@ -82,8 +86,10 @@ int main( int argc, char** argv ) {
 
 	io_platform_println_term( "Copy data" );
 	if ( machine.memory ) {
+#ifndef XIP
 		memset( machine.memory, 0, request_size );
 		memmove( machine.memory, image_data, image_data_len );
+#endif
 		WRITE_CELL( &machine, A_DICTIONARY_SIZE, request_size );
 	}
 
