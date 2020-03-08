@@ -61,14 +61,15 @@ atsamd51j20a_kernel.img: forth atsamd51j20a.fth atsamd51_flash.fth block.fth ats
 	rm -f $@
 	echo "include atsamd51j20a.fth\next-wordlist get-order 1+ set-order bye" | ./forth
 
-#ARDUINO_PLATFORM?="esp8266:esp8266:d1"
-#ARDUINO_PORT?="/dev/cu.usbserial-20"
-#ARDUINO_KERNEL_IMAGE=kernel.img.c
+ARDUINO_PLATFORM?="esp8266:esp8266:d1"
+ARDUINO_PORT?="/dev/cu.usbserial-20"
+ARDUINO_KERNEL_IMAGE=kernel.img.c
+ARDUINO_FLAGS?="-DDICTIONARY_SIZE=25*1024"
 
-ARDUINO_PLATFORM?="SparkFun:samd:atsamd51_thing_plus"
-ARDUINO_PORT?="/dev/cu.usbmodem201" 
-ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024"
-ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
+#ARDUINO_PLATFORM?="SparkFun:samd:atsamd51_thing_plus"
+#ARDUINO_PORT?="/dev/cu.usbmodem201" 
+#ARDUINO_FLAGS?="-DDICTIONARY_SIZE=64*1024"
+#ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
 
 #ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 

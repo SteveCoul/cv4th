@@ -35,6 +35,7 @@ void io_platform_write_term( char c ) {
 }
 
 int io_platform_init( void ) {
+	Serial.begin(115200);
 	int counter = 5;
 	while ( counter > 0 ) {
 		Serial.print("Launching in "); Serial.println( counter );
