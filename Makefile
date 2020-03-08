@@ -64,7 +64,7 @@ samd51_kernel.img: forth samd51.fth samd51_flash.fth block.fth samd51_clock.fth 
 
 ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
 ARDUINO_PORT?="/dev/cu.usbmodem201" 
-ARDUINO_FLAGS?="-DDICTIONARY_SIZE=24*1024"
+ARDUINO_FLAGS?="-DDICTIONARY_SIZE=25*1024"
 ARDUINO_KERNEL_IMAGE=kernel.img.c
 
 arduino_build_tree: $(ARDUINO_KERNEL_IMAGE)
