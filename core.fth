@@ -133,7 +133,7 @@ forth-wordlist set-current
 
 internals set-current
 : link>flag			cell+ ;														
-: link>name			link>flag 1 + ;													
+: link>name			link>flag 1+ ;													
 : link>xt			link>name dup c@ + 1+ ;
 forth-wordlist set-current
 
@@ -287,6 +287,8 @@ internals set-current
   w,
 ;
 forth-wordlist set-current
+
+\ TODO - consider an opcode ?DUP?BRANCH and words using it ?dupif ?dupwhile
 
 : ahead																			\ \ PROGRAMMING-TOOLS
   opBRANCH c, here 0 w,
@@ -1056,7 +1058,7 @@ forth-wordlist set-current
 ; immediate
 
 : i																				\ \ CORE
-  r> r> r>		\ rpick would be nice
+  r> r> r>		\ todo rpick would be nice
   dup >r
   swap >r
   swap >r
@@ -1093,6 +1095,8 @@ forth-wordlist set-current
   loop
   postpone drop
 ; immediate
+
+\ consider an opcode for OVER=QBRANCH and use
 
 : of																			\ \ CORE-EXT
   postpone over
@@ -1550,7 +1554,7 @@ forth-wordlist set-current
 : erase	0 fill ;																\ \ CORE-EXT
 
 : d0< 0 0 d< ;																	\ \ DOUBLE
-: s>d dup 1 1 cells 8 * 1 - lshift and if -1 else 0 then ;						\ \ CORE
+: s>d dup 1 1 cells 8 * 1- lshift and if -1 else 0 then ;						\ \ CORE
 : d>s drop ;																	\ \ DOUBLE
 : / >r s>d r> sm/rem nip ;														\ \ CORE		
 : mod >r s>d r> sm/rem drop ;	 												\ \ CORE
