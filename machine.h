@@ -36,15 +36,16 @@ typedef int32_t s_cell_t;
 /* wid-link ptr for extras */
 #define A_EXT_WORDLIST					13*CELL_SIZE
 #define A_QUIT							14*CELL_SIZE
-#define A_BASE							15*CELL_SIZE
-#define A_USER_PARAM					16*CELL_SIZE
-#define A_STATE							17*CELL_SIZE
-#define A_TIB							18*CELL_SIZE
-#define A_HASH_TIB						19*CELL_SIZE
-#define A_TOIN							20*CELL_SIZE
-#define A_CURRENT						21*CELL_SIZE
-#define A_THROW							22*CELL_SIZE
-#define A_ORDER							23*CELL_SIZE
+#define A_SETUP							15*CELL_SIZE
+#define A_BASE							16*CELL_SIZE
+#define A_USER_PARAM					17*CELL_SIZE
+#define A_STATE							18*CELL_SIZE
+#define A_TIB							19*CELL_SIZE
+#define A_HASH_TIB						20*CELL_SIZE
+#define A_TOIN							21*CELL_SIZE
+#define A_CURRENT						22*CELL_SIZE
+#define A_THROW							23*CELL_SIZE
+#define A_ORDER							24*CELL_SIZE
 #define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * CELL_SIZE )
 #define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
 #define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER

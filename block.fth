@@ -137,9 +137,10 @@ constant #BLOCK_BUFFERS
 \ This is the init code for this module, I need some mechanism in the core
 \ to add this to a chain of things to be called on startup to reset the
 \ buffer control information (FIXME/TODO)
-:noname				( -- )
+onboot: blockinit
+  cr ." block init"
   empty-buffers
-; execute
+onboot; 
 
 only forth definitions
 

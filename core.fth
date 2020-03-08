@@ -2312,6 +2312,39 @@ forth-wordlist set-current
 
 \ ---------------------------------------------------------------------------------------------
 \
+\ ---------------------------------------------------------------------------------------------
+
+internals set-current
+
+wordlist constant wid-onboot
+
+: (onboot)
+  link>xt
+  ['] execute catch if cr ." Warning exceptions in boot code" then
+  true
+;
+
+: onboot
+  ['] (onboot) wid-onboot traverse-wordlist
+  cr
+;
+
+' onboot A_SETUP !
+
+ext-wordlist set-current
+: onboot: 
+  get-current 
+  wid-onboot set-current 
+  : 
+;
+
+: onboot;
+  postpone ;
+  set-current
+; immediate
+
+\ ---------------------------------------------------------------------------------------------
+\
 \ Now we'll build a proper Forth interpreter and patch it in as entry point. 
 \
 \ ---------------------------------------------------------------------------------------------

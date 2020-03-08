@@ -231,6 +231,7 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_EXT_WORDLIST, 0 );
 	WRITE_CELL( machine, A_LIST_OF_WORDLISTS, A_EXT_WORDLIST );
 	WRITE_CELL( machine, A_QUIT, 0 );
+	WRITE_CELL( machine, A_SETUP, 0 );
 	WRITE_CELL( machine, A_BASE, 10 );
 	WRITE_CELL( machine, A_STATE, 0 );
 	WRITE_CELL( machine, A_USER_PARAM, 0 );
@@ -276,6 +277,7 @@ int main( int argc, char** argv ) {
 	constant( "SIZE_ORDER", SIZE_ORDER );
 	constant( "A_HERE", A_HERE );
 	constant( "A_QUIT", A_QUIT );
+	constant( "A_SETUP", A_SETUP );
 	constant( "A_CURRENT", A_CURRENT );
 	constant( "A_THROW", A_THROW );
 	constant( "A_ORDER", A_ORDER );
@@ -521,6 +523,12 @@ aborted:
 				/* TODO report any exception? */
 				for (;;) {
 					printf("\nBoot via vector\n");
+					machine->IP = GET_CELL( machine, A_SETUP );
+					if ( machine->IP ) {
+						printf("setup\n");
+						machine_execute( machine, A_THROW, 0 );	
+					}
+					printf("\nquit\n");
 					machine->IP = GET_CELL( machine, A_QUIT );
 					/* reset stacks? */
 					machine_execute( machine, A_THROW, 0 );	/* run until complete */

@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,7 +7,6 @@
 #include "kernel_image.h"
 
 static machine_t machine;
-static cell_t	quit;
 
 #ifdef ARDUINO
 void setup() {
@@ -22,7 +22,9 @@ int main( int argc, char** argv ) {
 	cell_t dstacksize	=	p[ A_SIZE_DATASTACK / CELL_SIZE ];
 	cell_t rstacksize	=	p[ A_SIZE_RETURNSTACK / CELL_SIZE ];
 	
-	quit			=	p[ (A_QUIT / CELL_SIZE) ];
+	cell_t quit			=	p[ (A_QUIT / CELL_SIZE) ];
+	cell_t setup		=	p[ (A_SETUP / CELL_SIZE) ];
+	
 
 	machine_init( &machine );
 	machine_set_endian( &machine, ENDIAN_NATIVE, 1 );
@@ -35,6 +37,7 @@ int main( int argc, char** argv ) {
 		dstacksize = machine.swapCell( dstacksize );
 		rstacksize = machine.swapCell( rstacksize );
 		quit = machine.swapCell( quit );
+		setup = machine.swapCell( setup );
 	}
 
 #ifdef DICTIONARY_SIZE
@@ -55,15 +58,22 @@ int main( int argc, char** argv ) {
 	machine.returnstack = (cell_t*)malloc( rstacksize * CELL_SIZE );
 	printf("\tPointer %p\n", (void*)(machine.returnstack) );
 
+	printf("\tsetup = %x\n", setup );
 	printf("\tquit = %x\n", quit );
+
 	printf("Copy data\n");
 	if ( machine.memory ) {
 		memset( machine.memory, 0, request_size );
 		memmove( machine.memory, image_data, image_data_len );
 		WRITE_CELL( &machine, A_DICTIONARY_SIZE, request_size );
 	}
-	printf("Setup complete\n\n");
 
+	if ( setup ) {
+		machine.IP = setup;
+		machine_execute( &machine, A_THROW, 0 );
+		printf("\nSetup complete\n\n");
+	}
+	printf("running ...\n");
 	machine.IP = quit;
 #ifdef ARDUINO
 }

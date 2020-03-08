@@ -30,9 +30,8 @@ RTC 00 + constant RTC_CTRLA
 RTC 18 + constant RTC_COUNT
 decimal
 
-ext-wordlist set-current
-
-: rtcinit
+onboot: rtcinit
+  cr ." Init RTC"
   OSC32KCTRL_RTCCTRL_XOSC32K OSC32KCTRL_RTCCTRL s>d d8!
   RTC_CTRLA s>d d16@
   	RTC_CTRLA_ENABLE_MASK 
@@ -45,7 +44,7 @@ ext-wordlist set-current
     RTC_CTRLA_MODE_COUNT32 or
     RTC_CTRLA_COUNT_SYNC or
   RTC_CTRLA s>d d16!
-;
+onboot;
 
 : rtc@
   RTC_COUNT s>d d32@
@@ -65,7 +64,6 @@ ext-wordlist set-current
 forth-wordlist set-current
 
 : ms			( ms -- )
-  rtcinit \ doesn't seem to hurt
   rtcTicksPerSecond * 1000 / 
   rtc@ + begin dup rtc@ < until drop
 ;
