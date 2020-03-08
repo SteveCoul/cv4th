@@ -31,7 +31,7 @@ machine.o: common.h io.h io_file.h opcode.h io_platform.h machine.h machine.c
 
 kernel.img.c: kernel.img toC
 	echo "#include \"kernel_image.h\"" > $@
-	cat kernel.img | ./toC >> $@
+	./toC < kernel.img  >> $@ || rm $@ 
 
 toC: toC.c
 	$(CC) $(CFLAGS) -o $@ $^

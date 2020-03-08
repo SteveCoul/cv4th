@@ -367,6 +367,7 @@ int main( int argc, char** argv ) {
 	lay_header( opNONE, "execute" );
 	c_comma( opEXECUTE ); c_comma( opRET );
 	// Do not make the r> >r r@ words here because compiling the opcode behavior as above doesn't work if you ' execute etc.
+	// ditto 2r> 2>r 2r@
 
 	internals_definitions();
 	opword( opRSPFETCH, "rsp@" );
@@ -390,6 +391,9 @@ int main( int argc, char** argv ) {
 	opconst_db( op2DUP );
 	opconst_db( op2OVER );
 	opconst_db( op2SWAP );
+	opconstant( op2TOR );
+	opconstant( op2RFROM );
+	opconstant( op2RFETCH );
 	opconst_db( opADD2 );
 	opconst_db( opAND );
 	opconstant( opBRANCH );

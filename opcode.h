@@ -8,6 +8,9 @@ enum {
 	op2DUP,
 	op2OVER,
 	op2SWAP,
+	op2TOR,
+	op2RFROM,
+	op2RFETCH,
 
 	opADD2,
 	opAND,

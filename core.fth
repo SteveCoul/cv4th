@@ -193,7 +193,7 @@ forth-wordlist set-current
     opSWAP c, 
 	opROT c,
 	opTOR c, ]
-; 
+; op2RFROM get-current @ link>flag c!
 
 : r@																			\ \ CORE
   [
@@ -225,7 +225,7 @@ forth-wordlist set-current
 	opTOR c,
 	opTOR c,
   ]
-;
+; op2TOR get-current @ link>flag c!
 
 : 2r@ 																			\ \ CORE-EXT
   [ 
@@ -241,7 +241,7 @@ forth-wordlist set-current
 	opTOR c,
 	opSWAP c,
   ]
-;
+; op2RFETCH get-current @ link>flag c!
 
 : negate 0 swap - ;																\ \ CORE
 

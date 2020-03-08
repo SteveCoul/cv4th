@@ -757,16 +757,37 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			datastack[ DP ] = returnstack[ RP-1 ];
 			DP++;
 			break;
+		case op2RFETCH:
+			datastack[ DP ] = returnstack[ RP-2 ];
+			DP++;
+			datastack[ DP ] = returnstack[ RP-1 ];
+			DP++;
+			break;
 		case opTOR:
 			ATHROW( DP<1, ;, -4 );
 			DP--;
 			returnstack[ RP ] = datastack[ DP ];
 			RP++;
 			break;
+		case op2TOR:
+			ATHROW( DP<2, ;, -4 );
+			returnstack[ RP ] = datastack[ DP-2 ];
+			RP++;
+			returnstack[ RP ] = datastack[ DP-1 ];
+			RP++;
+			DP-=2;
+			break;
 		case opRFROM:
 			datastack[ DP ] = returnstack[ RP-1 ];
 			DP++;
 			RP--;
+			break;
+		case op2RFROM:
+			datastack[ DP ] = returnstack[ RP-2 ];
+			DP++;
+			datastack[ DP ] = returnstack[ RP-1 ];
+			DP++;
+			RP-=2;
 			break;
 		/* memory */
 		case opICOMPARE:
