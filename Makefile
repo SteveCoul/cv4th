@@ -46,9 +46,9 @@ samd51_kernel.img.c: samd51_kernel.img
 	echo "#include \"kernel_image.h\"" > $@
 	./toC < samd51_kernel.img  >> $@ || rm $@ 
 
-samd51_kernel.img: forth samd51.fth samd51_flash.fth block.fth
+samd51_kernel.img: forth samd51.fth samd51_flash.fth block.fth samd51_rtc.fth
 	rm -f $@
-	./forth < samd51.fth
+	echo "include samd51.fth\next-wordlist get-order 1+ set-order bye" | ./forth
 
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
