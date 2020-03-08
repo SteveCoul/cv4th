@@ -6,6 +6,7 @@ ext-wordlist get-order 1+ set-order
 512 env-constant /FLASH_PAGE_SIZE
 
 include samd51_flash.fth
+include samd51_clock.fth
 include block.fth
 include vi.fth
 include toys.fth
