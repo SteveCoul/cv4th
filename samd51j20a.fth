@@ -18,7 +18,7 @@ ext-wordlist get-order 1+ set-order
 
 [defined] done [if]
     done
-	only forth definitions execute samd51_kernel.img execute
+	only forth definitions execute samd51j20a_kernel.img execute
 [else]
 	drop execute
 [then]
