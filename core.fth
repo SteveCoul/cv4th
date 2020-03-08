@@ -1967,11 +1967,24 @@ stub: synonym PROGRAMMING-TOOLS
 ;
 
 internals set-current
-: (words) name>string 2dup $find 27 emit if ." [1m" drop else ." [0m" then type space true ;
+: (words) name>string 2dup $find 
+  if drop 1 else 0 then
+  A_USER_PARAM @ over = if
+	drop
+  else
+	dup A_USER_PARAM !
+	27 emit	
+	if ." [1m" else ." [0m" then
+  then
+  type space true
+;
 forth-wordlist set-current
 
 : words																			\ \ PROGRAMMING-TOOLS
+  0 A_USER_PARAM !
+  27 emit ." [0m"
   ['] (words) get-current traverse-wordlist 
+  27 emit ." [0m"
 ;  
 
 ext-wordlist set-current
