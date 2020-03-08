@@ -7,6 +7,7 @@ ext-wordlist get-order 1+ set-order
 
 include samd51_flash.fth
 include samd51_clock.fth
+include samd51_gpio.fth
 include block.fth
 include vi.fth
 include toys.fth
