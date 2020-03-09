@@ -208,7 +208,6 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 
 	while ( ( run_mode <= 0 ) || ( run_mode > instruction_counter ) ) {
 		unsigned char opcode;
-
 		instruction_counter++;
 		opcode = GET_BYTE( machine, IP ); IP++;
 

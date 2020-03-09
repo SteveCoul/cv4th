@@ -1962,7 +1962,7 @@ stub: synonym PROGRAMMING-TOOLS
 : traverse-wordlist 															\ \ PROGRAMMING-TOOLS
   swap >r @
   begin
-	?dup if 
+	dup if 
 	  dup r@ execute if @ else drop 0 then
     then
     ?dup 0=
@@ -2306,6 +2306,7 @@ internals set-current
 wordlist constant wid-onboot
 
 : (onboot)
+  cr dup link>name count 2 spaces type
   link>xt
   ['] execute catch if cr ." Warning exceptions in boot code" then
   true

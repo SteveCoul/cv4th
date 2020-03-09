@@ -21,14 +21,14 @@ CFLAGS=-Wall -Wpedantic -Werror -Os
 #PAD_IMAGE=n
 #FORTH_PLATFORM=atsamd51j20a.fth
 
-ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
-ARDUINO_PORT?="/dev/cu.usbmodem201" 
-ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
-DICTIONARY_SIZE=25*1024
-ALIGNMENT_FLAGS=-a
-ENDIAN_FLAGS=
-PAD_IMAGE=n
-FORTH_PLATFORM=atsamd21g18.fth
+#ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+#ARDUINO_PORT?="/dev/cu.usbmodem201" 
+#ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
+#DICTIONARY_SIZE=24*1024
+#ALIGNMENT_FLAGS=-a
+#ENDIAN_FLAGS=
+#PAD_IMAGE=n
+#FORTH_PLATFORM=atsamd21g18.fth
 
 # #############################
 
