@@ -3,6 +3,8 @@ CFLAGS=-Wall -Wpedantic -Werror -Os
 
 # #############################
 
+DICTIONARY_SIZE=64*1024
+
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
 #ARDUINO_FLAGS?="-DXIP"
@@ -33,6 +35,17 @@ CFLAGS=-Wall -Wpedantic -Werror -Os
 # #############################
 
 all::
+
+clean:
+	rm -rf arduino
+	rm -f *.o
+	rm -f *.img
+	rm -f *.img.c
+	rm -f toC
+	rm -f bootstrap
+	rm -f forth_core
+
+# #############################
 
 host_%.o:%.c
 	$(CC) $(HOST_CFLAGS) -DDICTIONARY_SIZE=$(DICTIONARY_SIZE) -c -o $@ $^
