@@ -8,7 +8,7 @@ ext-wordlist get-order 1+ set-order
 
 [defined] done [if]
     done
-	only forth definitions execute atsamd21g18_kernel.img execute
+	only forth definitions execute forth_platform.img execute
 [else]
 	drop execute
 [then]

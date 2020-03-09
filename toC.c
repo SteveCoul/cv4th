@@ -18,10 +18,10 @@ static void outchar( unsigned char c, int is_last ) {
 
 int main( int argc, char** argv ) {
 	int pad = 0;
-	
-	// TODO if we want pad we should read the file, determine 16/32 bit and endian, get the size and set it
 	int last_char = -1;
 	int count = 0;
+
+	if ( argc > 1 ) pad = atoi( argv[1] );
 
 	printf("const unsigned char image_data[] = {\\");
 
