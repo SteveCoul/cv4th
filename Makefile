@@ -14,14 +14,14 @@ DICTIONARY_SIZE=64*1024
 #PAD_IMAGE=y
 #FORTH_PLATFORM=
 
-#ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-#ARDUINO_PORT?="/dev/cu.usbmodem201" 
-#ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
-#DICTIONARY_SIZE=64*1024
-#ALIGNMENT_FLAGS=-a
-#ENDIAN_FLAGS=
-#PAD_IMAGE=n
-#FORTH_PLATFORM=atsamd51j20a.fth
+ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
+ARDUINO_PORT?="/dev/cu.usbmodem201" 
+ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
+DICTIONARY_SIZE=64*1024
+ALIGNMENT_FLAGS=-a
+ENDIAN_FLAGS=
+PAD_IMAGE=n
+FORTH_PLATFORM=atsamd51j20a.fth
 
 #ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 
@@ -130,6 +130,7 @@ forth_platform.img: core.img
 else 
 # I have no nice way of knowing what forth files are used by the platform :-(
 forth_platform.img: $(FORTH_PLATFORM) *.fth forth_core
+	rm -f $@
 	echo "include $(FORTH_PLATFORM)\next-wordlist get-order 1+ set-order bye" | ./forth_core
 endif
 
