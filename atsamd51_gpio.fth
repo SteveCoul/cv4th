@@ -1,6 +1,6 @@
 
 ext-wordlist forth-wordlist internals 3 set-order 
-\ definitions
+definitions
 
 (				Arduino
   Pin	Port	Default		Interrupt	Sercom		SercomAlt	
@@ -31,42 +31,123 @@ ext-wordlist forth-wordlist internals 3 set-order
 hex
 41008000 	constant  	PORT
 PORT 00 + 	constant	PORTA
-PORTA 00 +	constant	PORTA_DIR
-PORTA 04 +	constant	PORTA_DIRCLR
-PORTA 08 +	constant	PORTA_DIRSET
-PORTA 0C +	constant	PORTA_DIRTGL
-PORTA 10 +	constant	PORTA_OUT
-PORTA 14 +	constant	PORTA_OUTCLR
-PORTA 18 +	constant	PORTA_OUTSET
-PORTA 1C +	constant	PORTA_OUTTGL
-PORTA 20 +	constant	PORTA_IN
-PORTA 24 +	constant	PORTA_CTRL
-PORTA 28 +	constant	PORTA_WRCONFIG
-PORTA 2C +	constant	PORTA_EVCTRL
-PORTA 30 +	constant	PORTA_PMUXn
+PORT 80 + 	constant	PORTB
+
+: offset create , does> @ + ;
+
+00 	offset	DIR
+04 	offset	DIRCLR
+08 	offset	DIRSET
+0C 	offset	DIRTGL
+10 	offset	OUT
+14 	offset	OUTCLR
+18 	offset	OUTSET
+1C 	offset	OUTTGL
+20 	offset	IN
+24 	offset	CTRL
+28 	offset	WRCONFIG
+2C 	offset	EVCTRL
+30 	offset	PMUXn
 ( .. 16 of these )
-PORTA 40 +	constant	PORTA_PINCFGn
-( .. 32 of these )
-PORT 80 +	constant	PORTB
-PORTB 00 +	constant	PORTB_DIR
-PORTB 04 +	constant	PORTB_DIRCLR
-PORTB 08 +	constant	PORTB_DIRSET
-PORTB 0C +	constant	PORTB_DIRTGL
-PORTB 10 +	constant	PORTB_OUT
-PORTB 14 +	constant	PORTB_OUTCLR
-PORTB 18 +	constant	PORTB_OUTSET
-PORTB 1C +	constant	PORTB_OUTTGL
-PORTB 20 +	constant	PORTB_IN
-PORTB 24 +	constant	PORTB_CTRL
-PORTB 28 +	constant	PORTB_WRCONFIG
-PORTB 2C +	constant	PORTB_EVCTRL
-PORTB 30 +	constant	PORTB_PMUXn
-( .. 16 of these )
-PORTB 40 +	constant	PORTB_PINCFGn
+40 	offset	PINCFGn
 ( .. 32 of these )
 decimal
 
+: pinToMaskAndPort	( n -- mask port )
+  dup 32 < if 1 swap lshift PORTA else 32 - 1 swap lshift PORTB then
+;
+
+: makeOutput		( n -- )
+  pinToMaskAndPort DIRSET s>d d32!
+;
+
+: makeInput			( n -- )
+  pinToMaskAndPort DIRCLR s>d d32!
+;
+
+: setHigh			( n -- )
+  pinToMaskAndPort OUTSET s>d d32!
+;
+
+: setLow			( n -- )
+  pinToMaskAndPort OUTCLR s>d d32!
+;
+
 ext-wordlist set-current
+
+\ SAMD PIN Names
+
+ 2 constant PA2
+ 4 constant PA4
+ 5 constant PA5
+ 6 constant PA6
+ 7 constant PA7
+12 constant PA12
+13 constant PA13
+15 constant PA15
+16 constant PA16
+17 constant PA17
+18 constant PA18
+19 constant PA19
+20 constant PA20
+22 constant PA22
+23 constant PA23
+34 constant PB2
+40 constant PB8
+41 constant PB9
+43 constant PB11
+44 constant PB12
+45 constant PB13
+
+\ Arduino Names
+
+PA13 constant PIN_D0
+PA13 constant PIN_RX
+PA12 constant PIN_D1
+PA12 constant PIN_TX
+ PA6 constant PIN_D4
+PA15 constant PIN_D5
+PA20 constant PIN_D6
+ PA7 constant PIN_D9
+PA18 constant PIN_D10
+PA16 constant PIN_D11
+PA19 constant PIN_D12
+PA17 constant PIN_D13
+ PA2 constant PIN_A0
+ PB8 constant PIN_A1
+ PB9 constant PIN_A2
+ PA4 constant PIN_A3
+ PA5 constant PIN_A4
+PB2 constant PIN_A5
+PA22 constant PIN_SDA
+PA23 constant PIN_SCL
+PB11 constant PIN_MISO
+PB12 constant PIN_MOSI
+PB13 constant PIN_SCK
+
+PIN_D13 constant LED_BUILTIN
+
+ 1 constant OUTPUT
+ 2 constant INPUT
+
+ 1 constant HIGH
+ 0 constant LOW
+
+: pinMode		( pin mode -- )
+  case
+	OUTPUT of swap makeOutput endof
+	INPUT  of swap makeInput endof
+    swap drop
+  endcase
+;
+
+: writeDigital	( pin level -- )
+  case
+	HIGH of swap setHigh endof
+	LOW of swap setLow endof
+    swap drop
+  endcase
+;
 
 only forth definitions
 
