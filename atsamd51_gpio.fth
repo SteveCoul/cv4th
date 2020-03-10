@@ -73,6 +73,9 @@ decimal
   pinToMaskAndPort OUTCLR s>d d32!
 ;
 
+: get				( n -- )
+  pinToMaskAndPort IN s>d d32@ and 0= 0=
+;
 ext-wordlist set-current
 
 \ SAMD PIN Names
@@ -149,5 +152,10 @@ PIN_D13 constant LED_BUILTIN
   endcase
 ;
 
+: readDigital	( pin -- )
+  get
+;
+
 only forth definitions
+
 

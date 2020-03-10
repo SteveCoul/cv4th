@@ -11,6 +11,10 @@ include atsamd51_gpio.fth
 include block.fth
 include vi.fth
 include toys.fth
+include bitbang_i2c.fth
+
+include demo_rtc_i2c.fth
+
 include done.fth
 
 ext-wordlist get-order 1+ set-order 
