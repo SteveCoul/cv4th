@@ -96,7 +96,7 @@ int main( int argc, char** argv ) {
 	if ( setup ) {
 		machine.IP = setup;
 		io_platform_println_term( "Run setup" );
-//		machine_execute( &machine, A_THROW, 0 );
+		machine_execute( &machine, A_THROW, 0 );
 	}
 	io_platform_println_term( "boot" );
 	machine.IP = quit;
