@@ -745,6 +745,11 @@ forth-wordlist set-current
   drop
 ;
 
+: /string																		\ \ STRING
+  ?dup if
+    tuck - rot rot + swap
+  then
+;
 
 internals set-current
 
@@ -756,7 +761,7 @@ internals set-current
 \		12				line# value
 \		16+				input-text
 \
-\ ( for abort" the input-text is actually the abort" text and >in/#tib are not used )
+\ ( for abort" the input-text is actually the abort" )
 
 : >except
   ?dup if
@@ -766,11 +771,13 @@ internals set-current
   	  \ abort" is a special case, it already has a string at here that I need to move
 	  \ and I don't store any input buffer information
 	  dup -2 = if
-		here here 4 cells+ here c@ 1+ cmove>
-		here !
-		0 here 1 cells+ !
-		0 here 2 cells+ !
+		here count					\ except# c-addr u --
+		swap over					\ except# u c-addr u --
+		here 4 cells+ swap cmove>	
 		line# @ here 3 cells+ !
+		here 2 cells+ !
+		0 here 1 cells+ !
+		here !
 	  else 
 		here !
 		>in @ here 1 cells+ !
@@ -803,13 +810,15 @@ internals set-current
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
- 	  cr ab" count type here 4 cells+ count type [char] " emit
+ 	  cr ab" count type here 4 cells+ here 2 cells+ @ type [char] " emit
     else
       cr "ue" count type here @ . 
-	  cr here 4 cells+ here 3 cells+ @ type
+	  cr here 4 cells+ here 2 cells+ @ type
 	  cr
+
 	  here 4 cells+
-	  here 2 cells+ @ 
+	  here 1 cells+ @ 
+
 	  begin
 		?dup
 	  while
@@ -927,6 +936,11 @@ forth-wordlist set-current
  	then
 ; immediate
 
+: again																			\ \ CORE-EXT
+  0 postpone literal
+  postpone until
+; immediate
+
 : c"																			\ \ CORE
 	[char] " parse			\ c-addr u --
 	dup 255 > if -18 throw then
@@ -965,18 +979,13 @@ forth-wordlist set-current
   then
 ; immediate
 
-: again																			\ \ CORE-EXT
-  0 postpone literal
-  postpone until
-; immediate
-
 : abort"																		\ \ CORE EXCEPTION
 	postpone ?dup
 	postpone if
 	postpone s"
-    postpone here	
     postpone dup
-	postpone c!
+    postpone here	
+	postpone c!	
     postpone here
  	postpone 1+
     postpone swap
@@ -1337,12 +1346,6 @@ forth-wordlist set-current
 		r> 
 		r> 
 	0 until
-;
-
-: /string																		\ \ STRING
-  ?dup if
-    tuck - rot rot + swap
-  then
 ;
 
 : 2literal swap postpone literal postpone literal ; immediate					\ \ DOUBLE
