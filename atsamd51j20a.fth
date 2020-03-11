@@ -13,7 +13,12 @@ include vi.fth
 include toys.fth
 include bitbang_i2c.fth
 
-include demo_rtc_i2c.fth
+ext-wordlist get-order 1+ set-order
+PIN_D5 env-constant I2C_SDA_PIN
+PIN_D6 env-constant I2C_SCL_PIN
+87 env-constant AT24C32_ADDRESS
+104 env-constant DS3231_ADDRESS
+include demo_i2c.fth
 
 include done.fth
 
