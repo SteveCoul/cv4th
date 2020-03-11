@@ -14,14 +14,14 @@ DICTIONARY_SIZE=64*1024
 #PAD_IMAGE=y
 #FORTH_PLATFORM=
 
-ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-ARDUINO_PORT?="/dev/cu.usbmodem201" 
-ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
-DICTIONARY_SIZE=64*1024
-ALIGNMENT_FLAGS=-a
-ENDIAN_FLAGS=
-PAD_IMAGE=n
-FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
+#ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
+#ARDUINO_PORT?="/dev/cu.usbmodem201" 
+#ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
+#DICTIONARY_SIZE=64*1024
+#ALIGNMENT_FLAGS=-a
+#ENDIAN_FLAGS=
+#PAD_IMAGE=n
+#FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
 
 #ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 
