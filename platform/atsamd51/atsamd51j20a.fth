@@ -5,9 +5,9 @@ ext-wordlist get-order 1+ set-order
 1024 16 * env-constant /FLASH_SIZE
 512 env-constant /FLASH_PAGE_SIZE
 
-include atsamd51_flash.fth
-include atsamd51_clock.fth
-include atsamd51_gpio.fth
+include platform/atsamd51/flash.fth
+include platform/atsamd51/clock.fth
+include platform/atsamd51/gpio.fth
 include extra/block.fth
 include extra/vi.fth
 include extra/toys.fth
