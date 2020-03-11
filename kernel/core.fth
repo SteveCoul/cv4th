@@ -1181,14 +1181,14 @@ forth-wordlist set-current
 
 internals set-current
 : last [fake-variable] ;
-forth-wordlist set-current
 
-: create																		\ \ CORE
+: ($create)
+  2>r
   here  dup last !
   get-current @ ,
   get-current !					\ warning, I don't really want the definition on the wordlist until it's complete !
   opNONE c,
-  parse-name dup c,
+  2r> dup c,
   here over allot
   swap move
 
@@ -1201,6 +1201,12 @@ forth-wordlist set-current
   opRET c,
 
   here swap !
+;
+
+forth-wordlist set-current
+
+: create																		\ \ CORE
+  parse-name ($create)
 ;
 
 : >body 1+ @ ; 																	\ \ CORE
