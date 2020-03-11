@@ -47,7 +47,7 @@ clean:
 
 # #############################
 
-host_%.o:%.c
+host_%.o:src/%.c
 	$(CC) $(CFLAGS) -Iinc -DDICTIONARY_SIZE=$(DICTIONARY_SIZE) -c -o $@ $^
 
 %.img.c:%.img
@@ -72,15 +72,15 @@ BOOTSTRAP_HEADERS+=inc/opcode.h
 BOOTSTRAP_HEADERS+=inc/common.h
 
 BOOTSTRAP_SOURCES=
-BOOTSTRAP_SOURCES+=bootstrap.c
-BOOTSTRAP_SOURCES+=io.c
-BOOTSTRAP_SOURCES+=io_file.c
-BOOTSTRAP_SOURCES+=io_platform.c
-BOOTSTRAP_SOURCES+=io_platform_nix.c
-BOOTSTRAP_SOURCES+=machine.c
-BOOTSTRAP_SOURCES+=common.c
+BOOTSTRAP_SOURCES+=src/bootstrap.c
+BOOTSTRAP_SOURCES+=src/io.c
+BOOTSTRAP_SOURCES+=src/io_file.c
+BOOTSTRAP_SOURCES+=src/io_platform.c
+BOOTSTRAP_SOURCES+=src/io_platform_nix.c
+BOOTSTRAP_SOURCES+=src/machine.c
+BOOTSTRAP_SOURCES+=src/common.c
 
-BOOTSTRAP_OBJECTS=$(BOOTSTRAP_SOURCES:%.c=host_%.o)
+BOOTSTRAP_OBJECTS=$(BOOTSTRAP_SOURCES:src/%.c=host_%.o)
 
 bootstrap: $(BOOTSTRAP_OBJECTS) $(BOOTSTRAP_HEADERS)
 	$(CC) $(CFLAGS) -Iinc -o $@ $(BOOTSTRAP_OBJECTS)
@@ -100,7 +100,7 @@ all:: core.img.c
 
 # #############################
 
-toC: toC.c
+toC: src/toC.c
 	$(CC) -o $@ $^
 
 all:: toC
@@ -108,14 +108,14 @@ all:: toC
 # #############################
 
 FORTH_CORE_HEADERS=$(BOOTSTRAP_HEADERES)
-FORTH_CORE_SOURCES=runner.c
-FORTH_CORE_SOURCES+=io.c
-FORTH_CORE_SOURCES+=io_file.c
-FORTH_CORE_SOURCES+=io_platform.c
-FORTH_CORE_SOURCES+=io_platform_nix.c
-FORTH_CORE_SOURCES+=machine.c
-FORTH_CORE_SOURCES+=common.c
-FORTH_CORE_OBJECTS=$(FORTH_CORE_SOURCES:%.c=host_%.o)
+FORTH_CORE_SOURCES=src/runner.c
+FORTH_CORE_SOURCES+=src/io.c
+FORTH_CORE_SOURCES+=src/io_file.c
+FORTH_CORE_SOURCES+=src/io_platform.c
+FORTH_CORE_SOURCES+=src/io_platform_nix.c
+FORTH_CORE_SOURCES+=src/machine.c
+FORTH_CORE_SOURCES+=src/common.c
+FORTH_CORE_OBJECTS=$(FORTH_CORE_SOURCES:src/%.c=host_%.o)
 
 forth_core: $(FORTH_CORE_OBJECTS) core.img.c
 	$(CC) -Iinc -DDICTIONARY_SIZE=$(DICTIONARY_SIZE) $(CFLAGS) -o $@ $^
@@ -150,21 +150,21 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../forth_platform.img.c arduino/kernel.cpp
 	ln -s ../inc/kernel_image.h arduino/kernel_image.h
 	ln -s ../inc/common.h arduino/common.h
-	ln -s ../common.c arduino/common.cpp
+	ln -s ../src/common.c arduino/common.cpp
 	ln -s ../inc/machine.h arduino/machine.h
-	ln -s ../machine.c arduino/machine.cpp
+	ln -s ../src/machine.c arduino/machine.cpp
 	ln -s ../inc/io.h arduino/io.h
-	ln -s ../io.c arduino/io.cpp
+	ln -s ../src/io.c arduino/io.cpp
 	ln -s ../inc/io_file.h arduino/io_file.h
-	ln -s ../io_file.c arduino/io_file.cpp
+	ln -s ../src/io_file.c arduino/io_file.cpp
 	ln -s ../inc/io_platform.h arduino/io_platform.h
 	ln -s ../inc/opcode.h arduino/opcode.h
-	ln -s ../io_platform_arduino.cpp arduino/io_platform_arduino.cpp
-	ln -s ../io_platform.c arduino/io_platform.cpp
+	ln -s ../src/io_platform_arduino.cpp arduino/io_platform_arduino.cpp
+	ln -s ../src/io_platform.c arduino/io_platform.cpp
 	echo "all:" > arduino/Makefile
 	echo "\tarduino-cli compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. -DDICTIONARY_SIZE=$(DICTIONARY_SIZE)\"" >> arduino/Makefile
 	echo "\tarduino-cli upload -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
-	ln -s ../runner.c arduino/arduino.ino
+	ln -s ../src/runner.c arduino/arduino.ino
 
 all:: arduino_build_tree
 	make -C arduino
