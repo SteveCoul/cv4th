@@ -2202,6 +2202,9 @@ forth-wordlist set-current
 
 \ ---------------------------------------------------------------------------------------------
 
+internals set-current
+: noblock 1 abort" block.fth not built" ;
+forth-wordlist set-current
 0 blk !
 
 variable scr																	\ \ BLOCK
@@ -2212,6 +2215,12 @@ defer save-buffers																\ \ BLOCK
 defer block																		\ \ BLOCK
 defer buffer																	\ \ BLOCK
 defer update																	\ \ BLOCK
+
+' noblock is empty-buffers
+' noblock is save-buffers
+' noblock is block
+' noblock is buffer
+' noblock is update
 
 : flush		save-buffers empty-buffers ;										\ \ BLOCK
 
