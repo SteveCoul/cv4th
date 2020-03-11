@@ -2171,7 +2171,8 @@ internals set-current
   drop r> drop r>
 ;
 
-: traverse-all-wordlists	{: xt | -- }
+: traverse-all-wordlists
+  >r
   \ get all wordlists 1st word pointer
   0 A_LIST_OF_WORDLISTS >r
   begin
@@ -2187,7 +2188,9 @@ internals set-current
     ?dup
   while			\ widN .. wid1 n --
 	get-highest	dup >r 
-	pick xt execute 0= if 
+	pick 
+    r> r@ swap >r
+    execute 0= if 
 		r> drop
 		begin dup while nip 1- repeat 
 	else
@@ -2195,6 +2198,7 @@ internals set-current
 		n>r @ nr> drop 
 	then
   repeat
+  r> drop
 ;
 
 ext-wordlist set-current
