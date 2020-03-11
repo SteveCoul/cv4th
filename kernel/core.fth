@@ -379,9 +379,9 @@ internals set-current
   opCALL c, here 2 cells+ , 0 , opRFROM c,
 ; immediate
 
-: [fake-defer]		\ ( xt-action -- )
+: [fake-defer]	
   here 14 + opDOLIT c, ,			
-  opFETCH c,						
+  opFETCH c,						 \ Um. Why not DOCALL ?
   here 7 + opDOLIT c, ,
   opTOR c,
   opTOR c,
@@ -406,10 +406,6 @@ internals set-current
   then
 ;
 
-: compile-l@
-  opDOLIT c, ,	
-  opLFETCH c,
-;
 forth-wordlist set-current
 
 : exit end-locals opRET c, ; immediate											\ \ CORE
@@ -1714,6 +1710,13 @@ forth-wordlist set-current
 \ All the actual locals code below can move to a seperate optional file
 \ and set the #locals to 0 and the dict size to 0 above, setting the
 \ correct values at compile time if the locals.fth file is included
+
+internals set-current
+: compile-l@
+  opDOLIT c, ,	
+  opLFETCH c,
+;
+forth-wordlist set-current
 
 : (local)
   2dup or 0= if
