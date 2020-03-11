@@ -379,6 +379,16 @@ internals set-current
   opCALL c, here 2 cells+ , 0 , opRFROM c,
 ; immediate
 
+: [fake-defer]		\ ( xt-action -- )
+  here 14 + opDOLIT c, ,			
+  opFETCH c,						
+  here 7 + opDOLIT c, ,
+  opTOR c,
+  opTOR c,
+  opRET c,	
+  0 ,
+; immediate
+
 : locals-count [fake-variable] ;
 : locals-here  [fake-variable] ;
 
