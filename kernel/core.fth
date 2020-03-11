@@ -1807,7 +1807,6 @@ forth-wordlist set-current
    0 0 (local)
 ; immediate
 
-
 \ ---------------------------------------------------------------------------------------------
 \ Files
 \ ---------------------------------------------------------------------------------------------
@@ -1836,12 +1835,6 @@ forth-wordlist set-current
   rot rot 2 pick write-file				\ fileid ior --
   swap line-end 1 rot write-file		\ ior1 ior2 --
   or
-;
-
-internals set-current
-
-: trim-dict			\ trim dictionary size down to here + local_dict_size aligned to 1k
-  here local_dict_size + 1023 + 1024 / 1024 * A_DICTIONARY_SIZE !
 ;
 
 ext-wordlist set-current
