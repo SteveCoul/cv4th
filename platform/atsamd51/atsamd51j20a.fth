@@ -8,7 +8,7 @@ ext-wordlist get-order 1+ set-order
 include platform/atsamd51/flash.fth
 include platform/atsamd51/clock.fth
 include platform/atsamd51/gpio.fth
-include extra/block.fth
+include kernel/block.fth
 include extra/vi.fth
 include extra/toys.fth
 include extra/bitbang_i2c.fth

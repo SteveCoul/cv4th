@@ -631,6 +631,7 @@ internals set-current
 : forget-locals	0 locals-wordlist !	;											
 
 ext-wordlist set-current
+
 : $find		\ c-addr u -- 0 | xt 1 | xt -1 
   2>r
   get-order locals-wordlist swap 1+ 
