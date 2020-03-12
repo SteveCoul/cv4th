@@ -164,7 +164,7 @@ forth-wordlist set-current
 
 \ throwing places exception information at HERE so don't get too close
 \ to the edge of dictionary before doing this throw. yuk.
-\ todo - also need space for locals dict
+\ todo - also need space for locals dict (modify unused above? )
 : allot																			\ \ CORE
   -8 over unused 512 - < 0= [ opQTHROW here c! 1 A_HERE +! ]
   A_HERE +!	
@@ -386,26 +386,14 @@ internals set-current
   opTOR c,
   opTOR c,
   opRET c,	
-  0 ,
+  here 1- ,			\ initial value points to the opRET above so the runtime @execute will just ret
 ; immediate
-
-: locals-count [fake-variable] ;
-: locals-here  [fake-variable] ;
 
 forth-wordlist set-current
 
 internals set-current
-: end-locals
-  locals-count @ if
-	opLPFETCH c,
-	opDOLIT c, 0 ,
-	opLFETCH c,
-	opLPSTORE c,
-	opRSPSTORE c,
-    0 locals-count !
-  then
-;
-
+: end-locals [fake-defer] ;
+: forget-locals [fake-defer] ;
 forth-wordlist set-current
 
 : exit end-locals opRET c, ; immediate											\ \ CORE
@@ -631,12 +619,6 @@ forth-wordlist set-current
   repeat
   2drop 0
 ;
-
-internals set-current
-
-: forget-locals	0 locals-wordlist !	;											
-
-ext-wordlist set-current
 
 : $find		\ c-addr u -- 0 | xt 1 | xt -1 
   2>r
@@ -1254,6 +1236,7 @@ variable blk																	\ \ BLOCK
 	parse-name
 
 	2dup locals-wordlist search-wordlist if
+		\ TODO - move as a factor to locals.fth
 		nip nip
 		1+ @		\ get the literal from the first instruction in the word
 		opDOLIT c,
@@ -1700,130 +1683,23 @@ forth-wordlist set-current
 \ ---------------------------------------------------------------------------------------------
 
 ENVIRONMENT-wid set-current
-16 value #LOCALS
+0 value #LOCALS
 forth-wordlist set-current
 
-internals set-current
-1024 value local_dict_size
-forth-wordlist set-current
+defer (local)
+defer locals| immediate
+defer {: immediate
 
-\ All the actual locals code below can move to a seperate optional file
-\ and set the #locals to 0 and the dict size to 0 above, setting the
-\ correct values at compile time if the locals.fth file is included
-
-internals set-current
-: compile-l@
-  opDOLIT c, ,	
-  opLFETCH c,
-;
-forth-wordlist set-current
-
-: (local)
-  2dup or 0= if
-	2drop
-	0 locals-here !
-
-	locals-count @ if
-		['] rsp@ compile,
-		opLPFETCH c, 
-		['] >r compile,
-		opLPSTORE c, 
-	then
-	locals-count @ 0 ?do ['] >r compile, loop
-  else
-	locals-here @ 0= if
-		unused local_dict_size < abort" Not enough space for locals"
-		0 locals-count !
-		here unused + local_dict_size - locals-here !		
-		\ build our locals words at end of dictionary so we can drop them 
-	then
-
-	locals-here @				\ c-addr u lh --
-
-	locals-wordlist @ over ! 
-    dup locals-wordlist !
-	1 cells+
-
-	opIMMEDIATE over c!  1+
-	
-	over over c!  1+
-
-	2dup 2>r
-	swap move
-	2r>							\ u lh --	
-	+							\ locals here
-
-	opDOLIT over c! 1+
-	locals-count @ 1+ over ! 1 cells+		
-	opCALL over c! 1+
-	['] compile-l@ over ! 1 cells+
-
-	opRET over c!  1+
-
-	locals-here !
-
-	1 locals-count +!
-  then
-; 
-
-: locals|
-  begin
-  	parse-name
-	?dup 0= if
-		1 abort" failed local parsing"
-	then
-    2dup s" |" compare 0= if
-		2drop
-		0 0 (local) 
-		exit 
-	then
-	(local)
-  again
-; immediate
-
-internals set-current
-
-12345 constant undefined-value
-: match-or-end? 2 pick 0= >r compare 0= r> or ;
-
-: scan-args 
-  begin
-    2dup s" |" match-or-end? 0= while
-    2dup s" --" match-or-end? 0= while
-    2dup s" :}" match-or-end? 0= while
-    rot 1+ parse-name
-  again then then then
-;
-
-: scan-locals 
-  2dup s" |" compare 0= 0= if exit then
-  2drop parse-name
-  begin
-    2dup s" --" match-or-end? 0= while
-    2dup s" :}" match-or-end? 0= while
-	rot 1+ parse-name
-	postpone undefined-value
-  again then then
-;
-
-: scan-end
-  begin
-    2dup s" :}" match-or-end? 0= while
-    2drop parse-name
-  repeat
-;
-
-forth-wordlist set-current
-
-: {: 
-   0 parse-name scan-args scan-locals scan-end 2drop
-   0 ?do (local) loop 
-   0 0 (local)
-; immediate
+:noname 1 abort" locals.fth not included" ;
+dup is (local)
+dup is locals|
+    is {:
 
 \ ---------------------------------------------------------------------------------------------
 \ Files
 \ ---------------------------------------------------------------------------------------------
+
+forth-wordlist set-current
 
 : bin ;																			\ \ FILE
 
