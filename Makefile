@@ -4,6 +4,8 @@ CFLAGS=-Wall -Wpedantic -Werror -Os
 # #############################
 
 DICTIONARY_SIZE=64*1024
+FORTH_PLATFORM=platform/nix.fth
+HOST_PLATFORM=y
 
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
@@ -168,6 +170,17 @@ arduino_build_tree: forth_platform.img.c
 
 all:: arduino_build_tree
 	make -C arduino
+
+endif
+
+# #############################
+
+ifeq ($(HOST_PLATFORM),y)
+
+forth: forth_platform.img.c $(FORTH_CORE_OBJECTS)
+	$(CC) -Iinc -DDICTIONARY_SIZE=$(DICTIONARY_SIZE) $(CFLAGS) -o $@ $^
+
+all:: forth
 
 endif
 
