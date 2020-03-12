@@ -698,6 +698,7 @@ internals set-current
 : exception-handler	[fake-variable] ;
 : exception-info [fake-variable] ;
 : line# [fake-variable] ;
+: file$ [fake-variable] ;
 forth-wordlist set-current
 
 0 exception-info !
@@ -748,7 +749,8 @@ internals set-current
 \		4				>in value
 \		8				#tib value
 \		12				line# value
-\		16+				input-text
+\		16				file$ value
+\		20+				input-text
 \
 \ ( for abort" the input-text is actually the abort" )
 
@@ -762,7 +764,8 @@ internals set-current
 	  dup -2 = if
 		here count					\ except# c-addr u --
 		swap over					\ except# u c-addr u --
-		here 4 cells+ swap cmove>	
+		here 5 cells+ swap cmove>	
+		file$ @ here 4 cells+ !
 		line# @ here 3 cells+ !
 		here 2 cells+ !
 		0 here 1 cells+ !
@@ -772,7 +775,8 @@ internals set-current
 		>in @ here 1 cells+ !
 		#tib @ here 2 cells+ !
 		line# @ here 3 cells+ !
-		tib @ here 4 cells+ #tib @ cmove>
+		file$ @ here 4 cells+ !
+		tib @ here 5 cells+ #tib @ cmove>
 	  then	
 	  1 exception-info !
     then
@@ -802,7 +806,7 @@ internals set-current
  	  cr ab" count type here 4 cells+ here 2 cells+ @ type [char] " emit
     else
       cr "ue" count type here @ . 
-	  cr here 4 cells+ here 2 cells+ @ type
+	  cr here 5 cells+ here 2 cells+ @ type
 	  cr
 
 	  here 4 cells+
@@ -821,6 +825,9 @@ internals set-current
     then
 	here 3 cells+ @ 0 > if
 		4 spaces [char] @ emit here 3 cells+ @ .
+		here 4 cells + @ ?dup if
+		  2 spaces [char] [ emit count type [char] ] emit
+	    then
  	then
   then
 ;
@@ -1282,21 +1289,23 @@ variable blk																	\ \ BLOCK
 
 : save-input																	\ \ CORE-EXT
   line# @
+  file$ @
   tib @
   #tib @
   >in @
   blk @
   source-id
-  6
+  7
 ;
 
 : restore-input																	\ \ CORE-EXT
-  6 <> if -12 throw then
+  7 <> if -12 throw then
   to source-id
   blk !
   >in !
   #tib !
   tib !
+  file$ !
   line# !
 ;
 
@@ -1393,6 +1402,7 @@ forth-wordlist set-current
   0 blk !
   -1 to source-id
   -1 line# !
+  0 file$ !
   ['] (evaluate) catch >r
   restore-input r> throw
 ;
@@ -1739,12 +1749,22 @@ ext-wordlist set-current
   then
 ; 
 
-forth-wordlist set-current
+internals set-current
 
-: include-file																	\ \ FILE
+wordlist constant wid-files
+
+: (include-file)					\ caddr u -- descriptor --
   save-input n>r 
   to source-id
   0 line# !
+
+  get-current >r 
+  wid-files set-current 
+  ($create) 
+  r> set-current 
+
+  wid-files @ link>name file$ !
+
   begin 
 	refill 
   while
@@ -1760,9 +1780,15 @@ forth-wordlist set-current
   nr> restore-input
 ;
 
+forth-wordlist set-current
+
+: include-file																	\ \ FILE
+  0 0 rot (include-file)
+;
+
 : included																		\ \ FILE
-  r/o open-file if -69 throw then
-  include-file
+  2dup r/o open-file if -69 throw then
+  (include-file)
 ;
 
 : include																		\ \ FILE
@@ -2193,7 +2219,7 @@ forth-wordlist set-current
   0 to source-id
   0 blk !
   -1 line# !
-
+  0 file$ !
   postpone [
   begin
     refill 
