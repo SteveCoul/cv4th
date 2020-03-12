@@ -35,6 +35,8 @@ HOST_PLATFORM=y
 #FORTH_PLATFORM=platform/atsamd21/atsamd21g18.fth
 
 # #############################
+ALL_FORTH=platform/*.fth extra/*.fth kernel/*.fth platform/*/*.fth
+# #############################
 
 all::
 
@@ -47,6 +49,7 @@ clean:
 	rm -f bootstrap
 	rm -f forth_core
 	rm -f forth
+	rm -f flashfile
 
 # #############################
 
@@ -132,7 +135,7 @@ forth_platform.img: core.img
 	cp $^ $@
 else 
 # I have no nice way of knowing what forth files are used by the platform :-(
-forth_platform.img: $(FORTH_PLATFORM) kernel/*.fth extra/*.fth forth_core
+forth_platform.img: $(FORTH_PLATFORM) forth_core $(ALL_FORTH)
 	rm -f $@
 	echo "include $(FORTH_PLATFORM)\next-wordlist get-order 1+ set-order bye" | ./forth_core
 endif
