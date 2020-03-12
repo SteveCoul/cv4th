@@ -1,9 +1,9 @@
 
-CFLAGS=-Wall -Wpedantic -Werror -Os
+CFLAGS=-Wall -Wpedantic -Werror -Os 
 
 # #############################
 
-DICTIONARY_SIZE=64*1024
+DICTIONARY_SIZE=32*1024
 FORTH_PLATFORM=platform/nix.fth
 HOST_PLATFORM=y
 
@@ -46,6 +46,7 @@ clean:
 	rm -f toC
 	rm -f bootstrap
 	rm -f forth_core
+	rm -f forth
 
 # #############################
 

@@ -380,13 +380,13 @@ internals set-current
 ; immediate
 
 : [fake-defer]	
-  here 14 + opDOLIT c, ,			
-  opFETCH c,						 \ Um. Why not DOCALL ?
-  here 7 + opDOLIT c, ,
-  opTOR c,
-  opTOR c,
-  opRET c,	
-  here 1- ,			\ initial value points to the opRET above so the runtime @execute will just ret
+  here 6 + 2 cells + opDOLIT c, ,	\ 0	
+  opFETCH c,						\ 1 + cell 
+  here 3 + cell+ opDOLIT c, ,		\ 2 + cell
+  opTOR c,							\ 3 + 2cells
+  opTOR c,							\ 4 + 2cells
+  opRET c,							\ 5 + 2cells
+  here 1- ,							\ 6 + 2cells
 ; immediate
 
 forth-wordlist set-current
