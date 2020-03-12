@@ -72,7 +72,7 @@ static ior_t f_size( int fd, unsigned long int* size ) {
 }
 
 static ior_t f_seek( int fd, unsigned long int pos ) {
-	if ( lseek( fd, pos, SEEK_SET ) < 1 ) return IOR_UNKNOWN;
+	if ( lseek( fd, pos, SEEK_SET ) < 0 ) return IOR_UNKNOWN;
 	return IOR_OK;
 }
 
