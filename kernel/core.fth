@@ -810,9 +810,9 @@ here ] . [ opRET c, parse-name .exception $find drop defer!
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
- 	  cr ab" count type here 4 cells+ here 2 cells+ @ type [char] " emit
+ 	  cr ab" ctype here 4 cells+ here 2 cells+ @ type [char] " emit
     else
-      cr "ue" count type here @ .exception 
+      cr "ue" ctype here @ .exception 
 	  cr here 5 cells+ here 2 cells+ @ type
 	  cr
 
@@ -833,7 +833,7 @@ here ] . [ opRET c, parse-name .exception $find drop defer!
 	here 3 cells+ @ 0 > if
 		4 spaces [char] @ emit here 3 cells+ @ .
 		here 4 cells + @ ?dup if
-		  2 spaces [char] [ emit count type [char] ] emit
+		  2 spaces [char] [ emit ctype [char] ] emit
 	    then
  	then
   then
