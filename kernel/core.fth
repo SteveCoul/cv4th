@@ -166,7 +166,7 @@ forth-wordlist set-current
 \ to the edge of dictionary before doing this throw. yuk.
 \ todo - also need space for locals dict (modify unused above? )
 : allot																			\ \ CORE
-  -8 over unused 512 - < 0= [ opQTHROW here c! 1 A_HERE +! ]
+  -8 over unused 512 - u< 0= [ opQTHROW here c! 1 A_HERE +! ]
   A_HERE +!	
 ;
 
