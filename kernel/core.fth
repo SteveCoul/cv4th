@@ -1713,18 +1713,6 @@ forth-wordlist set-current
 
 : bin ;																			\ \ FILE
 
-: required																		\ \ FILE
-  \ the wat to implement this is to put all filenames that i've required so far
-  \ into a word list for comparison against to guard against re-including. Then
-  \ when marker is used it'll remove anything from this wid too and allow require
-  \ to operate again! easy. don't really need it tho.
-  1 abort" required not implemented."
-;
-
-: require																		\ \ FILE
-  parse-name required
-;
-
 internals set-current
 variable line-end
 10 line-end c!
@@ -1760,6 +1748,7 @@ wordlist constant wid-files
 
   get-current >r 
   wid-files set-current 
+  2dup cr ." Including " type
   ($create) 
   r> set-current 
 
@@ -1793,6 +1782,19 @@ forth-wordlist set-current
 
 : include																		\ \ FILE
   parse-name included
+;
+
+: required																		\ \ FILE
+  2dup wid-files search-wordlist if 
+    drop
+    2drop
+  else
+    included
+  then
+;
+
+: require																		\ \ FILE
+  parse-name required
 ;
 
 \ ---------------------------------------------------------------------------------------------
