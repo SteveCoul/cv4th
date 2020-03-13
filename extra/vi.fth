@@ -74,8 +74,6 @@ defer enter_command_mode
 : color_status	esc ." 33;49m" ;
 : hline color_border width begin ?dup while [char] - emit 1- repeat ;
 : locate xpos @ 3 + ypos @ 3 + at-xy ;
-: hide esc ." ?25l" ;
-: show esc ." ?25h" ;
 
 \ -------------------------------------------------------------------------------------
 \
@@ -141,7 +139,6 @@ width 1+ buffer: status-buffer
 \ -------------------------------------------------------------------------------------
 
 : drawblock
-  hide
   xpos @ >r ypos @ >r 0 xpos !
   ^buffer @
   height 0 ?do
@@ -155,7 +152,6 @@ width 1+ buffer: status-buffer
   r> ypos ! 
   r> xpos !
   color_text
-  show
   locate
 ;
 
@@ -650,7 +646,6 @@ variable number_prefix
 \ -------------------------------------------------------------------------------------
 
 : runeditor
-  enter_command_mode
   0 current_block !
   0 xpos !
   0 ypos !
@@ -660,6 +655,8 @@ variable number_prefix
   drawedges
 
   switch_block
+
+  enter_command_mode
 
   begin
     mode @ mode_quit <>
