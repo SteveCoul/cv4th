@@ -265,8 +265,6 @@ forth-wordlist set-current
 
 internals set-current
 
-\ For now this will do nothing on 16bit vms because I need the double set
-\ to implement the range checking.
 : resolvok?			\ d -- d | throw
   2dup  32768 0 dnegate d< >r
   2dup 32767 0 2swap d<
@@ -764,7 +762,6 @@ internals set-current
 	  drop 
 	else
   	  \ abort" is a special case, it already has a string at here that I need to move
-	  \ and I don't store any input buffer information
 	  dup -2 = if
 		here count					\ except# c-addr u --
 		swap over					\ except# u c-addr u --
