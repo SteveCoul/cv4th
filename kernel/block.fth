@@ -138,7 +138,6 @@ constant #BLOCK_BUFFERS
 \ to add this to a chain of things to be called on startup to reset the
 \ buffer control information (FIXME/TODO)
 onboot: blockinit
-  cr ." block init"
   empty-buffers
 onboot; 
 

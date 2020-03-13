@@ -10,6 +10,8 @@
 #include "machine.h"
 #include "opcode.h"
 
+#define DEBUG 0
+
 static uint16_t swap16( uint16_t v ) { return ((v>>8)&0xFF)|((v<<8)&0xFF00); }
 
 #ifdef VM_16BIT
@@ -131,16 +133,18 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 	uint8_t* p = (uint8_t*)&value;
 	machine_endian_t me = (p[3] == (HEADER_ID & 255)) ? ENDIAN_BIG : ENDIAN_LITTLE;
 
-	io_platform_print_term("Machine is ");
-	io_platform_print_term( me == ENDIAN_BIG ? "Big" : "Little" );
-	io_platform_println_term(" endian" );
+	if ( DEBUG ) {
+		io_platform_print_term("Machine is ");
+		io_platform_print_term( me == ENDIAN_BIG ? "Big" : "Little" );
+		io_platform_println_term(" endian" );
 
-	switch(which){
-	case ENDIAN_BIG: io_platform_println_term("\trequest was for big endian"); break;
-	case ENDIAN_LITTLE: io_platform_println_term("\trequest was for little endian"); break;
-	case ENDIAN_NATIVE: io_platform_println_term("\trequest was for native endian"); break;
-	case ENDIAN_SWAP: io_platform_println_term("\trequest was for swapped-native endian"); break;
-	default: io_platform_println_term("\trequest was for unknown endian"); break;
+		switch(which){
+		case ENDIAN_BIG: io_platform_println_term("\trequest was for big endian"); break;
+		case ENDIAN_LITTLE: io_platform_println_term("\trequest was for little endian"); break;
+		case ENDIAN_NATIVE: io_platform_println_term("\trequest was for native endian"); break;
+		case ENDIAN_SWAP: io_platform_println_term("\trequest was for swapped-native endian"); break;
+		default: io_platform_println_term("\trequest was for unknown endian"); break;
+		}
 	}
 
 	if ( which == ENDIAN_NATIVE ) which = me;
@@ -150,13 +154,13 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 
 	if ( unaligned_workaround ) {	/* for now, anything with alignment restrictions uses these slow words */
 		if ( me == which ) {
-			io_platform_println_term("Using native order, alignment safe");
+			if ( DEBUG ) io_platform_println_term("Using native order, alignment safe");
 			machine->getWord = getWord_NativeOrder_AlignmentSafe;
 			machine->putWord = putWord_NativeOrder_AlignmentSafe;
 			machine->getCell = getCell_NativeOrder_AlignmentSafe;
 			machine->putCell = putCell_NativeOrder_AlignmentSafe;
 		} else {
-			io_platform_println_term("Using swapped-native order, alignment safe");
+			if ( DEBUG ) io_platform_println_term("Using swapped-native order, alignment safe");
 			machine->getWord = getWord_Swap_AlignmentSafe;
 			machine->putWord = putWord_Swap_AlignmentSafe;
 			machine->getCell = getCell_Swap_AlignmentSafe;
@@ -164,13 +168,13 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 		}
 	} else {
 		if ( me == which ) {
-			io_platform_println_term("Using native order, ignore alignment");
+			if ( DEBUG ) io_platform_println_term("Using native order, ignore alignment");
 			machine->getWord = getWord_NativeOrder_NoAlignment;
 			machine->putWord = putWord_NativeOrder_NoAlignment;
 			machine->getCell = getCell_NativeOrder_NoAlignment;
 			machine->putCell = putCell_NativeOrder_NoAlignment;
 		} else {
-			io_platform_println_term("Using swapped-native order, ignore alignment");
+			if ( DEBUG ) io_platform_println_term("Using swapped-native order, ignore alignment");
 			machine->getWord = getWord_Swap_NoAlignment;
 			machine->putWord = putWord_Swap_NoAlignment;
 			machine->getCell = getCell_Swap_NoAlignment;
