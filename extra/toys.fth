@@ -64,3 +64,8 @@ variable print-over
 	r> [literal]
 ; immediate
 
+: (size-includes) cr dup link>xt execute 10 .r space name>string type true ;
+: size-includes
+  ['] (size-includes) wid-files traverse-wordlist
+;
+

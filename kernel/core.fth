@@ -1741,11 +1741,10 @@ internals set-current
 wordlist constant wid-files
 
 : +file
-  2dup cr ." Including " type
-  get-current >r here >r
+  get-current >r
   wid-files set-current
   ($create) 
-	r> ,
+	0 ,
 	r> set-current
   does>
 	@
