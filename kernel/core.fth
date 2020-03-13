@@ -1755,6 +1755,7 @@ wordlist constant wid-files
   to source-id
   0 line# !
 
+  2dup cr ." Including " type
   +file
 
   wid-files @ link>name file$ !
