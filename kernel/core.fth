@@ -391,6 +391,10 @@ internals set-current
 
 forth-wordlist set-current
 
+: >body 1+ @ ; 																	\ \ CORE
+: defer! >body ! ;																\ \ CORE-EXT
+: defer@ >body @ ;																\ \ CORE-EXT
+
 internals set-current
 : end-locals [fake-defer] ;
 : forget-locals [fake-defer] ;
@@ -799,13 +803,16 @@ internals set-current
     here 22 - literal ]
 ;
 
+: .exception [fake-defer] ;
+here ] . [ opRET c, parse-name .exception $find drop defer!
+
 : .except
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
  	  cr ab" count type here 4 cells+ here 2 cells+ @ type [char] " emit
     else
-      cr "ue" count type here @ . 
+      cr "ue" count type here @ .exception 
 	  cr here 5 cells+ here 2 cells+ @ type
 	  cr
 
@@ -1205,8 +1212,6 @@ forth-wordlist set-current
   parse-name ($create)
 ;
 
-: >body 1+ @ ; 																	\ \ CORE
-
 internals set-current
 : (does>)																		
   last @ link>xt 
@@ -1263,8 +1268,6 @@ variable blk																	\ \ BLOCK
 ; immediate
 
 : defer create ['] abort , does> @ execute ;									\ \ CORE-EXT
-: defer! >body ! ;																\ \ CORE-EXT
-: defer@ >body @ ;																\ \ CORE-EXT
 
 : is																			\ \ CORE-EXT
   state @ 
@@ -1494,8 +1497,7 @@ forth-wordlist set-current
 ;
 
 : refill																		\ \ CORE-EXT FILE BLOCK
-  blk @ if
-		cr cr ." I don't have support for block in refill yet" -1 throw then
+  blk @ if -21 throw then
 
   source-id
   case
@@ -1511,7 +1513,6 @@ forth-wordlist set-current
 	2drop false 
 	exit
   then
-\	tib @ 2 pick type cr
 
   false = if
 	drop false
