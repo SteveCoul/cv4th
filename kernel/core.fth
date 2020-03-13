@@ -768,7 +768,7 @@ internals set-current
 	  dup -2 = if
 		here count					\ except# c-addr u --
 		swap over					\ except# u c-addr u --
-		here 5 cells+ swap cmove>	
+		here 5 cells+ swap cmove>	\ except# u --
 		file$ @ here 4 cells+ !
 		line# @ here 3 cells+ !
 		here 2 cells+ !
@@ -810,7 +810,7 @@ here ] . [ opRET c, parse-name .exception $find drop defer!
   exception-info @ if
 	0 exception-info !
     here @ -2 = if
- 	  cr ab" ctype here 4 cells+ here 2 cells+ @ type [char] " emit
+ 	  cr ab" ctype here 5 cells+ here 2 cells+ @ type [char] " emit
     else
       cr "ue" ctype here @ .exception 
 	  cr here 5 cells+ here 2 cells+ @ type
