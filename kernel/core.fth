@@ -1518,9 +1518,7 @@ forth-wordlist set-current
     exit
   then
 
-  dup SIZE_INPUT_BUFFER 2 - = if 
-	cr ." input buffer overflow line " line# @ . 0 #tib ! drop false exit 
-  then
+  dup SIZE_INPUT_BUFFER 2 - = if -18 throw then
 
   #tib !
   0 >in !
