@@ -1,4 +1,3 @@
-here pad !
 get-order internals swap 1 + set-order definitions
 wordlist constant widEditor
 get-order widEditor swap 1 + set-order definitions
@@ -707,5 +706,4 @@ forth-wordlist set-current
 : editor get-order widEditor swap 1+ set-order ;
 
 only forth definitions
-here pad @ - cr .( Editor took ) . .(  bytes ) cr
 
