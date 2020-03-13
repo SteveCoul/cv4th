@@ -1,7 +1,6 @@
 
 ext-wordlist forth-wordlist internals 3 set-order definitions
 
-1 cells 4 = 0= [IF] cr .( Driver assumes 32bit build ) abort [THEN]
 S" /FLASH_BASE" environment? 0= [IF]  cr .( /FLASH_BASE not in environment ) abort [THEN] constant FLASH_BASE
 S" /FLASH_SIZE" environment? 0= [IF]  cr .( /FLASH_SIZE not in environment ) abort [THEN] constant FLASH_SIZE
 
