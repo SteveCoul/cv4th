@@ -1740,16 +1740,23 @@ internals set-current
 
 wordlist constant wid-files
 
+: +file
+  2dup cr ." Including " type
+  get-current >r here >r
+  wid-files set-current
+  ($create) 
+	r> ,
+	r> set-current
+  does>
+	@
+;
+
 : (include-file)					\ caddr u -- descriptor --
   save-input n>r 
   to source-id
   0 line# !
 
-  get-current >r 
-  wid-files set-current 
-  2dup cr ." Including " type
-  ($create) 
-  r> set-current 
+  +file
 
   wid-files @ link>name file$ !
 
@@ -1765,6 +1772,9 @@ wordlist constant wid-files
 	then
   repeat 
   source-id close-file drop
+
+  here file$ @ - file$ @ count + >body !
+
   nr> restore-input
 ;
 
