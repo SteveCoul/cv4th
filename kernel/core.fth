@@ -157,7 +157,7 @@ internals set-current
 : link>name			link>flag 1+ ;													
 : link>xt			link>name dup c@ + 1+ ;
 : flag>link 		-1 cells + ;
-: name>flag 1- ;
+: name>flag 		1- ;
 
 : >name
   dup [ opTOR c, ]

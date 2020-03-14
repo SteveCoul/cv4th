@@ -35,12 +35,7 @@ static void s_comma( const char* text ) {
 		c_comma( (uint8_t)text[i] );
 }
 
-static void lay_header( uint8_t type, const char* name ) {
-	comma( GET_CELL( machine, GET_CELL( machine, A_CURRENT ) ) );
-	c_comma( type );
-	WRITE_CELL( machine, GET_CELL( machine, A_CURRENT ), HERE - CELL_SIZE - 1 );
-	s_comma( name );
-}
+/* ****************** */
 
 static cell_t lay_header_no_link( uint8_t type, const char* name ) {
 	cell_t rc = HERE;
@@ -50,13 +45,19 @@ static cell_t lay_header_no_link( uint8_t type, const char* name ) {
 	return rc;
 }
 
+static cell_t to_xt( cell_t link ) { return link + GET_BYTE( machine, link+CELL_SIZE+1 ) + CELL_SIZE + 2; }
+static cell_t to_name( cell_t link ) { return link + CELL_SIZE + 1; }
+
+/* ****************** */
+
 static void link_header( cell_t where ) {
 	WRITE_CELL( machine, where, GET_CELL( machine, GET_CELL( machine, A_CURRENT ) ) );
 	WRITE_CELL( machine, GET_CELL( machine, A_CURRENT), where );
 }
 
-static cell_t to_xt( cell_t link ) { return link + GET_BYTE( machine, link+CELL_SIZE+1 ) + CELL_SIZE + 2; }
-static cell_t to_name( cell_t link ) { return link + CELL_SIZE + 1; }
+static void lay_header( uint8_t type, const char* name ) {
+	link_header( lay_header_no_link( type, name ) );
+}
 
 static void variable( cell_t address, const char* name ) {
 	lay_header( opNONE, name );
