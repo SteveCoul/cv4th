@@ -965,14 +965,9 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		/* io */
 		case opEKEY:
 			{
-				int rc = io_platform_read_term();	/* May timeout */
-				if ( rc < 0 ) {
-					/* timeout - fiddle instruction pointer so we go back again */
-					IP--;
-				} else {
-					DP++;
-					datastack[DP-1] = rc;
-				}
+				int rc = io_platform_read_term();
+				DP++;
+				datastack[DP-1] = rc;
 			}
 			break;
 		case opEMIT:

@@ -15,7 +15,8 @@ int io_platform_read_term( void ) {
 	else
 		ret = read( STDIN_FILENO, c, 1 );	
 	/* I'm expecting either 1 byte or 3 ( 27 x y ) */
-	if ( ret == 1 ) tmp = c[0];
+	if ( ret < 0 ) tmp = -1;
+	else if ( ret == 1 ) tmp = c[0];
 	else tmp = ( c[1] << 8 ) | c[2];
 	return tmp;
 }
@@ -30,6 +31,9 @@ int io_platform_init( void ) {
 	tcgetattr( STDIN_FILENO, &raw );
 	raw.c_lflag &= ~(ECHO | ICANON );
 	tcsetattr( STDIN_FILENO, TCSAFLUSH, &raw );
+
+	if ( fcntl( STDIN_FILENO, F_SETFL, fcntl( STDIN_FILENO, F_GETFL ) | O_NONBLOCK ) )
+		;
 	return 0;
 }
 

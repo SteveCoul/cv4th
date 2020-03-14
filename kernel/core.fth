@@ -1,4 +1,4 @@
-\ 15633
+\ 15677
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -1431,8 +1431,19 @@ forth-wordlist set-current
 
 : at-xy	27 emit [char] [ emit 1+ . [char] ; emit 1+ . [char] H emit ;			\ \ FACILITY
 
+internals set-current
+defer at-idle
+:noname ; is at-idle
+forth-wordlist set-current
+
 : ekey																			\ \ FACILITY-EXT
-  [ opEKEY c, ]	
+  begin
+	[ opEKEY c, ]	
+    dup 0< 
+  while
+    drop
+	at-idle
+  repeat
 ;
 
 : key																			\ \ CORE
