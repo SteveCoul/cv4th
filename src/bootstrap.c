@@ -40,13 +40,26 @@ static void s_comma( const char* text ) {
 static cell_t lay_header_no_link( uint8_t type, const char* name ) {
 	cell_t rc = HERE;
 	comma( 0 );
+/*	comma( 0x12345678 );	IF I WANT MORE HEAD SPACE */
 	c_comma( type );
 	s_comma( name );
 	return rc;
 }
 
-static cell_t to_xt( cell_t link ) { return link + GET_BYTE( machine, link+CELL_SIZE+1 ) + CELL_SIZE + 2; }
-static cell_t to_name( cell_t link ) { return link + CELL_SIZE + 1; }
+static cell_t link_to_flag( cell_t link ) {
+	link = link + CELL_SIZE;
+/*	link = link + CELL_SIZE;	IF I WANT MORE HEAD SPACE */
+	return link;
+}
+
+static cell_t to_name( cell_t link ) { return link_to_flag( link ) + 1; }
+
+static cell_t to_xt( cell_t link, uint8_t* pflag ) { 
+	if ( pflag ) pflag[0] = GET_BYTE( machine, link_to_flag( link ) );
+	link = to_name( link );
+	link = link + 1 + GET_BYTE( machine, link );
+	return link;
+}
 
 /* ****************** */
 
@@ -675,14 +688,14 @@ rescan:
 						machine->DP++;
 					}				
 				} else {
-					uint32_t xt = to_xt( v );
-					uint8_t* header = ((uint8_t*)(machine->memory))+v;
+					uint8_t flag;
+					uint32_t xt = to_xt( v, &flag );
 
-					if ( ( STATE == 0 ) || ( header[ CELL_SIZE ] == opIMMEDIATE ) ) {
+					if ( ( STATE == 0 ) || ( flag == opIMMEDIATE ) ) {
 						machine->IP = xt;
 						machine_execute( machine, A_THROW, 0 );	/* run until we are done */
 						/* TODO report any exception? */
-					} else if ( header[CELL_SIZE] == opNONE ) {
+					} else if ( flag == opNONE ) {
 						if ( xt < 65536 ) {
 							c_comma( opSHORT_CALL );
 							w_comma( xt );
@@ -691,7 +704,7 @@ rescan:
 							comma( xt );
 						}
 					} else {
-						c_comma( header[CELL_SIZE] );
+						c_comma( flag );
 					}
 				}
 			}
