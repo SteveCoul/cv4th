@@ -1,4 +1,4 @@
-
+\ 15629
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -330,6 +330,41 @@ forth-wordlist set-current
   resolv!
 ; immediate
 
+: count dup 1+ swap c@ ;														\ \ CORE
+
+internals set-current
+: >name																			
+  dup >r	\ p -- R: xt --
+  begin
+    1-
+    dup count + r@ =
+  until
+  r> drop 
+;
+
+: flag>link -1 cells+ ;
+: name>flag 1- ;
+
+: >link
+  >name
+  name>flag
+  flag>link
+;
+
+forth-wordlist set-current
+
+: compile,																		\ \ CORE-EXT
+  dup >link link>flag c@ dup opIMMEDIATE = swap opNONE = or if
+	dup 65536 < if
+		opSHORT_CALL c, w,
+	else
+	  	opCALL c, ,
+	then
+  else
+    >link link>flag c@ c,
+  then
+;
+
 : get-order																		\ \ SEARCH-ORDER
   0 0 begin
     dup SIZE_ORDER <>
@@ -436,8 +471,6 @@ forth-wordlist set-current
   repeat
   2drop
 ;
-
-: count dup 1+ swap c@ ;														\ \ CORE
 
 ext-wordlist set-current
 : ctype count type ;		
@@ -651,39 +684,6 @@ forth-wordlist set-current
 	r> drop
   else
 	r> swap
-  then
-;
-
-internals set-current
-: >name																			
-  dup >r	\ p -- R: xt --
-  begin
-    1-
-    dup count + r@ =
-  until
-  r> drop 
-;
-
-: flag>link -1 cells+ ;
-: name>flag 1- ;
-
-: >link
-  >name
-  name>flag
-  flag>link
-;
-
-forth-wordlist set-current
-
-: compile,																		\ \ CORE-EXT
-  dup >link link>flag c@ dup opIMMEDIATE = swap opNONE = or if
-	dup 65536 < if
-		opSHORT_CALL c, w,
-	else
-	  	opCALL c, ,
-	then
-  else
-    >link link>flag c@ c,
   then
 ;
 
