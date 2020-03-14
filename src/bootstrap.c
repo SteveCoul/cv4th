@@ -69,19 +69,42 @@ static void opword( uint8_t opcode, const char* name ) {
 	c_comma( opRET );
 }
 
-static void constant( const char* name, cell_t value ) {
-	lay_header( opNONE, name );
-	// TOO literal constants which have opcodes.
-	if ( value < 256 ) {
+static void literal( uint32_t v ) {
+	if ( v == -1 ) {
+		c_comma( opLITM1 );
+	} else if ( v == 0 ) {
+		c_comma( opLIT0 );
+	} else if ( v == 1 ) {
+		c_comma( opLIT1 );
+	} else if ( v == 2 ) {
+		c_comma( opLIT2 );
+	} else if ( v == 3 ) {
+		c_comma( opLIT3 );
+	} else if ( v == 4 ) {
+		c_comma( opLIT4 );
+	} else if ( v == 5 ) {
+		c_comma( opLIT5 );
+	} else if ( v == 6 ) {
+		c_comma( opLIT6 );
+	} else if ( v == 7 ) {
+		c_comma( opLIT7 );
+	} else if ( v == 8 ) {
+		c_comma( opLIT8 );
+	} else if ( ( v < 256 ) && ( v >= 0 ) ) {
 		c_comma( opDOLIT_U8 );
-		c_comma( value & 255 );
-	} else if ( value < 65536 ) {
+		c_comma( v );
+	} else if ( ( v < 65536 ) && ( v>= 0 ) ) {
 		c_comma( opDOLIT_U16 );
-		w_comma( value & 65535 );
+		w_comma( v );
 	} else {
 		c_comma( opDOLIT );
-		comma( value );
+		comma( v );
 	}
+}
+
+static void constant( const char* name, cell_t value ) {
+	lay_header( opNONE, name );
+	literal( value );
 	c_comma( opRET );
 }
 
@@ -623,36 +646,7 @@ rescan:
 					if ( tmp_word[0] == '-' ) v = 0- atoi( tmp_word+1 );
 					else v = atoi( tmp_word );
 					if ( STATE == 1 ) {
-						if ( v == -1 ) {
-							c_comma( opLITM1 );
-						} else if ( v == 0 ) {
-							c_comma( opLIT0 );
-						} else if ( v == 1 ) {
-							c_comma( opLIT1 );
-						} else if ( v == 2 ) {
-							c_comma( opLIT2 );
-						} else if ( v == 3 ) {
-							c_comma( opLIT3 );
-						} else if ( v == 4 ) {
-							c_comma( opLIT4 );
-						} else if ( v == 5 ) {
-							c_comma( opLIT5 );
-						} else if ( v == 6 ) {
-							c_comma( opLIT6 );
-						} else if ( v == 7 ) {
-							c_comma( opLIT7 );
-						} else if ( v == 8 ) {
-							c_comma( opLIT8 );
-						} else if ( ( v < 256 ) && ( v >= 0 ) ) {
-							c_comma( opDOLIT_U8 );
-							c_comma( v );
-						} else if ( ( v < 65536 ) && ( v>= 0 ) ) {
-							c_comma( opDOLIT_U16 );
-							w_comma( v );
-						} else {
-							c_comma( opDOLIT );
-							comma( v );
-						}
+						literal( v );
 					} else {
 						machine->datastack[ machine->DP ] = v;
 						machine->DP++;
