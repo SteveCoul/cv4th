@@ -20,11 +20,15 @@ variable i2c_delay 				0 i2c_delay !
 : sclLO  SCL_PIN LOW writeDigital ;
 : sda@   SDA_PIN readDigital ;
 
-: reset  	sdaOUT sclOUT sclHI sdaHI i2c_wait ;
+: reset  	
+  sdaIN sclOUT
+  begin sda@ 0= while sclHI sclLO repeat
+  sdaOUT sclOUT sclHI sdaHI i2c_wait ;
+
 : start 	reset i2c_wait sdaLO i2c_wait sclLO ;
 : end 		sdaLO i2c_wait sclHI i2c_wait sdaHI ;    
-: bit   	if sdaHI else sdaLO then sclHI i2c_wait sclLO sdaLO ;              
-: readbit 	sdaHI sdaIN sclHI i2c_wait sda@ sclLO sdaOUT ;
+: bit   	if sdaHI else sdaLO then sclHI i2c_wait sclLO ;
+: readbit 	sclHI i2c_wait sda@ sclLO ;
 
 : 7bit 64  begin ?dup while 2dup and bit 1 rshift repeat drop ;
 : 8bit 128 begin ?dup while 2dup and bit 1 rshift repeat drop ;
@@ -32,9 +36,9 @@ variable i2c_delay 				0 i2c_delay !
 : read_direction 1 bit ;		 
 : write_direction 0 bit ;
 : ack 0 bit ;
-: nack 0 bit ;
-: ack?	readbit ;
-: read8 0 8 0 do 1 lshift readbit if 1 or then loop ;
+: nack 1 bit ;
+: ack?	sdaIN readbit sdaOUT ;
+: read8 sdaIN 0 8 0 do 1 lshift readbit if 1 or then loop sdaOUT ;
 
 ext-wordlist set-current
 
@@ -52,8 +56,8 @@ ext-wordlist set-current
   8bit ack? 0= 
 ;
 
-: Wire.endTransmission		( -- )
-  end
+: Wire.endTransmission		( flag -- )
+  if end then
 ;
 
 : Wire.delay				( n -- )

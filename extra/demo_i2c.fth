@@ -36,7 +36,7 @@ forth-wordlist ext-wordlist 2 set-order definitions
   DS3231_ADDRESS
   dup Wire.beginTransmission 0= abort" Failed to start transmission on dump"
   0 Wire.sendByte 0= abort" Failed to send address 0 on dump"
-  Wire.endTransmission
+  true Wire.endTransmission
   Wire.requestFrom 0= abort" Failed request from"
 
   19 0 do
@@ -66,8 +66,8 @@ forth-wordlist ext-wordlist 2 set-order definitions
 : eeprom@
   AT24C32_ADDRESS Wire.beginTransmission if
     dup 8 rshift 15 and Wire.sendByte if
-	  15 and Wire.sendByte if
-	    Wire.endTransmission
+	  255 and Wire.sendByte if
+	    true Wire.endTransmission
 	    AT24C32_ADDRESS Wire.requestFrom if
 		  Wire.read exit
         then
@@ -80,9 +80,9 @@ forth-wordlist ext-wordlist 2 set-order definitions
 : eeprom!
   AT24C32_ADDRESS Wire.beginTransmission if
     dup 8 rshift 15 and Wire.sendByte if
-	  15 and Wire.sendByte if
-	    Wire.endTransmission
+	  255 and Wire.sendByte if
 		Wire.sendByte if
+	    	true Wire.endTransmission
 			exit
         then
       then
@@ -92,7 +92,43 @@ forth-wordlist ext-wordlist 2 set-order definitions
 ;
 
 : eeprom-dump
-	cr ." todo "
+  base @ >r hex
+  over +	
+
+  begin			\ ptr end --
+	2dup <
+  while
+    cr
+    over 0 <# # # # # # # # # #> type ." : "
+
+	16 0 do	
+		over i + over < if over i + eeprom@ 0 <# # # #> type bl emit else 3 spaces then
+		i 7 = if space then
+	loop
+
+	[char] | emit space
+
+	16 0 do
+	    over i + over < if over i + eeprom@ aschar emit then
+	loop
+
+    swap 16 + swap 
+  repeat
+  2drop
+  cr
+  r> base !
+;
+
+: >eeprom		( c-addr u eeprom-addr --)
+  >r
+  begin
+    ?dup
+  while
+    over c@ r@ eeprom! 1 ms
+	r> 1+ >r
+    1 /string
+  repeat
+  r> 2drop
 ;
 
 [THEN]
