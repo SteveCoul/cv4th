@@ -765,24 +765,24 @@ internals set-current
 	exception-info @ if
 	  drop 
 	else
+	  here >r
   	  \ abort" is a special case, it already has a string at here that I need to move
 	  dup -2 = if
-		here count					\ except# c-addr u --
+		r@ count					\ except# c-addr u --
 		swap over					\ except# u c-addr u --
-		here 5 cells+ swap cmove>	\ except# u --
-		file$ @ here 4 cells+ !
-		line# @ here 3 cells+ !
-		here 2 cells+ !
-		0 here 1 cells+ !
-		here !
-	  else 
-		here !
-		>in @ here 1 cells+ !
-		#tib @ here 2 cells+ !
-		line# @ here 3 cells+ !
-		file$ @ here 4 cells+ !
-		tib @ here 5 cells+ #tib @ cmove>
-	  then	
+		r@ 5 cells+ swap cmove>		\ except# u -- ; u is #tib
+		0 swap						\ code toin htib --
+	  else
+		tib @ r@ 5 cells+ #tib @ cmove>
+		>in @ #tib @
+	  then
+
+	  r@ 2 cells+ !
+	  r@ cell+ !
+	  r@ !
+
+	  file$ @ r@ 4 cells+ !
+	  line# @ r> 3 cells+ !
 	  1 exception-info !
     then
   then
@@ -810,15 +810,19 @@ here ] . [ opRET c, parse-name .exception $find drop defer!
 : .except
   exception-info @ if
 	0 exception-info !
-    here @ -2 = if
- 	  cr ab" ctype here 5 cells+ here 2 cells+ @ type [char] " emit
+	here >r
+
+    r@ @ -2 = if
+ 	  cr ab" ctype 
+ 	  r@ 5 cells+ r@ 2 cells+ @ type 
+      [char] " emit
     else
       cr "ue" ctype here @ .exception 
-	  cr here 5 cells+ here 2 cells+ @ type
+	  cr r@ 5 cells+ r@ 2 cells+ @ type
 	  cr
 
-	  here 4 cells+
-	  here 1 cells+ @ 
+	  r@ 5 cells+
+	  r@ 1 cells+ @ 
 
 	  begin
 		?dup
@@ -831,12 +835,13 @@ here ] . [ opRET c, parse-name .exception $find drop defer!
 	  repeat
 	  drop [char] ^ emit
     then
-	here 3 cells+ @ 0 > if
-		4 spaces [char] @ emit here 3 cells+ @ .
-		here 4 cells + @ ?dup if
+	r@ 3 cells+ @ 0 > if
+		4 spaces [char] @ emit r@ 3 cells+ @ .
+		r@ 4 cells + @ ?dup if
 		  2 spaces [char] [ emit ctype [char] ] emit
 	    then
  	then
+	r> drop
   then
 ;
 
