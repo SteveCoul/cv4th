@@ -1,4 +1,4 @@
-\ 15629
+\ 15633
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -114,6 +114,8 @@
 \ \																				\ \ CORE
 \ :																				\ \ CORE
 \ ;																				\ \ CORE
+\ [																				\ \ CORE
+\ ] 																			\ \ CORE
 
 \ ---------------------------------------------------------------------------------------------
 
@@ -125,38 +127,7 @@
   A_CURRENT !
 ;
 
-ext-wordlist set-current
-: cells+ cells + ;
-forth-wordlist set-current
-
-: cell+ 1 cells+ ;																\ \ CORE
-
-internals set-current
-: link>flag			cell+ ;														
-: link>name			link>flag 1+ ;													
-: link>xt			link>name dup c@ + 1+ ;
-forth-wordlist set-current
-
-: immediate																		\ \ CORE
-  opIMMEDIATE
-  get-current @ link>flag
-  c!
-;
-
-\ Don't put this comment on line below yet. bootstrap interpreter makes word
-\ visible on colon rather than on semicolon. I'll fix it.						\ \ CORE
-: \																				
-  #tib @ >in !
-; immediate
-
-: [ 0 state !  ; immediate														\ \ CORE
-: ] 1 state !  ;																\ \ CORE
-
-: decimal 10 base ! ;															\ \ CORE
-: hex 16 base ! ;																\ \ CORE-EXT
-
-: chars ;																		\ \ CORE
-: char+ 1+ ;																	\ \ CORE
+\ ---------------------------------------------------------------------------------------------
 
 : unused																		\ \ CORE-EXT
   A_DICTIONARY_SIZE @ here -
@@ -178,6 +149,57 @@ ext-wordlist set-current
 ;
 forth-wordlist set-current
 : , here 1 cells allot !  ;														\ \ CORE
+
+\ ---------------------------------------------------------------------------------------------
+internals set-current
+
+: link>flag			1 cells + ;
+: link>name			link>flag 1+ ;													
+: link>xt			link>name dup c@ + 1+ ;
+: flag>link 		-1 cells + ;
+: name>flag 1- ;
+
+: >name
+  dup [ opTOR c, ]
+  [ here ]							\ begin
+    1-
+    dup dup 1+ swap c@ + [ opRFETCH c, ]  =
+  [ opQBRANCH c, here - 2 - w, ]	\ until
+	[ opRFROM c, ] drop
+;
+
+: >link >name name>flag flag>link ;
+
+forth-wordlist set-current
+\ ---------------------------------------------------------------------------------------------
+
+
+ext-wordlist set-current
+: cells+ cells + ;
+forth-wordlist set-current
+
+: cell+ 1 cells+ ;																\ \ CORE
+
+: immediate																		\ \ CORE
+  opIMMEDIATE
+  get-current @ link>flag
+  c!
+;
+
+\ Don't put this comment on line below yet. bootstrap interpreter makes word
+\ visible on colon rather than on semicolon. I'll fix it.						\ \ CORE
+: \																				
+  #tib @ >in !
+; immediate
+
+: [ 0 state !  ; immediate														\ \ CORE
+: ] 1 state !  ;																\ \ CORE
+
+: decimal 10 base ! ;															\ \ CORE
+: hex 16 base ! ;																\ \ CORE-EXT
+
+: chars ;																		\ \ CORE
+: char+ 1+ ;																	\ \ CORE
 
 : r>																			\ \ CORE
   [ opRFROM c, 
@@ -330,29 +352,6 @@ forth-wordlist set-current
   resolv!
 ; immediate
 
-: count dup 1+ swap c@ ;														\ \ CORE
-
-internals set-current
-: >name																			
-  dup >r	\ p -- R: xt --
-  begin
-    1-
-    dup count + r@ =
-  until
-  r> drop 
-;
-
-: flag>link -1 cells+ ;
-: name>flag 1- ;
-
-: >link
-  >name
-  name>flag
-  flag>link
-;
-
-forth-wordlist set-current
-
 : compile,																		\ \ CORE-EXT
   dup >link link>flag c@ dup opIMMEDIATE = swap opNONE = or if
 	dup 65536 < if
@@ -471,6 +470,8 @@ forth-wordlist set-current
   repeat
   2drop
 ;
+
+: count dup 1+ swap c@ ;														\ \ CORE
 
 ext-wordlist set-current
 : ctype count type ;		
