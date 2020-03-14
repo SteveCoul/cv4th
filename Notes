@@ -1,0 +1,17 @@
+
+CTCONST
+	A word can be flagged as returns a constant. When compiling
+    a reference to such a word execute it and compile the 
+	resulting literal.
+
+	I tested it and it works fine ( change bootstrap interpreter
+	and compile, in core.fth. Also patchup the disassembler etc. )
+
+	This flag can be applied to constants, fake-variables and 
+	variables ( buffers too? ).
+
+	It's a speed optimization which I'm not really considering
+	right now favoring simplicity. It doesn't save any space
+	which is my main consideration atm. ( since a literal
+	and a call are usually 1 byte opcode 2 bytes value anyhow )
+
