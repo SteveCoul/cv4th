@@ -40,6 +40,7 @@ enum {
 	opDOCSTR,
 	opDOLIT,
 	opDOLIT_U8,
+	opDOLIT_U16,
 	opDROP,
 	opDULESSTHAN,
 	opDUP,

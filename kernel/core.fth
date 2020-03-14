@@ -479,10 +479,14 @@ internals set-current
    then
   repeat
   r>
-  dup 0 256 within if
-    opDOLIT_U8 c, c,
+  dup 0 65536 within if
+	opDOLIT_U16 c, w,
   else
-    opDOLIT c, ,
+    dup 0 256 within if
+      opDOLIT_U8 c, c,
+    else
+      opDOLIT c, ,
+    then
   then
 ;
 forth-wordlist set-current

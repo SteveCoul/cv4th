@@ -75,6 +75,9 @@ static void constant( const char* name, cell_t value ) {
 	if ( value < 256 ) {
 		c_comma( opDOLIT_U8 );
 		c_comma( value & 255 );
+	} else if ( value < 65536 ) {
+		c_comma( opDOLIT_U16 );
+		w_comma( value & 65535 );
 	} else {
 		c_comma( opDOLIT );
 		comma( value );
@@ -415,6 +418,7 @@ int main( int argc, char** argv ) {
 	opconstant( opDOCSTR );
 	opconstant( opDOLIT );
 	opconstant( opDOLIT_U8 );
+	opconstant( opDOLIT_U16 );
 	opconst_db( opDROP );
 	opconst_db( opDULESSTHAN );
 	opconstant( opDUP );
@@ -642,6 +646,9 @@ rescan:
 						} else if ( ( v < 256 ) && ( v >= 0 ) ) {
 							c_comma( opDOLIT_U8 );
 							c_comma( v );
+						} else if ( ( v < 65536 ) && ( v>= 0 ) ) {
+							c_comma( opDOLIT_U16 );
+							w_comma( v );
 						} else {
 							c_comma( opDOLIT );
 							comma( v );

@@ -1037,6 +1037,11 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			DP++;
 			IP+=1;
 			break;
+		case opDOLIT_U16:
+			datastack[ DP ] = GET_WORD( machine, IP );
+			DP++;
+			IP+=2;
+			break;
 		case opQTHROW:
 			tmp = datastack[ DP-1 ];
 			tmp2 = datastack[ DP-2 ];
