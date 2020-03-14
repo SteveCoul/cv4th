@@ -189,6 +189,8 @@ int main( int argc, char** argv ) {
 	uint32_t			word_colon = 0;
 	uint32_t			word_semicolon = 0;
 	uint32_t			word_fslash = 0;
+	uint32_t			word_opensq = 0;
+	uint32_t			word_closesq = 0;
 	const char*			include_file = NULL;
 	const char*			post_action = NULL;
 	cell_t 				current_word = 0;
@@ -612,6 +614,26 @@ rescan:
 					if ( word_colon == 0 ) 		{ word_colon = find(":"); if ( word_colon ) printf("now have :\n"); }
 					if ( word_semicolon == 0 )  { word_semicolon = find(";"); if ( word_semicolon ) printf("now have ;\n" ); }
 					goto rescan;
+				}
+
+				if ( word_opensq == 0 ) {
+					if ( strcmp( tmp_word, "[" ) == 0 ) {
+						word_opensq = find( "[" );
+						if ( word_opensq == 0 ) {
+							WRITE_CELL( machine, A_STATE, 0 );
+							goto rescan;
+						}
+					}
+				}
+
+				if ( word_closesq == 0 ) {
+					if ( strcmp( tmp_word, "]" ) == 0 ) {
+						word_closesq = find( "]" );
+						if ( word_closesq == 0 ) {
+							WRITE_CELL( machine, A_STATE, 1 );
+							goto rescan;
+						}
+					}
 				}
 
 				if ( word_fslash == 0 ) {
