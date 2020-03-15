@@ -9,7 +9,11 @@ ext-wordlist forth-wordlist internals 3 set-order definitions
 
 variable i2c_delay 				0 i2c_delay !
 
+[DEFINED] ms [IF]
 : i2c_wait i2c_delay @ ms ;
+[ELSE]
+: i2c_wait i2c_delay @ 0 ?do loop ;
+[THEN]
 
 : sdaOUT SDA_PIN OUTPUT pinMode ;                                
 : sclOUT SCL_PIN OUTPUT pinMode ;                                
