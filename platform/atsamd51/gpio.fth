@@ -130,8 +130,10 @@ PB13 constant PIN_SCK
 
 PIN_D13 constant LED_BUILTIN
 
+ \ These defines match the digital arduino driver
+ 0 constant INPUT
  1 constant OUTPUT
- 2 constant INPUT
+ \ 2 constant INPUT_PULLUP
 
  1 constant HIGH
  0 constant LOW
