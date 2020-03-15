@@ -81,9 +81,7 @@ int main( int argc, char** argv ) {
 	}
 
 	machine.datastack = machine.memory + ( GET_CELL( &machine, A_DATASTACK ) / CELL_SIZE );
-	printf("Datastack offset %u\n", GET_CELL( &machine, A_DATASTACK ) );
 	machine.returnstack = machine.memory + ( GET_CELL( &machine, A_RETURNSTACK ) / CELL_SIZE );
-	printf("Returnstack offset %u\n", GET_CELL( &machine, A_RETURNSTACK ) );
 
 	if ( setup ) {
 		machine.IP = setup;
