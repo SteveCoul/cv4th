@@ -554,7 +554,8 @@ int main( int argc, char** argv ) {
 	c_comma( opRET );
 	{
 		printf("setup stacks. here was %x\n", GET_CELL( machine, A_HERE ) );
-		align();
+		align();	/* stacks are aligned in the image because I used native fetch on them
+					   so alignment is critical on some targets */
 		temp = GET_CELL( machine, A_HERE );
 		if ( ( temp + ((dstack_size+rstack_size)*CELL_SIZE) ) >= dictionary_size ) {
 			printf("\n\nCannot bootstrap, not enough dictionary space for stacks\n\n");
