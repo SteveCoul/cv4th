@@ -301,6 +301,7 @@ int main( int argc, char** argv ) {
 	internals_definitions();
 	variable( A_LIST_OF_WORDLISTS, "A_LIST_OF_WORDLISTS" );
 	constant( "locals-wordlist", A_LOCALS_WORDLIST );	
+	constant( "context-size", CONTEXT_SIZE );
 
 	forth_definitions();
 	lay_header( opNONE, "here" );	// in forth code here is not a variable
@@ -456,6 +457,7 @@ int main( int argc, char** argv ) {
 	opconstant( opCALL );
 	opconst_db( opCFETCH );
 	opconst_db( opCLOSE_FILE );
+	opconstant( opCONTEXT_SWITCH );
 	opconst_db( opCOMPARE );
 	opconst_db( opCREATE_FILE );
 	opconst_db( opCSTORE );

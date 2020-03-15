@@ -1542,6 +1542,8 @@ forth-wordlist set-current
   #tib !
   0 >in !
   true
+
+cr tib @ #tib @ type
   0 endcase
 ;
 

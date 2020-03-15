@@ -14,6 +14,7 @@ include kernel/structure.fth
 include extra/vi.fth
 include extra/toys.fth
 \ include extra/bitbang_i2c.fth
+include extra/thread.fth
 
 include platform/done.fth
 

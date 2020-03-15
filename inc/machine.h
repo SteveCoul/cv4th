@@ -51,6 +51,19 @@ typedef int32_t s_cell_t;
 #define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
 #define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER
 
+/*
+	context:
+			instruction-pointer
+			datastack-pointer
+			returnstack-pointer
+			locals-pointer
+			datastack-base
+			returnstack-base
+			base
+						I'm not saving pictured numeric, just don't schedule whilst using!
+*/
+#define CONTEXT_SIZE 7
+
 typedef struct tagMachine_t {
 	cell_t*		memory;
 	cell_t*		datastack;

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -216,6 +217,40 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		opcode = GET_BYTE( machine, IP ); IP++;
 
 		switch( opcode ) {
+		/* threading */
+		case opCONTEXT_SWITCH:					/* new old -- */
+			/* warning, if runmode = 0 we came from the bootstrap and you cannot multithread there */
+			{
+				uint32_t prev = datastack[ DP-1 ];
+				uint32_t next = datastack[ DP-2 ];
+				DP-=2;
+				if ( prev == next ) {
+					/* nothin to do */
+				} else {
+					WRITE_CELL( machine, prev+0, IP );
+					WRITE_CELL( machine, prev+4, DP );
+					WRITE_CELL( machine, prev+8, RP );
+					WRITE_CELL( machine, prev+12, LP );
+					WRITE_CELL( machine, prev+16, GET_CELL( machine, A_DATASTACK ) );
+					WRITE_CELL( machine, prev+20, GET_CELL( machine, A_RETURNSTACK ) );
+					WRITE_CELL( machine, prev+24, GET_CELL( machine, A_BASE ) );
+
+					IP = GET_CELL( machine, next+0 );
+					DP = GET_CELL( machine, next+4 );
+					RP = GET_CELL( machine, next+8 );
+					LP = GET_CELL( machine, next+12 );
+					WRITE_CELL( machine, A_DATASTACK, GET_CELL( machine, next+16 ) );
+					WRITE_CELL( machine, A_RETURNSTACK, GET_CELL( machine, next+20 ) );
+					WRITE_CELL( machine, A_BASE, GET_CELL( machine, next+24 ) );
+		
+					machine->datastack = machine->memory + ( GET_CELL( machine, A_DATASTACK ) / CELL_SIZE );
+					machine->returnstack = machine->memory + ( GET_CELL( machine, A_RETURNSTACK ) / CELL_SIZE );
+					/* todo these should be #defines */
+					datastack = machine->datastack;
+					returnstack = machine->returnstack;
+				}
+			}	
+			break;
 		/* device access. Note addresses are 2 cells! */
 		case opD8FETCH:
 			ATHROW( DP<2, ;, -4 );

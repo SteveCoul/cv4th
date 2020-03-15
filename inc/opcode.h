@@ -22,6 +22,7 @@ enum {
 	opCFETCH,
 	opCLOSE_FILE,
 	opCOMPARE,
+	opCONTEXT_SWITCH,
 	opCREATE_FILE,
 	opCSTORE,
 
