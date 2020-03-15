@@ -6,6 +6,12 @@
 
 extern void ioInit( void );
 
+typedef struct {
+	void*	pointer;
+	int		integer;
+	int		flag;
+} FileReference_t;
+
 #define IO_RDONLY 1
 #define IO_WRONLY 2
 #define IO_RDWR	  4
@@ -19,14 +25,14 @@ typedef enum {
 typedef struct {
 	void* link;
 	const char*	name;
-	ior_t (*open)( const char* name, unsigned int mode, int* fd );
-	ior_t (*create)( const char* name, unsigned int mode, int* fd );
-	ior_t (*close)( int fd );
-	ior_t (*read)( int fd, void* buffer, unsigned int length );
-	ior_t (*write)( int fd, void* buffer, unsigned int length );
-	ior_t (*position)( int fd, unsigned long int* position );
-	ior_t (*size)( int fd, unsigned long int* size );
-	ior_t (*seek)( int fd, unsigned long int position );
+	ior_t (*open)( const char* name, unsigned int mode, FileReference_t* private_data );
+	ior_t (*create)( const char* name, unsigned int mode, FileReference_t* private_data );
+	ior_t (*close)( FileReference_t* private_data );
+	ior_t (*read)( FileReference_t* private_data, void* buffer, unsigned int length );
+	ior_t (*write)( FileReference_t* private_data, void* buffer, unsigned int length );
+	ior_t (*position)( FileReference_t* private_data, unsigned long int* position );
+	ior_t (*size)( FileReference_t* private_data, unsigned long int* size );
+	ior_t (*seek)( FileReference_t* private_data, unsigned long int position );
 } ioSubsystem;
 
 extern void ioRegister( ioSubsystem* ios );

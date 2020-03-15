@@ -1,5 +1,4 @@
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,8 +6,8 @@
 #include "io.h"
 
 static struct {
-	int				native_fd;
-	ioSubsystem*	p;
+	FileReference_t	ref;
+	ioSubsystem*	io;
 } myfiles[256];
 
 static ioSubsystem*	list = NULL;
@@ -17,7 +16,7 @@ static
 int freeslot( void ) {
 	int i;
 	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
-		if ( myfiles[i].native_fd == -1 ) 
+		if ( myfiles[i].io == NULL )
 			return i;
 	return -1;
 }
@@ -34,29 +33,10 @@ ioSubsystem* getSubsystem( const char* name ) {
 	return NULL;
 }
 
-static
-void dropfile( int fd ) {
-	int i;
-	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
-		if ( myfiles[i].native_fd == fd ) {
-			myfiles[i].native_fd = -1;
-			return;
-		}
-}
-
-static
-ioSubsystem* getfile( int fd ) {
-	int i;
-	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
-		if ( myfiles[i].native_fd == fd ) 
-			return myfiles[i].p;
-	return NULL;
-}
-
 void ioInit( void ) {
-	int i;
-	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
-		myfiles[i].native_fd = -1;
+	memset( myfiles, 0, sizeof(myfiles) );
+	myfiles[0].io = (ioSubsystem*)1;	// Cannot use 0, because the index I return is the file descriptor
+	// that in forth is put into source-id and source-id 0 has special meaning.
 }
 
 void ioRegister( ioSubsystem* ios ) {
@@ -120,10 +100,11 @@ ior_t ioOpen( const char* name, size_t name_len, unsigned int mode, int* pfd ) {
 			if ( i < 0 ) {
 				rc = IOR_UNKNOWN;
 			} else {
-				rc = ios->open( c_path, mode, pfd );
-				if ( rc == IOR_OK ) {
-					myfiles[i].native_fd = pfd[0];
-					myfiles[i].p = ios;
+				rc = ios->open( c_path, mode, &(myfiles[i].ref) );
+				if ( rc != IOR_OK ) {
+				} else {
+					myfiles[i].io = ios;
+					pfd[0] = i;
 				}
 			}
 		}
@@ -145,10 +126,10 @@ ior_t ioCreate( const char* name, size_t name_len, unsigned int mode, int* pfd )
 			if ( i < 0 ) {
 				rc = IOR_UNKNOWN;
 			} else {
-				rc = ios->create( c_path, mode, pfd );
+				rc = ios->create( c_path, mode, &(myfiles[i].ref) );
 				if ( rc == IOR_OK ) {
-					myfiles[i].native_fd = pfd[0];
-					myfiles[i].p = ios;
+					myfiles[i].io = ios;
+					pfd[0] = i;
 				}
 			}
 		}
@@ -157,41 +138,28 @@ ior_t ioCreate( const char* name, size_t name_len, unsigned int mode, int* pfd )
 }
 
 ior_t ioClose( int fd ) {
-	ior_t rc;
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return IOR_UNKNOWN;
-	rc = i->close( fd );
-	dropfile( fd );
+	ior_t rc = myfiles[fd].io->close( &(myfiles[fd].ref) );
+	myfiles[fd].io = NULL;
 	return rc;
 }
 
 ior_t ioRead( int fd, void* buffer, unsigned int length ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return IOR_UNKNOWN;
-	return i->read( fd, buffer, length );
+	return myfiles[fd].io->read( &(myfiles[fd].ref), buffer, length );
 }
 
 ior_t ioWrite( int fd, void* buffer, unsigned int length ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return IOR_UNKNOWN;
-	return i->write( fd, buffer, length );
+	return myfiles[fd].io->write( &(myfiles[fd].ref), buffer, length );
 }
 
 ior_t ioPosition( int fd, unsigned long int* position ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return IOR_UNKNOWN;
-	return i->position( fd, position );
+	return myfiles[fd].io->position( &(myfiles[fd].ref), position );
 }
 
 ior_t ioSize( int fd, unsigned long int* size ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return IOR_UNKNOWN;
-	return i->size( fd, size );
+	return myfiles[fd].io->size( &(myfiles[fd].ref), size );
 }
 
 ior_t ioSeek( int fd, unsigned long int position ) {
-	ioSubsystem* i = getfile( fd );
-	if ( i == NULL ) return IOR_UNKNOWN;
-	return i->seek( fd, position );
+	return myfiles[fd].io->seek( &(myfiles[fd].ref), position );
 }
 
