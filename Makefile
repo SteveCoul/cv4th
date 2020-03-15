@@ -184,7 +184,7 @@ endif
 ifeq ($(HOST_PLATFORM),y)
 
 forth: forth_platform.img.c $(FORTH_CORE_OBJECTS)
-	$(CC) -Iinc -DDICTIONARY_SIZE=$(DICTIONARY_SIZE) $(CFLAGS) -o $@ $^
+	$(CC) -Iinc $(CFLAGS) -o $@ $^
 
 all:: forth
 
