@@ -320,7 +320,9 @@ int main( int argc, char** argv ) {
 	constant( "r/w", IO_RDWR );
 
 	internals_definitions();
+	constant( "A_DATASTACK", A_DATASTACK );
 	constant( "A_SIZE_DATASTACK", A_SIZE_DATASTACK );
+	constant( "A_RETURNSTACK", A_RETURNSTACK );
 	constant( "A_SIZE_RETURNSTACK", A_SIZE_RETURNSTACK );
 	constant( "A_DICTIONARY_SIZE", A_DICTIONARY_SIZE );
 	constant( "SIZE_INPUT_BUFFER", SIZE_INPUT_BUFFER );
