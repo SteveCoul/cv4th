@@ -4,14 +4,14 @@ CFLAGS=-Wall -Wpedantic -Werror -Os
 # #############################
 
 # need to stay under 64k for 16 bit builds
-DICTIONARY_SIZE=60*1024
+DICTIONARY_SIZE=60
 FORTH_PLATFORM=platform/nix.fth
 HOST_PLATFORM=y
 
 #ARDUINO_PLATFORM?="esp8266:esp8266:d1"
 #ARDUINO_PORT?="/dev/cu.usbserial-20"
 #ARDUINO_FLAGS?="-DXIP"
-#DICTIONARY_SIZE=24*1024
+#DICTIONARY_SIZE=24
 #ALIGNMENT_FLAGS=-a
 #ENDIAN_FLAGS=
 #PAD_IMAGE=y
@@ -20,7 +20,7 @@ HOST_PLATFORM=y
 #ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 
 #ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
-#DICTIONARY_SIZE=128*1024
+#DICTIONARY_SIZE=128
 #ALIGNMENT_FLAGS=-a
 #ENDIAN_FLAGS=
 #PAD_IMAGE=n
@@ -29,7 +29,7 @@ HOST_PLATFORM=y
 #ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 
 #ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
-#DICTIONARY_SIZE=24*1024
+#DICTIONARY_SIZE=24
 #ALIGNMENT_FLAGS=-a
 #ENDIAN_FLAGS=
 #PAD_IMAGE=n
@@ -37,6 +37,7 @@ HOST_PLATFORM=y
 
 # #############################
 ALL_FORTH=platform/*.fth extra/*.fth kernel/*.fth platform/*/*.fth
+
 # #############################
 
 all::
@@ -55,14 +56,14 @@ clean:
 # #############################
 
 host_%.o:src/%.c
-	$(CC) $(CFLAGS) -Iinc -DDICTIONARY_SIZE=$(DICTIONARY_SIZE) -c -o $@ $^
+	$(CC) $(CFLAGS) -Iinc -c -o $@ $^
 
 %.img.c:%.img
 	$(MAKE) toC
 	rm -f $@
 	echo "#include <kernel_image.h>" > $@
 ifeq ($(PAD_IMAGE),y)
-	./toC $(shell echo $$(($(DICTIONARY_SIZE)))) < $^ >> $@
+	./toC $(shell echo $$(($(DICTIONARY_SIZE)*1024))) < $^ >> $@
 else
 	./toC < $^ >> $@
 endif
@@ -97,7 +98,7 @@ all:: bootstrap
 # #############################
 
 core.img: kernel/core.fth bootstrap
-	./bootstrap $(ALIGNMENT_FLAGS) $(ENDIAN_FLAGS) -f kernel/core.fth -p "internals ext-wordlist get-order 2 + set-order  ' bye ' save only forth definitions execute core.img execute"
+	./bootstrap $(ALIGNMENT_FLAGS) $(ENDIAN_FLAGS) -ds $(DICTIONARY_SIZE) -f kernel/core.fth -p "internals ext-wordlist get-order 2 + set-order  ' bye ' save only forth definitions execute core.img execute"
 
 all:: core.img	
 
@@ -125,7 +126,7 @@ FORTH_CORE_SOURCES+=src/common.c
 FORTH_CORE_OBJECTS=$(FORTH_CORE_SOURCES:src/%.c=host_%.o)
 
 forth_core: $(FORTH_CORE_OBJECTS) core.img.c
-	$(CC) -Iinc -DDICTIONARY_SIZE=$(DICTIONARY_SIZE) $(CFLAGS) -o $@ $^
+	$(CC) -Iinc $(CFLAGS) -o $@ $^
 
 all:: forth_core
 
@@ -169,7 +170,7 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../src/io_platform_arduino.cpp arduino/io_platform_arduino.cpp
 	ln -s ../src/io_platform.c arduino/io_platform.cpp
 	echo "all:" > arduino/Makefile
-	echo "\tarduino-cli compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. -DDICTIONARY_SIZE=$(DICTIONARY_SIZE)\"" >> arduino/Makefile
+	echo "\tarduino-cli compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. \"" >> arduino/Makefile
 	echo "\tarduino-cli upload -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
 	ln -s ../src/runner.c arduino/arduino.ino
 

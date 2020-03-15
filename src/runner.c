@@ -21,7 +21,6 @@ int main( int argc, char** argv ) {
 
 	cell_t head			=	p[ A_HEADER / CELL_SIZE ];
 	cell_t size			=	p[ A_DICTIONARY_SIZE / CELL_SIZE ];
-	cell_t request_size;
 	cell_t dstacksize	=	p[ A_SIZE_DATASTACK / CELL_SIZE ];
 	cell_t rstacksize	=	p[ A_SIZE_RETURNSTACK / CELL_SIZE ];
 	
@@ -49,20 +48,14 @@ int main( int argc, char** argv ) {
 		setup = machine.swapCell( setup );
 	}
 
-#ifdef DICTIONARY_SIZE
-	request_size = DICTIONARY_SIZE;
-#else
-	request_size = size;
-#endif
-
 #ifdef XIP
 	machine.memory = (cell_t*)image_data;
 #else
-	machine.memory = (cell_t*)malloc( request_size );
+	machine.memory = (cell_t*)malloc( size );
 #endif
 	if ( DEBUG ) {
-		io_platform_print_term("Dictionary size "); io_platform_printN_term( request_size );
-		io_platform_print_term(" bytes ( "); io_platform_printN_term( size );
+		io_platform_print_term("Dictionary size "); 
+		io_platform_printN_term( size );
 		io_platform_print_term(" bytes required by image) --> pointer = " );
 		io_platform_printHEX_term( (unsigned long long )(machine.memory) );
 		io_platform_println_term( "" );
@@ -99,10 +92,10 @@ int main( int argc, char** argv ) {
 	if ( DEBUG ) io_platform_println_term( "Copy data" );
 	if ( machine.memory ) {
 #ifndef XIP
-		memset( machine.memory, 0, request_size );
+		memset( machine.memory, 0, size );
 		memmove( machine.memory, image_data, image_data_len );
 #endif
-		WRITE_CELL( &machine, A_DICTIONARY_SIZE, request_size );
+		WRITE_CELL( &machine, A_DICTIONARY_SIZE, size );
 	}
 
 	if ( setup ) {
