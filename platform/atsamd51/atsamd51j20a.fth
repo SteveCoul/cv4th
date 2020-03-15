@@ -9,9 +9,12 @@ include platform/atsamd51/flash.fth
 include platform/atsamd51/clock.fth
 include platform/atsamd51/gpio.fth
 include kernel/block.fth
+include kernel/verbose_exceptions.fth
+include kernel/structure.fth
 include extra/vi.fth
 include extra/toys.fth
 include extra/bitbang_i2c.fth
+include extra/thread.fth
 
 ext-wordlist get-order 1+ set-order
 PIN_D5 env-constant I2C_SDA_PIN
@@ -19,6 +22,8 @@ PIN_D6 env-constant I2C_SCL_PIN
 87 env-constant AT24C32_ADDRESS
 104 env-constant DS3231_ADDRESS
 include extra/demo_i2c.fth
+
+include extra/lcd.fth
 
 include platform/done.fth
 

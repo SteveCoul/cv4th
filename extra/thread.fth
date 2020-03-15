@@ -56,6 +56,8 @@ variable threadone : thread1 begin 1 threadone +!  schedule again ;
   cr cr ." How did we get here?" cr cr
 ;
 
+internals ext-wordlist forth-wordlist 3 set-order 
+
 onboot: kickoff 
   A_QUIT @ A_DATASTACK @ A_RETURNSTACK @ +thread
   ['] boot A_QUIT !
