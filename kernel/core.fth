@@ -1543,7 +1543,6 @@ forth-wordlist set-current
   0 >in !
   true
 
-cr tib @ #tib @ type
   0 endcase
 ;
 
