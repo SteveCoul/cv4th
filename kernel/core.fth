@@ -2212,7 +2212,6 @@ wordlist constant wid-onboot
 
 : onboot
   ['] (onboot) wid-onboot traverse-wordlist
-  cr
 ;
 
 ' onboot A_SETUP !
