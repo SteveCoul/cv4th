@@ -23,7 +23,7 @@ int main( int argc, char** argv ) {
 
 	if ( argc > 1 ) pad = atoi( argv[1] );
 
-	printf("const unsigned char image_data[] = {\\");
+	printf("const unsigned char image_data[] __attribute__((aligned(16))) = {\\");
 
 	for (;;) {
 		unsigned char c;
