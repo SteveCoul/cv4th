@@ -7,5 +7,18 @@ include kernel/structure.fth
 include extra/toys.fth
 include extra/thread.fth
 
+include platform/esp8266/mini_gpio_pins.fth
+include platform/arduino/digital.fth
+
+include extra/bitbang_i2c.fth
+
+ext-wordlist get-order 1+ set-order
+
+PIN_D2 env-constant I2C_SDA_PIN
+PIN_D1 env-constant I2C_SCL_PIN
+3 env-constant AS3935_ADDRESS
+
+include extra/demo_i2c.fth
+
 include platform/done.fth
 
