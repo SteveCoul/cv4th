@@ -1,14 +1,12 @@
 
 (
-	context:
+	system-context:
 			instruction-pointer
 			datastack-pointer
 			returnstack-pointer
 			locals-pointer
 			datastack-base
 			returnstack-base
-			base
-						I'm not saving pictured numeric, just don't schedule whilst using!
 )
 
 internals get-order 1+ set-order
@@ -47,22 +45,20 @@ max_threads context-size cells * buffer: threads
 
 ;
 
-A_QUIT @ threads !
-0 threads 1 cells + !
-0 threads 2 cells + !
-0 threads 3 cells + !
-A_DATASTACK @ threads 4 cells + !
-A_RETURNSTACK @ threads 5 cells + !
-10 threads 6 cells + !
-1 to num_threads
-
 variable threadone : thread1 begin 1 threadone +!  schedule again ; 
 1024 buffer: d1 1024 buffer: r1 
 ' thread1 d1 r1 +thread
 
-onboot: kickoff 
+: boot
+  threads @ A_QUIT !	\ put quit vector back so if we same image it'll work again
   ['] schedule is at-idle
-  schedule
+  threads 0 [ opCONTEXT_SWITCH c, ] 
+  cr cr ." How did we get here?" cr cr
+;
+
+onboot: kickoff 
+  A_QUIT @ A_DATASTACK @ A_RETURNSTACK @ +thread
+  ['] boot A_QUIT !
 onboot;
 
 

@@ -224,7 +224,21 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 				uint32_t prev = datastack[ DP-1 ];
 				uint32_t next = datastack[ DP-2 ];
 				DP-=2;
-				if ( prev == next ) {
+				if ( prev == 0 ) {
+					/* first boot start task */
+					IP = GET_CELL( machine, next+0 );
+					DP = GET_CELL( machine, next+4 );
+					RP = GET_CELL( machine, next+8 );
+					LP = GET_CELL( machine, next+12 );
+					WRITE_CELL( machine, A_DATASTACK, GET_CELL( machine, next+16 ) );
+					WRITE_CELL( machine, A_RETURNSTACK, GET_CELL( machine, next+20 ) );
+		
+					machine->datastack = machine->memory + ( GET_CELL( machine, A_DATASTACK ) / CELL_SIZE );
+					machine->returnstack = machine->memory + ( GET_CELL( machine, A_RETURNSTACK ) / CELL_SIZE );
+					/* todo these should be #defines */
+					datastack = machine->datastack;
+					returnstack = machine->returnstack;
+				} else if ( prev == next ) {
 					/* nothin to do */
 				} else {
 					WRITE_CELL( machine, prev+0, IP );
@@ -233,14 +247,12 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 					WRITE_CELL( machine, prev+12, LP );
 					WRITE_CELL( machine, prev+16, GET_CELL( machine, A_DATASTACK ) );
 					WRITE_CELL( machine, prev+20, GET_CELL( machine, A_RETURNSTACK ) );
-
 					IP = GET_CELL( machine, next+0 );
 					DP = GET_CELL( machine, next+4 );
 					RP = GET_CELL( machine, next+8 );
 					LP = GET_CELL( machine, next+12 );
 					WRITE_CELL( machine, A_DATASTACK, GET_CELL( machine, next+16 ) );
 					WRITE_CELL( machine, A_RETURNSTACK, GET_CELL( machine, next+20 ) );
-		
 					machine->datastack = machine->memory + ( GET_CELL( machine, A_DATASTACK ) / CELL_SIZE );
 					machine->returnstack = machine->memory + ( GET_CELL( machine, A_RETURNSTACK ) / CELL_SIZE );
 					/* todo these should be #defines */

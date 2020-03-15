@@ -1,5 +1,4 @@
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,7 +23,6 @@ int main( int argc, char** argv ) {
 	cell_t dstacksize	=	p[ A_SIZE_DATASTACK / CELL_SIZE ];
 	cell_t rstacksize	=	p[ A_SIZE_RETURNSTACK / CELL_SIZE ];
 	
-	cell_t quit			=	p[ (A_QUIT / CELL_SIZE) ];
 	cell_t setup		=	p[ (A_SETUP / CELL_SIZE) ];
 	
 
@@ -44,7 +42,6 @@ int main( int argc, char** argv ) {
 		size = machine.swapCell( size );
 		dstacksize = machine.swapCell( dstacksize );
 		rstacksize = machine.swapCell( rstacksize );
-		quit = machine.swapCell( quit );
 		setup = machine.swapCell( setup );
 	}
 
@@ -65,10 +62,6 @@ int main( int argc, char** argv ) {
 		io_platform_print_term("SETUP ");
 		io_platform_printHEX_term( setup );
 		io_platform_println_term( "" );
-
-		io_platform_print_term("QUIT ");
-		io_platform_printHEX_term( quit );
-		io_platform_println_term( "" );
 	}
 
 	if ( DEBUG ) io_platform_println_term( "Copy data" );
@@ -88,8 +81,19 @@ int main( int argc, char** argv ) {
 		if ( DEBUG ) io_platform_println_term( "Run setup" );
 		machine_execute( &machine, A_THROW, 0 );
 	}
+
+	/* don't read 'quit' until after setup, because setup may change it
+	   ( such as for multitasking bootstrap ), also read it from the
+	   image not the source (except for XIP of course) */
+
 	if ( DEBUG ) io_platform_println_term( "boot" );
-	machine.IP = quit;
+	
+	machine.IP = GET_CELL( &machine, A_QUIT );
+	if ( DEBUG ) {
+		io_platform_print_term("QUIT ");
+		io_platform_printHEX_term( machine.IP );
+		io_platform_println_term( "" );
+	}
 #ifdef ARDUINO
 }
 
