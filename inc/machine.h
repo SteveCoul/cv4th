@@ -59,10 +59,8 @@ typedef int32_t s_cell_t;
 			locals-pointer
 			datastack-base
 			returnstack-base
-			base
-						I'm not saving pictured numeric, just don't schedule whilst using!
 */
-#define CONTEXT_SIZE 7
+#define CONTEXT_SIZE 6
 
 typedef struct tagMachine_t {
 	cell_t*		memory;
