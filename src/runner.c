@@ -64,9 +64,9 @@ int main( int argc, char** argv ) {
 		io_platform_println_term( "" );
 	}
 
-	if ( DEBUG ) io_platform_println_term( "Copy data" );
 	if ( machine.memory ) {
 #ifndef XIP
+		if ( DEBUG ) io_platform_println_term( "Copy data" );
 		memset( machine.memory, 0, size );
 		memmove( machine.memory, image_data, image_data_len );
 #endif
