@@ -8,12 +8,6 @@
 
 #define DEBUG 0
 
-/* HACK. For some reason my D1 build doesn't boot without debug enabled here */
-#ifdef ESP8266
-#undef DEBUG
-#define DEBUG 1
-#endif
-
 static machine_t machine;
 
 #ifdef ARDUINO
