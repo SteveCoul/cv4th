@@ -285,7 +285,6 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_SETUP, 0 );
 	WRITE_CELL( machine, A_BASE, 10 );
 	WRITE_CELL( machine, A_STATE, 0 );
-	WRITE_CELL( machine, A_USER_PARAM, 0 );
 	WRITE_CELL( machine, A_TIB, A_INPUT_BUFFER );
 	WRITE_CELL( machine, A_HASH_TIB, 0 );
 	WRITE_CELL( machine, A_TOIN, 0 );
@@ -336,7 +335,6 @@ int main( int argc, char** argv ) {
 	constant( "A_ORDER", A_ORDER );
 	constant( "A_PICTURED_NUMERIC", A_PICTURED_NUMERIC );
 	constant( "A_INPUT_BUFFER", A_INPUT_BUFFER );
-	constant( "A_USER_PARAM", A_USER_PARAM );
 
 	/** Forth definitions that map to a single opcode */
 	forth_definitions();
