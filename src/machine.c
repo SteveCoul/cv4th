@@ -233,7 +233,6 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 					WRITE_CELL( machine, prev+12, LP );
 					WRITE_CELL( machine, prev+16, GET_CELL( machine, A_DATASTACK ) );
 					WRITE_CELL( machine, prev+20, GET_CELL( machine, A_RETURNSTACK ) );
-					WRITE_CELL( machine, prev+24, GET_CELL( machine, A_BASE ) );
 
 					IP = GET_CELL( machine, next+0 );
 					DP = GET_CELL( machine, next+4 );
@@ -241,7 +240,6 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 					LP = GET_CELL( machine, next+12 );
 					WRITE_CELL( machine, A_DATASTACK, GET_CELL( machine, next+16 ) );
 					WRITE_CELL( machine, A_RETURNSTACK, GET_CELL( machine, next+20 ) );
-					WRITE_CELL( machine, A_BASE, GET_CELL( machine, next+24 ) );
 		
 					machine->datastack = machine->memory + ( GET_CELL( machine, A_DATASTACK ) / CELL_SIZE );
 					machine->returnstack = machine->memory + ( GET_CELL( machine, A_RETURNSTACK ) / CELL_SIZE );
