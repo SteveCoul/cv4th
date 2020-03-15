@@ -553,18 +553,18 @@ int main( int argc, char** argv ) {
 	lay_header( opNONE, "initial-stacks" );
 	c_comma( opRET );
 	{
-		printf("setup stacks. here was %d\n", GET_CELL( machine, A_HERE ) );
+		printf("setup stacks. here was %x\n", GET_CELL( machine, A_HERE ) );
 		align();
 		temp = GET_CELL( machine, A_HERE );
 		if ( ( temp + ((dstack_size+rstack_size)*CELL_SIZE) ) >= dictionary_size ) {
 			printf("\n\nCannot bootstrap, not enough dictionary space for stacks\n\n");
 			exit(1);
 		}
-		printf("datastack will be at %d\n", temp );
+		printf("datastack will be at %x\n", temp );
 		WRITE_CELL( machine, A_DATASTACK, temp );
 		WRITE_CELL( machine, A_HERE, GET_CELL( machine, A_HERE ) + ( dstack_size * CELL_SIZE ) );
 		temp = GET_CELL( machine, A_HERE );
-		printf("returnstack will be at %d\n", temp );
+		printf("returnstack will be at %x\n", temp );
 		WRITE_CELL( machine, A_RETURNSTACK, temp );
 		WRITE_CELL( machine, A_HERE, GET_CELL( machine, A_HERE ) + ( rstack_size * CELL_SIZE ) );
 		machine->datastack = machine->memory + ( GET_CELL( machine, A_DATASTACK ) / CELL_SIZE );
