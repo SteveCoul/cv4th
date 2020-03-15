@@ -219,8 +219,8 @@ int main( int argc, char** argv ) {
 	int					i;
 	int					alignment_workaround = 0;
 	cell_t				dictionary_size = 32*1024;
-	cell_t				dstack_size = 256;
-	cell_t				rstack_size = 256;
+	cell_t				dstack_size = 128;
+	cell_t				rstack_size = 128;
 	cell_t				temp;
 
 	for ( i = 1; i < argc; i++ ) {
@@ -549,9 +549,9 @@ int main( int argc, char** argv ) {
 	opconst_db( opZEROEQ );
 	opconstant( opIMMEDIATE );
 
-	forth_definitions();
-
 	/* setup our stacks */
+	lay_header( opNONE, "initial-stacks" );
+	c_comma( opRET );
 	{
 		printf("setup stacks. here was %d\n", GET_CELL( machine, A_HERE ) );
 		align();
@@ -571,6 +571,8 @@ int main( int argc, char** argv ) {
 		machine->returnstack = machine->memory + ( GET_CELL( machine, A_RETURNSTACK ) / CELL_SIZE );
 		printf( "dstack %p, rstack %p\n", (void*)(machine->datastack), (void*)(machine->returnstack) );
 	}
+
+	forth_definitions();
 
 	/**
  	 */
