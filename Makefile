@@ -15,7 +15,7 @@ HOST_PLATFORM=y
 #ALIGNMENT_FLAGS=-a
 #ENDIAN_FLAGS=
 #PAD_IMAGE=y
-#FORTH_PLATFORM=
+#FORTH_PLATFORM=platform/esp8266/mini.fth
 
 #ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
 #ARDUINO_PORT?="/dev/cu.usbmodem201" 
