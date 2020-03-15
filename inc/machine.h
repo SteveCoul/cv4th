@@ -24,34 +24,36 @@ typedef int32_t s_cell_t;
 #define A_HEADER						0
 #define	A_HERE							1*CELL_SIZE
 #define A_DICTIONARY_SIZE				2*CELL_SIZE
-#define A_SIZE_DATASTACK				3*CELL_SIZE
-#define A_SIZE_RETURNSTACK				4*CELL_SIZE
-#define A_LIST_OF_WORDLISTS				5*CELL_SIZE
+#define A_DATASTACK						3*CELL_SIZE
+#define A_SIZE_DATASTACK				4*CELL_SIZE
+#define A_RETURNSTACK					5*CELL_SIZE
+#define A_SIZE_RETURNSTACK				6*CELL_SIZE
+#define A_LIST_OF_WORDLISTS				7*CELL_SIZE
 /* wid-link ptr for forth-wordlist */
-#define A_FORTH_WORDLIST				7*CELL_SIZE
+#define A_FORTH_WORDLIST				9*CELL_SIZE
 /* wid-link ptr for internals */
-#define A_INTERNALS_WORDLIST			9*CELL_SIZE
+#define A_INTERNALS_WORDLIST			11*CELL_SIZE
 /* wid-link ptr for locals 	*/
-#define A_LOCALS_WORDLIST				11*CELL_SIZE
+#define A_LOCALS_WORDLIST				13*CELL_SIZE
 /* wid-link ptr for extras */
-#define A_EXT_WORDLIST					13*CELL_SIZE
-#define A_QUIT							14*CELL_SIZE
-#define A_SETUP							15*CELL_SIZE
-#define A_BASE							16*CELL_SIZE
-#define A_USER_PARAM					17*CELL_SIZE
-#define A_STATE							18*CELL_SIZE
-#define A_TIB							19*CELL_SIZE
-#define A_HASH_TIB						20*CELL_SIZE
-#define A_TOIN							21*CELL_SIZE
-#define A_CURRENT						22*CELL_SIZE
-#define A_THROW							23*CELL_SIZE
-#define A_ORDER							24*CELL_SIZE
+#define A_EXT_WORDLIST					15*CELL_SIZE
+#define A_QUIT							16*CELL_SIZE
+#define A_SETUP							17*CELL_SIZE
+#define A_BASE							18*CELL_SIZE
+#define A_USER_PARAM					19*CELL_SIZE
+#define A_STATE							20*CELL_SIZE
+#define A_TIB							21*CELL_SIZE
+#define A_HASH_TIB						22*CELL_SIZE
+#define A_TOIN							23*CELL_SIZE
+#define A_CURRENT						24*CELL_SIZE
+#define A_THROW							25*CELL_SIZE
+#define A_ORDER							26*CELL_SIZE
 #define A_PICTURED_NUMERIC				A_ORDER + ( SIZE_ORDER * CELL_SIZE )
 #define A_INPUT_BUFFER					A_PICTURED_NUMERIC + SIZE_PICTURED_NUMERIC
 #define START_HERE						A_INPUT_BUFFER+SIZE_INPUT_BUFFER
 
 typedef struct tagMachine_t {
-	void*		memory;
+	cell_t*		memory;
 	cell_t*		datastack;
 	cell_t*		returnstack;
 	cell_t		DP;

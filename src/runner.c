@@ -61,24 +61,6 @@ int main( int argc, char** argv ) {
 		io_platform_println_term( "" );
 	}
 
-	machine.datastack = (cell_t*)malloc( dstacksize * CELL_SIZE );
-	if ( DEBUG ) {
-		io_platform_print_term("Data stack ");
-		io_platform_printN_term( dstacksize );
-		io_platform_print_term( " cells --> pointer = " );
-		io_platform_printHEX_term( (unsigned long long)(machine.datastack) );
-		io_platform_println_term( "" );
-	}
-
-	machine.returnstack = (cell_t*)malloc( rstacksize * CELL_SIZE );
-	if ( DEBUG ) {
-		io_platform_print_term("Return stack ");
-		io_platform_printN_term( rstacksize );
-		io_platform_print_term( " cells --> pointer = " );
-		io_platform_printHEX_term( (unsigned long long)(machine.returnstack) );
-		io_platform_println_term( "" );
-	}
-
 	if ( DEBUG ) {
 		io_platform_print_term("SETUP ");
 		io_platform_printHEX_term( setup );
@@ -97,6 +79,11 @@ int main( int argc, char** argv ) {
 #endif
 		WRITE_CELL( &machine, A_DICTIONARY_SIZE, size );
 	}
+
+	machine.datastack = machine.memory + ( GET_CELL( &machine, A_DATASTACK ) / CELL_SIZE );
+	printf("Datastack offset %u\n", GET_CELL( &machine, A_DATASTACK ) );
+	machine.returnstack = machine.memory + ( GET_CELL( &machine, A_RETURNSTACK ) / CELL_SIZE );
+	printf("Returnstack offset %u\n", GET_CELL( &machine, A_RETURNSTACK ) );
 
 	if ( setup ) {
 		machine.IP = setup;

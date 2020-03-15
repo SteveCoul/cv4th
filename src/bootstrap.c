@@ -197,6 +197,14 @@ int refill( void ) {
 	return 1;
 }
 
+static void align() {
+	for (;;) {
+		cell_t a = GET_CELL( machine, A_HERE );
+		if ( (a%CELL_SIZE)==0 ) break;
+		WRITE_CELL( machine, A_HERE, a+1 );
+	}
+}
+
 int main( int argc, char** argv ) {
 	int					bye = 0;
 	machine_endian_t	endian = ENDIAN_NATIVE;
@@ -213,6 +221,7 @@ int main( int argc, char** argv ) {
 	cell_t				dictionary_size = 32*1024;
 	cell_t				dstack_size = 256;
 	cell_t				rstack_size = 256;
+	cell_t				temp;
 
 	for ( i = 1; i < argc; i++ ) {
 		if ( ( strcmp( argv[i], "-h" ) == 0 ) || ( strcmp( argv[i], "-help" ) == 0 ) ) {
@@ -250,8 +259,6 @@ int main( int argc, char** argv ) {
 
 	machine_init( machine );
 	machine->memory = malloc( dictionary_size );
-	machine->datastack = malloc( dstack_size );
-	machine->returnstack = malloc( rstack_size );
 
 	machine_set_endian( machine, endian, alignment_workaround );
 
@@ -261,7 +268,9 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_HEADER, HEADER_ID );
 	WRITE_CELL( machine, A_HERE, START_HERE );
 	WRITE_CELL( machine, A_DICTIONARY_SIZE, dictionary_size );
+	WRITE_CELL( machine, A_DATASTACK, 0 );
 	WRITE_CELL( machine, A_SIZE_DATASTACK, dstack_size );
+	WRITE_CELL( machine, A_RETURNSTACK, 0 );
 	WRITE_CELL( machine, A_SIZE_RETURNSTACK, rstack_size );
 	WRITE_CELL( machine, A_FORTH_WORDLIST-CELL_SIZE, 0 );
 	WRITE_CELL( machine, A_FORTH_WORDLIST, 0 );
@@ -539,6 +548,28 @@ int main( int argc, char** argv ) {
 	opconstant( opIMMEDIATE );
 
 	forth_definitions();
+
+	/* setup our stacks */
+	{
+		printf("setup stacks. here was %d\n", GET_CELL( machine, A_HERE ) );
+		align();
+		temp = GET_CELL( machine, A_HERE );
+		if ( ( temp + ((dstack_size+rstack_size)*CELL_SIZE) ) >= dictionary_size ) {
+			printf("\n\nCannot bootstrap, not enough dictionary space for stacks\n\n");
+			exit(1);
+		}
+		printf("datastack will be at %d\n", temp );
+		WRITE_CELL( machine, A_DATASTACK, temp );
+		WRITE_CELL( machine, A_HERE, GET_CELL( machine, A_HERE ) + ( dstack_size * CELL_SIZE ) );
+		temp = GET_CELL( machine, A_HERE );
+		printf("returnstack will be at %d\n", temp );
+		WRITE_CELL( machine, A_RETURNSTACK, temp );
+		WRITE_CELL( machine, A_HERE, GET_CELL( machine, A_HERE ) + ( rstack_size * CELL_SIZE ) );
+		machine->datastack = machine->memory + ( GET_CELL( machine, A_DATASTACK ) / CELL_SIZE );
+		machine->returnstack = machine->memory + ( GET_CELL( machine, A_RETURNSTACK ) / CELL_SIZE );
+		printf( "dstack %p, rstack %p\n", (void*)(machine->datastack), (void*)(machine->returnstack) );
+	}
+
 	/**
  	 */
 	if ( include_file )
