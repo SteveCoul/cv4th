@@ -21,7 +21,7 @@ typedef int32_t s_cell_t;
 #define SIZE_PICTURED_NUMERIC			66
 #define SIZE_ORDER						10
 
-#define A_HEADER						0
+#define A_HEADER						0*CELL_SIZE
 #define	A_HERE							1*CELL_SIZE
 #define A_DICTIONARY_SIZE				2*CELL_SIZE
 #define A_DATASTACK						3*CELL_SIZE
@@ -29,13 +29,13 @@ typedef int32_t s_cell_t;
 #define A_RETURNSTACK					5*CELL_SIZE
 #define A_SIZE_RETURNSTACK				6*CELL_SIZE
 #define A_LIST_OF_WORDLISTS				7*CELL_SIZE
-/* wid-link ptr for forth-wordlist */
+#define widlinkptr_FORTHWORDLIST		8*CELL_SIZE
 #define A_FORTH_WORDLIST				9*CELL_SIZE
-/* wid-link ptr for internals */
+#define widlinkptr_INTERNALS			10*CELL_SIZE
 #define A_INTERNALS_WORDLIST			11*CELL_SIZE
-/* wid-link ptr for locals 	*/
+#define widlinkptr_LOCALS				12*CELL_SIZE
 #define A_LOCALS_WORDLIST				13*CELL_SIZE
-/* wid-link ptr for extras */
+#define widlinkptr_EXT					14*CELL_SIZE
 #define A_EXT_WORDLIST					15*CELL_SIZE
 #define A_QUIT							16*CELL_SIZE
 #define A_SETUP							17*CELL_SIZE
