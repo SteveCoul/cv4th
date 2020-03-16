@@ -15,24 +15,19 @@ forth-wordlist ext-wordlist 2 set-order definitions
 : ds3231_clear
   DS3231_ADDRESS
   Wire.beginTransmission
-  if
-  0 Wire.sendByte if		\ address 0
-	0 Wire.sendByte if		\ seconds
-	  0 Wire.sendByte if		\ minute
-	    0 Wire.sendByte if		\ horus
-	      cr ." Okay"
-        then
-      then
-    then
-  then
-  then
+  0 Wire.sendByte drop
+  0 Wire.sendByte drop
+  0 Wire.sendByte drop
+  0 Wire.sendByte drop
+  true Wire.endTransmission
 ;
 
 : ds3231_dump
   DS3231_ADDRESS
-  dup Wire.beginTransmission 0= abort" Failed to start transmission on dump"
-  0 Wire.sendByte 0= abort" Failed to send address 0 on dump"
+  dup Wire.beginTransmission 
+  0 Wire.sendByte drop
   true Wire.endTransmission
+
   Wire.requestFrom 0= abort" Failed request from"
 
   19 0 do
@@ -60,31 +55,22 @@ S" AT24C32_ADDRESS" environment? [IF] constant AT24C32_ADDRESS
 forth-wordlist ext-wordlist 2 set-order definitions
 
 : eeprom@
-  AT24C32_ADDRESS Wire.beginTransmission if
-    dup 8 rshift 15 and Wire.sendByte if
-	  255 and Wire.sendByte if
-	    true Wire.endTransmission
-	    AT24C32_ADDRESS Wire.requestFrom if
-		  Wire.read exit
-        then
-      then
-   then
+  AT24C32_ADDRESS Wire.beginTransmission 
+  dup 8 rshift 15 and Wire.sendByte drop
+  255 and Wire.sendByte drop
+  true Wire.endTransmission
+
+  AT24C32_ADDRESS Wire.requestFrom if
+    Wire.read exit
   then
-  1 abort" failed"
 ;
 
 : eeprom!
-  AT24C32_ADDRESS Wire.beginTransmission if
-    dup 8 rshift 15 and Wire.sendByte if
-	  255 and Wire.sendByte if
-		Wire.sendByte if
-	    	true Wire.endTransmission
-			exit
-        then
-      then
-    then
-  then
-  1 abort" failed"
+  AT24C32_ADDRESS Wire.beginTransmission 
+  dup 8 rshift 15 and Wire.sendByte drop
+  255 and Wire.sendByte drop
+  Wire.sendByte drop
+  true Wire.endTransmission
 ;
 
 : eeprom-dump
