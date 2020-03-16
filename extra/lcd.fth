@@ -103,20 +103,13 @@ constant font
 
 width height * 8 / buffer: display_memory
 
-: lcd_init
-  Wire.begin
-  Wire.reset
-
-  display_memory width height * 8 / 255 fill
-;
-
 : begindata
-  LCD_I2C Wire.BeginTransmission 0= abort" failed to send command"
-  64 Wire.sendByte 0= abort" failed"
+  LCD_I2C Wire.BeginTransmission
+  64 Wire.sendByte drop
 ;
 
 : senddata
-  Wire.sendByte 0= abort" failed"
+  Wire.sendByte drop
 ;
 
 : enddata
@@ -124,10 +117,9 @@ width height * 8 / buffer: display_memory
 ;
 
 : sendcommand
-  \ base @ >r dup 0 hex <# # # #> type space r> base ! 
-  LCD_I2C Wire.BeginTransmission 0= abort" failed to send command"
-  0 Wire.sendByte 0= abort" failed"
-  Wire.sendByte 0= abort" failed"
+  LCD_I2C Wire.BeginTransmission
+  0 Wire.sendByte drop
+  Wire.sendByte drop
   true Wire.endTransmission
 ;
 
@@ -137,7 +129,7 @@ width height * 8 / buffer: display_memory
 
 hex
 : init
-  \ cr ." Init: "
+  2 Wire.delay		\ need to be a bit slower on init for some reason (TODO why?)
   AE send1			\ display off ( af is on )
   A8 3F send2		\ set mux ratio
   d3 00 send2		\ display offset
@@ -162,19 +154,28 @@ hex
   22 0 7 send3		\ page address
   2e send1			\ deactivate any scrolling
   af send1			\ display on ( ae is off )
+  0 Wire.delay
 ;
 decimal
 
 22 constant _PAGEADDR
 
+\ 32 is the minimum arduino i2c buffer size and
+\ is also the size used by the bigbang forth version
+\ I need space for command byte to so I'll just send
+\ 16 at a time
+
 : display
-  \ cr ." send display"
+  \ should probably reset page address or whatever so we always start
+  \ from beginning
   display_memory
-  begindata
   width height * 8 / 0 do
-	 dup c@ senddata 1+
-  loop
-  enddata
+     begindata
+	 16 0 do
+		 dup c@ senddata 1+
+	 loop
+   	 enddata
+  16 +loop
   drop
 ;
 
@@ -206,5 +207,16 @@ decimal
     1+ rot 1+ rot rot
   loop
   2drop drop
+;
+
+: lcd_init
+  Wire.begin
+  Wire.reset
+  init
+  display_memory width height * 8 / 0 fill
+  0 0 S" Hello World" drawline
+  0 1 S" Looks like an" drawline
+  0 2 S" OLED to me" drawline
+  display
 ;
 
