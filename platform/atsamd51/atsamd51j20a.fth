@@ -19,10 +19,16 @@ PIN_D6 env-constant I2C_SCL_PIN
 include extra/Wire_bitbang.fth
 include extra/thread.fth
 
+\ ext-wordlist get-order 1+ set-order
+\ include extra/demo_i2c.fth
+
 ext-wordlist get-order 1+ set-order
 87 env-constant AT24C32_ADDRESS
+include extra/i2c_at24c32_eeprom.fth
+
+ext-wordlist get-order 1+ set-order
 104 env-constant DS3231_ADDRESS
-include extra/demo_i2c.fth
+include extra/i2c_ds3231_rtc.fth
 
 include extra/i2c_ssd1306_lcd.fth
 
