@@ -1,4 +1,4 @@
-\ 17054
+\ 17032
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -85,9 +85,9 @@
 \ A_SIZE_DATASTACK																\ \ INTERNAL
 \ A_SIZE_RETURNSTACK															\ \ INTERNAL
 \ A_DICTIONARY_SIZE																\ \ INTERNAL
-\ SIZE_INPUT_BUFFER																\ \ INTERNAL
-\ SIZE_PICTURED_NUMERIC															\ \ INTERNAL
-\ SIZE_ORDER																	\ \ INTERNAL
+\ /INPUT_BUFFER																	\ \ INTERNAL
+\ /PICTURED_NUMERIC																\ \ INTERNAL
+\ /ORDER																		\ \ INTERNAL
 \ A_HERE																		\ \ INTERNAL
 \ A_QUIT																		\ \ INTERNAL
 \ A_CURRENT																		\ \ INTERNAL
@@ -366,7 +366,7 @@ forth-wordlist set-current
 
 : get-order																		\ \ SEARCH-ORDER
   0 0 begin
-    dup SIZE_ORDER <>
+    dup /ORDER <>
   while						\ widN .. wid1 N i --
 	A_ORDER over cells+ @	\ widN .. wid1 N i ? --
     dup if
@@ -387,7 +387,7 @@ forth-wordlist set-current
 
   0
   begin
-	dup SIZE_ORDER <>
+	dup /ORDER <>
   while
     dup cells A_ORDER + 0 swap !
 	1+
@@ -764,7 +764,7 @@ internals set-current
 \
 \ ( for abort" the input-text is actually the abort" )
 
-: #except [ SIZE_INPUT_BUFFER 5 cells + ] literal ;
+: #except [ /INPUT_BUFFER 5 cells + ] literal ;
 : {except} [ #except ] [fake-buffer] ; 0 {except} !
 
 \ These are task sensitive
@@ -899,13 +899,13 @@ forth-wordlist set-current
 
 : <#																			\ \ CORE
   0
-  A_PICTURED_NUMERIC SIZE_PICTURED_NUMERIC
+  A_PICTURED_NUMERIC /PICTURED_NUMERIC
   + 1- 
   c!
 ;
 
 : hold																			\ \ CORE
-  A_PICTURED_NUMERIC SIZE_PICTURED_NUMERIC
+  A_PICTURED_NUMERIC /PICTURED_NUMERIC
   + 1- >r
   r@ dup c@ 1+ - c!
   r@ c@ 1+ r> c!
@@ -917,7 +917,7 @@ forth-wordlist set-current
 
 : #>																			\ \ CORE
   2drop 
-  A_PICTURED_NUMERIC SIZE_PICTURED_NUMERIC
+  A_PICTURED_NUMERIC /PICTURED_NUMERIC
   + 1- dup >r
   dup c@ -
   r> c@
@@ -971,12 +971,12 @@ forth-wordlist set-current
 
 internals set-current
 : the-s"buffer [fake-variable] ;
-here SIZE_INPUT_BUFFER 3 * allot the-s"buffer !
+here /INPUT_BUFFER 3 * allot the-s"buffer !
 : which-s"buffer [fake-variable] ;
 0 which-s"buffer !
 
 : ^s"-buffer 
-  the-s"buffer @ which-s"buffer @ SIZE_INPUT_BUFFER * +
+  the-s"buffer @ which-s"buffer @ /INPUT_BUFFER * +
   which-s"buffer @ 1+
   dup 3 = if
     drop 0
@@ -1530,13 +1530,13 @@ forth-wordlist set-current
   source-id
   case
   -1 of false swap endof
-  0 of tib @ SIZE_INPUT_BUFFER accept #tib ! 0 >in ! true swap endof
+  0 of tib @ /INPUT_BUFFER accept #tib ! 0 >in ! true swap endof
 
   drop 
 
   1 line# +!
 
-  tib @ SIZE_INPUT_BUFFER 2 - source-id read-line 
+  tib @ /INPUT_BUFFER 2 - source-id read-line 
   if 
 	2drop false 
 	exit
@@ -1547,7 +1547,7 @@ forth-wordlist set-current
     exit
   then
 
-  dup SIZE_INPUT_BUFFER 2 - = if -18 throw then
+  dup /INPUT_BUFFER 2 - = if -18 throw then
 
   #tib !
   0 >in !
@@ -1646,7 +1646,7 @@ wordlist constant ENVIRONMENT-wid
 ENVIRONMENT-wid set-current
 
 : /COUNTED_STRING		255 ;
-: /HOLD					SIZE_PICTURED_NUMERIC ;
+: /HOLD					/PICTURED_NUMERIC ;
 : /PAD					84 ;										\ FIXME should be a bootstrap const. see alsoPAD
 : ADDRESS-UNIT-BITS		1 cells 8 * ;									
 : FLOORED				0 ;
@@ -2168,8 +2168,8 @@ forth-wordlist set-current
   create
 	,
 	get-current ,
-    here SIZE_ORDER cells allot
-	A_ORDER swap SIZE_ORDER cells move
+    here /ORDER cells allot
+	A_ORDER swap /ORDER cells move
   does>
 	>r
 	A_LIST_OF_WORDLISTS @
@@ -2187,7 +2187,7 @@ forth-wordlist set-current
 	repeat
 
 	r@ cell+ @ set-current
-	r@ cell+ cell+ A_ORDER SIZE_ORDER cells move
+	r@ cell+ cell+ A_ORDER /ORDER cells move
 
 	r> @ 
     A_HERE !
