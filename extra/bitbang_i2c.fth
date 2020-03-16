@@ -1,10 +1,14 @@
 
+require extra/ringbuffer.fth
+
 ext-wordlist forth-wordlist internals 3 set-order definitions             
 
 [UNDEFINED] pinMode [IF]
 	cr .( You have not included a gpio driver yet, cannot build without it ) abort [THEN]
 S" I2C_SDA_PIN" environment? 0= [IF]  cr .( I2C_SDA_PIN not in environment ) abort [THEN] value SDA_PIN
 S" I2C_SCL_PIN" environment? 0= [IF]  cr .( I2C_SCL_PIN not in environment ) abort [THEN] value SCL_PIN
+
+require extra/ringbuffer.fth
 
 variable i2c_delay 				0 i2c_delay !
 
@@ -43,26 +47,35 @@ variable i2c_delay 				0 i2c_delay !
 : ack?	sdaIN readbit sdaOUT ;
 : read8 sdaIN 0 8 0 do 1 lshift readbit if 1 or then loop sdaOUT ;
 
+32 constant #txbuffer #txbuffer RingBuffer: txbuffer
+32 constant #rxbuffer #rxbuffer RingBuffer: rxbuffer
+
 ext-wordlist set-current
+
+: Wire.delay				( n -- )
+  i2c_delay !
+;
 
 : Wire.begin				(  -- )
   reset
 ;
 
-: Wire.beginTransmission	( i2c-address -- okay? )
-  start 7bit write_direction ack? 0=
+: Wire.beginTransmission	( i2c-address -- )
+  start 7bit write_direction ack? abort" failed wire begintransmission"
+  txbuffer RingBuffer.empty
 ;
 
-: Wire.sendByte				( u -- okay? )
-  8bit ack? 0= 
+: Wire.sendByte				( u -- 0|1 )
+  txbuffer RingBuffer.push
 ;
 
 : Wire.endTransmission		( flag -- )
+  begin
+    txbuffer RingBuffer.available
+  while
+	txbuffer RingBuffer.pop 8bit ack? abort" failed wire send"
+  repeat
   if end then
-;
-
-: Wire.delay				( n -- )
-  i2c_delay !
 ;
 
 : Wire.requestFrom			( i2c-address -- okay? )
