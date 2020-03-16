@@ -24,7 +24,7 @@ ext-wordlist get-order 1+ set-order
 104 env-constant DS3231_ADDRESS
 include extra/demo_i2c.fth
 
-include extra/lcd.fth
+include extra/i2c_ssd1306_lcd.fth
 
 include platform/done.fth
 
