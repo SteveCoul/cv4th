@@ -104,8 +104,6 @@ constant font
 width height * 8 / buffer: display_memory
 
 : lcd_init
-  S" I2C_SDA_PIN" environment? drop
-  S" I2C_SCL_PIN" environment? drop
   Wire.begin
   Wire.reset
 

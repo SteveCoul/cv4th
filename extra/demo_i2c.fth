@@ -1,13 +1,9 @@
 
 
-S" I2C_SDA_PIN" environment? 0= [IF]  cr .( I2C_SDA_PIN not in environment ) abort [THEN]
-S" I2C_SCL_PIN" environment? 0= [IF]  cr .( I2C_SCL_PIN not in environment ) abort [THEN]
 
 forth-wordlist ext-wordlist 2 set-order definitions
 
 : i2c_init
-  S" I2C_SDA_PIN" environment? drop
-  S" I2C_SCL_PIN" environment? drop
   Wire.begin
   Wire.reset
 ;

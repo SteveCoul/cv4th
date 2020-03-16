@@ -3,9 +3,8 @@ ext-wordlist forth-wordlist internals 3 set-order definitions
 
 [UNDEFINED] pinMode [IF]
 	cr .( You have not included a gpio driver yet, cannot build without it ) abort [THEN]
-
-0 value SDA_PIN
-0 value SCL_PIN
+S" I2C_SDA_PIN" environment? 0= [IF]  cr .( I2C_SDA_PIN not in environment ) abort [THEN] value SDA_PIN
+S" I2C_SCL_PIN" environment? 0= [IF]  cr .( I2C_SCL_PIN not in environment ) abort [THEN] value SCL_PIN
 
 variable i2c_delay 				0 i2c_delay !
 
@@ -46,9 +45,7 @@ variable i2c_delay 				0 i2c_delay !
 
 ext-wordlist set-current
 
-: Wire.begin				( sda-pin scl-pin -- )
-  to SCL_PIN
-  to SDA_PIN
+: Wire.begin				(  -- )
   reset
 ;
 
