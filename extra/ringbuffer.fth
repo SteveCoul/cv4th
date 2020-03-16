@@ -41,6 +41,13 @@ ext-wordlist set-current
   dup 4 cells + swap 0 cells + @ dump
 ;
 
+: RingBuffer.empty		\ rb-addr --
+  0 swap
+  2dup 1 cells + !
+  2dup 2 cells + !
+       3 cells + !
+;
+
 : RingBuffer.size		\ rb-addr -- n
   0 cells + @
 ;
