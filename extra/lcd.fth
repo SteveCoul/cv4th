@@ -112,10 +112,16 @@ width height * 8 / buffer: display_memory
   display_memory width height * 8 / 255 fill
 ;
 
-: senddata
+: begindata
   LCD_I2C Wire.BeginTransmission 0= abort" failed to send command"
   64 Wire.sendByte 0= abort" failed"
+;
+
+: senddata
   Wire.sendByte 0= abort" failed"
+;
+
+: enddata
   true Wire.endTransmission
 ;
 
@@ -143,8 +149,10 @@ hex
   DA 12 send2		\ com pins ( alternate, no remap )
   81 7F send2		\ contrast control
   A4 send1			\ entire display ( A4 show ram, A5 ignore ram )
+  a6 send1			\ again?
   d9 F1 send2		\ precharge period
   db 40 send2		\ VCOMMH deselect level
+  d5 80 send2		\ again?
   8d 14 send2		\ charge pump  
   0 send1
   16 send1
@@ -160,11 +168,11 @@ decimal
 22 constant _PAGEADDR
 
 : display
-\  _PAGEADDR sendcommand 0 sendcommand height 8 / 1 - sendcommand	\ we're going to send page0..7 (IE all)
-
   display_memory
   width height * 8 / 0 do
+     begindata
 	 dup c@ senddata 1+
+     enddata
   loop
   drop
 ;
@@ -179,24 +187,6 @@ decimal
   swap 7 and 1 swap lshift	( offset mask -- )
   swap display_memory +		( mask address -- )
   dup c@ rot or swap c!	
-;
-
-: .bits
-  8 0 do
-    dup 1 and if [char] * emit else space then
-	1 rshift
-  loop
-  drop
-;
-
-: ddump
-  display_memory
-  64 0 ?do
-	cr 16 0 ?do
-	  dup c@ .bits 1+
-	loop
-  loop
-  drop
 ;
 
 : drawchar	\ x y char --
