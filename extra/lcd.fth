@@ -126,6 +126,7 @@ width height * 8 / buffer: display_memory
 ;
 
 : sendcommand
+  \ base @ >r dup 0 hex <# # # #> type space r> base ! 
   LCD_I2C Wire.BeginTransmission 0= abort" failed to send command"
   0 Wire.sendByte 0= abort" failed"
   Wire.sendByte 0= abort" failed"
@@ -138,6 +139,7 @@ width height * 8 / buffer: display_memory
 
 hex
 : init
+  \ cr ." Init: "
   AE send1			\ display off ( af is on )
   A8 3F send2		\ set mux ratio
   d3 00 send2		\ display offset
@@ -168,12 +170,13 @@ decimal
 22 constant _PAGEADDR
 
 : display
+  \ cr ." send display"
   display_memory
+  begindata
   width height * 8 / 0 do
-     begindata
 	 dup c@ senddata 1+
-     enddata
   loop
+  enddata
   drop
 ;
 
