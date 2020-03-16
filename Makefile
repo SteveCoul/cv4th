@@ -1,5 +1,5 @@
 
-CFLAGS=-Wall -Wpedantic -Werror -g -O0
+CFLAGS=-Wall -Wpedantic -Werror -Os
 
 # #############################
 

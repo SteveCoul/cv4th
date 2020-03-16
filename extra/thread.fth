@@ -17,6 +17,21 @@ max_threads context-size cells * buffer: threads
 0 value num_threads
 0 value cur_thread
 
+: .thread
+  base @ >r
+  cr ." Thread " dup .
+  cr ."   IP   " dup 0 cells + @ .
+  cr ."   DP   " dup 1 cells + @ .
+  cr ."   RP   " dup 2 cells + @ .
+  cr ."   LP   " dup 3 cells + @ .
+  cr ."   DS   " dup 4 cells + @ .
+  cr ."   RS   " dup 5 cells + @ .
+  drop
+  r> base !
+;
+
+: .threads num_threads 0 ?do threads i context-size cells * + .thread loop ; 
+
 : inc_cur
   1 cur_thread + to cur_thread
   cur_thread num_threads = if 0 to cur_thread then
@@ -42,10 +57,19 @@ max_threads context-size cells * buffer: threads
   0 r@ 1 cells + !
   r> !
   1 num_threads + to num_threads
-
 ;
 
-variable threadone : thread1 begin 1 threadone +!  schedule again ; 
+variable threadone 
+variable trigger 0 trigger !
+: thread1 
+  cr ." Thread 1 start"
+  begin 
+    1 threadone +!  
+    schedule 
+    trigger @ 0 trigger ! ?dup if cr ." thread1 throwing" throw then
+  again 
+; 
+
 1024 buffer: d1 1024 buffer: r1 
 ' thread1 d1 r1 +thread
 
