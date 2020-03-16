@@ -701,15 +701,6 @@ internals set-current
 ;
 forth-wordlist set-current
 
-internals set-current
-: exception-handler	[fake-variable] ;
-: exception-info [fake-variable] ;
-: line# [fake-variable] ;
-: file$ [fake-variable] ;
-forth-wordlist set-current
-
-0 exception-info !
-
 : cmove>																		\ \ STRING
   ?dup if
     		\ a1 a2 l --
@@ -761,15 +752,23 @@ internals set-current
 \
 \ ( for abort" the input-text is actually the abort" )
 
+: exception-handler	[fake-variable] ;
+: current-exception [fake-variable] ;
+0 current-exception !
+: size-exception-buffer [ SIZE_INPUT_BUFFER 5 cells + ] literal ;
+: exception-buffer here 2 + [ opRET c, size-exception-buffer allot ] ;
+: line# [fake-variable] ;
+: file$ [fake-variable] ;
+
 : >except
   ?dup if
-	exception-info @ if
+	current-exception @ if
 	  drop 
 	else
-	  here >r
+	  exception-buffer >r
   	  \ abort" is a special case, it already has a string at here that I need to move
 	  dup -2 = if
-		r@ count					\ except# c-addr u --
+		here count					\ except# c-addr u --
 		swap over					\ except# u c-addr u --
 		r@ 5 cells+ swap cmove>		\ except# u -- ; u is #tib
 		0 swap						\ code toin htib --
@@ -783,8 +782,8 @@ internals set-current
 	  r@ !
 
 	  file$ @ r@ 4 cells+ !
-	  line# @ r> 3 cells+ !
-	  1 exception-info !
+	  line# @ r@ 3 cells+ !
+	  r> current-exception !
     then
   then
 ;
@@ -809,16 +808,16 @@ internals set-current
 here ] . [ opRET c, parse-name .exception $find drop defer!
 
 : .except
-  exception-info @ if
-	0 exception-info !
-	here >r
+  current-exception @ if
+	current-exception @ >r
+	0 current-exception !
 
     r@ @ -2 = if
  	  cr ab" ctype 
  	  r@ 5 cells+ r@ 2 cells+ @ type 
       [char] " emit
     else
-      cr "ue" ctype here @ .exception 
+      cr "ue" ctype r@ @ .exception 
 	  cr r@ 5 cells+ r@ 2 cells+ @ type
 	  cr
 
