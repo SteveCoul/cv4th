@@ -1,4 +1,4 @@
-\ 15677
+\ 17054
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -18,7 +18,7 @@
 \ here																			\ \ CORE
 \ state																			\ \ CORE
 \ >in																			\ \ CORE
-\ base																			\ \ CORE
+\ base																			\ \ CORE	
 \ u<																			\ \ CORE
 \ rot																			\ \ CORE
 \ 2dup																			\ \ CORE
@@ -439,6 +439,11 @@ internals set-current
 : forget-locals [fake-defer] ;
 forth-wordlist set-current
 
+internals set-current
+: line# [fake-variable] ;
+: file$ [fake-variable] ;
+forth-wordlist set-current
+
 : exit end-locals opRET c, ; immediate											\ \ CORE
 
 : also																			\ \ SEARCH-ORDER
@@ -759,21 +764,19 @@ internals set-current
 \
 \ ( for abort" the input-text is actually the abort" )
 
-: exception-handler	[fake-variable] ;
-: current-exception [fake-variable] ;
-0 current-exception !
-: size-exception-buffer [ SIZE_INPUT_BUFFER 5 cells + ] literal ;
-: exception-buffer here 2 + [ opRET c, size-exception-buffer allot ] ;	\ TODO make this a vairable so I can
-																		\ move the var not the buffer on context switch
-: line# [fake-variable] ;
-: file$ [fake-variable] ;
+: #except [ SIZE_INPUT_BUFFER 5 cells + ] literal ;
+: {except} [ #except ] [fake-buffer] ; 0 {except} !
+
+\ These are task sensitive
+: exception-handler	[fake-variable] ;	0 exception-handler !
+: ^except [fake-variable] ;				{except} ^except !
 
 : >except
   ?dup if
-	current-exception @ if
+	^except @ @ if
 	  drop 
 	else
-	  exception-buffer >r
+	  ^except @ >r
   	  \ abort" is a special case, it already has a string at here that I need to move
 	  dup -2 = if
 		here count					\ except# c-addr u --
@@ -790,8 +793,7 @@ internals set-current
 	  r@ !
 
 	  file$ @ r@ 4 cells+ !
-	  line# @ r@ 3 cells+ !
-	  r> current-exception !
+	  line# @ r> 3 cells+ !
     then
   then
 ;
@@ -816,9 +818,8 @@ internals set-current
 here ] . [ opRET c, parse-name .exception $find drop defer!
 
 : .except
-  current-exception @ if
-	current-exception @ >r
-	0 current-exception !
+  ^except @ @ if
+	^except @ >r
 
     r@ @ -2 = if
  	  cr ab" ctype 
@@ -850,6 +851,7 @@ here ] . [ opRET c, parse-name .exception $find drop defer!
 	    then
  	then
 	r> drop
+	0 ^except @ !	\ clear code, we're done
   then
 ;
 
