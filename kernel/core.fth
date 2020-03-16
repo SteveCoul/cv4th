@@ -1294,8 +1294,9 @@ variable blk																	\ \ BLOCK
   then
 ;
 
-: align	;																		\ \ CORE
-: aligned ;																		\ \ CORE
+: aligned 1 cells 1- + 1 cells 1- invert and ;									\ \ CORE
+
+: align	A_HERE @ aligned A_HERE ! ;												\ \ CORE
 
 : save-input																	\ \ CORE-EXT
   line# @
