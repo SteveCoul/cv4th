@@ -756,7 +756,8 @@ internals set-current
 : current-exception [fake-variable] ;
 0 current-exception !
 : size-exception-buffer [ SIZE_INPUT_BUFFER 5 cells + ] literal ;
-: exception-buffer here 2 + [ opRET c, size-exception-buffer allot ] ;
+: exception-buffer here 2 + [ opRET c, size-exception-buffer allot ] ;	\ TODO make this a vairable so I can
+																		\ move the var not the buffer on context switch
 : line# [fake-variable] ;
 : file$ [fake-variable] ;
 
