@@ -411,6 +411,13 @@ internals set-current
   opCALL c, here 2 cells+ , 0 , opRFROM c,
 ; immediate
 
+: [fake-buffer]
+  opCALL c, 
+  dup here cell+ + , 
+  allot 
+  opRFROM c,
+; immediate
+
 : [fake-defer]	
   here 6 + 2 cells + opDOLIT c, ,	\ 0	
   opFETCH c,						\ 1 + cell 
@@ -2199,38 +2206,6 @@ forth-wordlist set-current
 
 \ ---------------------------------------------------------------------------------------------
 \
-\ ---------------------------------------------------------------------------------------------
-
-internals set-current
-
-wordlist constant wid-onboot
-
-: (onboot)
-  link>xt
-  ['] execute catch if cr ." Warning exceptions in boot code" then
-  true
-;
-
-: onboot
-  ['] (onboot) wid-onboot traverse-wordlist
-;
-
-' onboot A_SETUP !
-
-ext-wordlist set-current
-: onboot: 
-  get-current 
-  wid-onboot set-current 
-  : 
-;
-
-: onboot;
-  postpone ;
-  set-current
-; immediate
-
-\ ---------------------------------------------------------------------------------------------
-\
 \ Now we'll build a proper Forth interpreter and patch it in as entry point. 
 \
 \ ---------------------------------------------------------------------------------------------
@@ -2262,6 +2237,40 @@ forth-wordlist set-current
 ; 
 
 ' quit A_QUIT !	
+
+\ ---------------------------------------------------------------------------------------------
+\
+\ ---------------------------------------------------------------------------------------------
+
+internals set-current
+
+wordlist constant wid-onboot
+
+: (onboot)
+  link>xt
+  ['] execute catch if cr ." Warning exceptions in boot code" then
+  true
+;
+
+: onboot
+  ['] (onboot) wid-onboot traverse-wordlist
+  postpone [ prompt?
+;
+
+' onboot A_SETUP !
+
+ext-wordlist set-current
+: onboot: 
+  get-current 
+  wid-onboot set-current 
+  : 
+;
+
+: onboot;
+  postpone ;
+  set-current
+; immediate
+
 only forth definitions
 
 
