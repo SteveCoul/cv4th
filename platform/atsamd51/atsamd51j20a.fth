@@ -11,11 +11,12 @@ include platform/atsamd51/gpio.fth
 include kernel/block.fth
 include kernel/verbose_exceptions.fth
 include kernel/structure.fth
+include extra/ringbuffer.fth
 include extra/vi.fth
 include extra/toys.fth
 PIN_D5 env-constant I2C_SDA_PIN
 PIN_D6 env-constant I2C_SCL_PIN
-include extra/bitbang_i2c.fth
+include extra/Wire_bitbang.fth
 include extra/thread.fth
 
 ext-wordlist get-order 1+ set-order

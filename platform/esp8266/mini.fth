@@ -12,7 +12,7 @@ include platform/arduino/digital.fth
 
 PIN_D2 env-constant I2C_SDA_PIN
 PIN_D1 env-constant I2C_SCL_PIN
-include extra/bitbang_i2c.fth
+include extra/Wire_bitbang.fth
 
 ext-wordlist get-order 1+ set-order
 
