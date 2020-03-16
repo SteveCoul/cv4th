@@ -177,7 +177,10 @@ int refill( void ) {
 	WRITE_CELL( machine, A_HASH_TIB, 0 );
 	for (;;) {
 		char c;
-		if ( read( input, &c, 1 ) != 1 ) break;
+		if ( read( input, &c, 1 ) != 1 ) {
+			if ( input == STDIN_FILENO ) continue;
+			break;
+		}
 		if ( c != '\r' ) {
 			if ( input == STDIN_FILENO ) {
 				if ( write( input, &c, 1 ))
@@ -325,9 +328,9 @@ int main( int argc, char** argv ) {
 	constant( "A_RETURNSTACK", A_RETURNSTACK );
 	constant( "A_SIZE_RETURNSTACK", A_SIZE_RETURNSTACK );
 	constant( "A_DICTIONARY_SIZE", A_DICTIONARY_SIZE );
-	constant( "SIZE_INPUT_BUFFER", SIZE_INPUT_BUFFER );
-	constant( "SIZE_PICTURED_NUMERIC", SIZE_PICTURED_NUMERIC );
-	constant( "SIZE_ORDER", SIZE_ORDER );
+	constant( "/INPUT_BUFFER", SIZE_INPUT_BUFFER );
+	constant( "/PICTURED_NUMERIC", SIZE_PICTURED_NUMERIC );
+	constant( "/ORDER", SIZE_ORDER );
 	constant( "A_HERE", A_HERE );
 	constant( "A_QUIT", A_QUIT );
 	constant( "A_SETUP", A_SETUP );
