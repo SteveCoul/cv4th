@@ -56,6 +56,10 @@ ext-wordlist set-current
   i2c_delay !
 ;
 
+: Wire.reset				( -- )
+  end reset start start reset 
+;
+
 : Wire.begin				(  -- )
   reset
 ;
@@ -78,20 +82,37 @@ ext-wordlist set-current
   if end then
 ;
 
-: Wire.requestFrom			( i2c-address -- okay? )
-  start i2c_wait 7bit read_direction ack? 0=
+: Wire.requestFrom			( i2c-address count doend? -- num )
+  >r
+  dup #rxbuffer < if
+	rxbuffer RingBuffer.empty
+
+	\ todo - timeout / end detection
+	start i2c_wait swap 7bit read_direction ack? if
+	  drop
+	else
+	  begin		 ( count -- )
+	    ?dup
+      while
+   		read8 ack rxbuffer RingBuffer.push drop
+		1-
+	  repeat
+	then	
+
+    r> if end then
+	rxbuffer RingBuffer.available
+  else
+    2drop r> drop 0
+	1 abort" requestfrom too much"
+  then
 ;
  
-: Wire.reset				( -- )
-  end reset start start reset 
-;
-
 : Wire.read					( -- u )
-  read8 ack
+  rxbuffer RingBuffer.pop
 ;
 
-: Wire.doneRead
-  end
+: Wire.available			( -- n )
+  rxbuffer RingBuffer.available
 ;
 
 only forth definitions

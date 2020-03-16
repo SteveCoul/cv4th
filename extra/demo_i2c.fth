@@ -28,12 +28,13 @@ forth-wordlist ext-wordlist 2 set-order definitions
   0 Wire.sendByte drop
   true Wire.endTransmission
 
-  Wire.requestFrom 0= abort" Failed request from"
+  19 true Wire.requestFrom
+  19 <> abort" didn't get enough data"
 
   19 0 do
     Wire.read here i + c! 
   loop
-  Wire.doneRead
+
   here 18 dump
 
   here 0 + c@ cr ." Seconds " dup 4 rshift 15 and [char] 0 + emit 15 and [char] 0 + emit
@@ -60,8 +61,10 @@ forth-wordlist ext-wordlist 2 set-order definitions
   255 and Wire.sendByte drop
   true Wire.endTransmission
 
-  AT24C32_ADDRESS Wire.requestFrom if
-    Wire.read exit
+  AT24C32_ADDRESS 1 true Wire.requestFrom if
+    Wire.read 
+  else
+	-1
   then
 ;
 
