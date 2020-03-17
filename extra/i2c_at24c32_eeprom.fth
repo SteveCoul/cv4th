@@ -64,7 +64,7 @@ constant AT24C32_ADDRESS
   begin
     ?dup
   while
-    over c@ r@ eeprom! 1 ms
+    over c@ r@ eeprom! 
 	r> 1+ >r
     1 /string
   repeat
