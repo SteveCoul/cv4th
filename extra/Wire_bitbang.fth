@@ -115,7 +115,5 @@ ext-wordlist set-current
   rxbuffer RingBuffer.available
 ;
 
-onboot: cr ." init Wire" Wire.begin onboot;
-
 only forth definitions
 
