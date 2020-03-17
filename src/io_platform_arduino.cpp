@@ -144,7 +144,7 @@ ior_t wire_read( FileReference_t* priv, void* buffer, unsigned int length ) {
 		p[0] = Wire.read();
 		rc = IOR_OK;
 	} else {
-		rc = (ior_t)Wire.requestFrom( priv->integer, length, priv->flag );
+		rc = (ior_t)Wire.requestFrom( priv->integer, (int)length, (int)(priv->flag) );
 	}
 	return rc;
 }
