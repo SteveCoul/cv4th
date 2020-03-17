@@ -789,7 +789,7 @@ internals set-current
 		\ blocks are a little different the whole block is the input area
 		\ which won't fit when /INPUT_BUFFER is < 1k. So we're going to
 		\ manufacture the concept of 'current line' within the block
-		blk @ <> if
+		blk @ 0 > if
 			>in @ 6 rshift line# !	
 			>in @ 6 rshift 64 *	tib @ + r@ 5 cells + 64 cmove>
 			>in @ 63 and 64
