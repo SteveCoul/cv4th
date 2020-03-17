@@ -444,6 +444,8 @@ internals set-current
 : file$ [fake-variable] ;
 forth-wordlist set-current
 
+: blk [fake-variable] ;															\ \ BLOCK
+
 : exit end-locals opRET c, ; immediate											\ \ CORE
 
 : also																			\ \ SEARCH-ORDER
@@ -784,8 +786,17 @@ internals set-current
 		r@ 5 cells+ swap cmove>		\ except# u -- ; u is #tib
 		0 swap						\ code toin htib --
 	  else
-		tib @ r@ 5 cells+ #tib @ cmove>
-		>in @ #tib @
+		\ blocks are a little different the whole block is the input area
+		\ which won't fit when /INPUT_BUFFER is < 1k. So we're going to
+		\ manufacture the concept of 'current line' within the block
+		blk @ <> if
+			>in @ 6 rshift line# !	
+			>in @ 6 rshift 64 *	tib @ + r@ 5 cells + 64 cmove>
+			>in @ 63 and 64
+		else
+			tib @ r@ 5 cells+ #tib @ cmove>
+			>in @ #tib @
+		then
 	  then
 
 	  r@ 2 cells+ !
@@ -1251,8 +1262,6 @@ forth-wordlist set-current
 : 2constant create , , does> dup cell+ @ swap @ ;								\ \ DOUBLE
 : 2variable create 0 , 0 , ;													\ \ DOUBLE
 
-variable blk																	\ \ BLOCK
-
 \ See also the environment string for the size of this buffer
 84 buffer: pad																	\ \ CORE-EXT
 
@@ -1590,14 +1599,6 @@ forth-wordlist set-current
 
 : erase	0 fill ;																\ \ CORE-EXT
 
-: d0< 0 0 d< ;																	\ \ DOUBLE
-: s>d dup 1 1 cells 8 * 1- lshift and if -1 else 0 then ;						\ \ CORE
-: d>s drop ;																	\ \ DOUBLE
-: / >r s>d r> sm/rem nip ;														\ \ CORE		
-: mod >r s>d r> sm/rem drop ;	 												\ \ CORE
-: /mod >r s>d r> sm/rem ;														\ \ CORE
-: 2* 2 * ;																		\ \ CORE
-: 2/ 2 / ;																		\ \ CORE
 
 : max 2dup > if drop else nip then ;											\ \ CORE
 : min 2dup > if nip else drop then ;											\ \ CORE
@@ -1615,6 +1616,15 @@ forth-wordlist set-current
     r> drop
   then
 ;
+
+: d0< 0 0 d< ;																	\ \ DOUBLE
+: s>d dup 1 1 cells 8 * 1- lshift and if -1 else 0 then ;						\ \ CORE
+: d>s drop ;																	\ \ DOUBLE
+: / >r s>d r> sm/rem nip ;														\ \ CORE		
+: mod >r s>d r> sm/rem drop ;	 												\ \ CORE
+: /mod >r s>d r> sm/rem ;														\ \ CORE
+: 2* 2 * ;																		\ \ CORE
+: 2/ 2 / ;																		\ \ CORE
 
 : */  >r m* r> sm/rem nip ;														\ \ CORE
 : */mod >r m* r> sm/rem ;														\ \ CORE
