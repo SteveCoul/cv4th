@@ -1,12 +1,15 @@
 
-cr .( TODO finish me )
+internals ext-wordlist forth-wordlist 3 set-order 
 
-ext-wordlist forth-wordlist 2 set-order definitions
+S" SSD1306_ADDRESS" environment? 0= [IF]
+	cr .( SSD1306_ADDRESS not in environment ) abort [THEN]
+constant SSD1306_ADDRESS
 
-60 constant LCD_I2C
+[UNDEFINED] Wire.begin [IF]
+	cr .( No Wire implementation found ) abort
+[THEN]
 
-128 constant width
-64 constant height
+internals set-current
 
 here 
 hex
@@ -103,10 +106,17 @@ F8 c, 08 c, 00 c, F8 c, 00 c, 08 c, F8 c, 00 c, 03 c, 3C c, 07 c, 00 c, 07 c, 3C
 decimal
 constant font
 
-width height * 8 / buffer: display_memory
+ext-wordlist set-current
+128 constant lcd_width
+64 constant lcd_height
+internals set-current
+
+lcd_width lcd_height * 8 / buffer: display_memory
+0 value lcdx
+0 value lcdy
 
 : begindata
-  LCD_I2C Wire.BeginTransmission
+  SSD1306_ADDRESS Wire.BeginTransmission
   64 Wire.write drop
 ;
 
@@ -119,7 +129,7 @@ width height * 8 / buffer: display_memory
 ;
 
 : sendcommand
-  LCD_I2C Wire.BeginTransmission
+  SSD1306_ADDRESS Wire.BeginTransmission
   0 Wire.write drop
   Wire.write drop
   true Wire.endTransmission
@@ -162,16 +172,25 @@ decimal
 
 22 constant _PAGEADDR
 
+: drawchar	\ x y char --
+  32 - 16 * font +		( x y ptr-char -- )
+  rot 8 * rot 256 * + 
+  display_memory +	( ptr-char ptr-disp -- )
+  2dup 8 cmove>
+  128 + swap 8 + swap 8 cmove>
+;
+
+ext-wordlist set-current
 \ 32 is the minimum arduino i2c buffer size and
 \ is also the size used by the bigbang forth version
 \ I need space for command byte to so I'll just send
 \ 16 at a time
 
-: display
+: lcd-update
   \ should probably reset page address or whatever so we always start
   \ from beginning
   display_memory
-  width height * 8 / 0 do
+  lcd_width lcd_height * 8 / 0 do
      begindata
 	 16 0 do
 		 dup c@ senddata 1+
@@ -181,11 +200,33 @@ decimal
   drop
 ;
 
-: clear display_memory 1024 0 fill display ;
+: lcd-at-xy
+  to lcdy
+  to lcdx
+;
 
-: clearF display_memory 1024 255 fill display ;
+: lcd-emit 
+	dup 10 = if
+		drop
+		1 lcdy + to lcdy
+		0 to lcdx
+	else
+	  dup 32 > if
+		lcdx lcdy rot drawchar
+	  else 
+		drop lcdx lcdy bl drawchar
+	  then
+      1 lcdx + to lcdx
+    then
+;
 
-: setpixel		( x y -- )
+: lcd-type begin ?dup while over c@ lcd-emit 1 /string repeat drop ;
+
+: lcd-cr 10 lcd-emit ;
+
+: lcd-clear display_memory 1024 0 fill ;
+
+: lcd-setpixel		( x y -- )
   dup 8 / 128 *			( x y row-offset -- )
   rot +					( y offset -- )
   swap 7 and 1 swap lshift	( offset mask -- )
@@ -193,32 +234,11 @@ decimal
   dup c@ rot or swap c!	
 ;
 
-: drawchar	\ x y char --
-  32 - 16 * font +		( x y ptr-char -- )
-
-  rot 8 * rot 256 * + 
-  display_memory +	( ptr-char ptr-disp -- )
-  2dup 8 cmove>
-  128 + swap 8 + swap 8 cmove>
-;
-
-: drawline 	\ x y c-addr u --
-  0 ?do
-	dup c@		( x y c-addr c -- )
- 	3 pick 3 pick rot drawchar
-    1+ rot 1+ rot rot
-  loop
-  2drop drop
-;
-
-: lcd_init
+: lcd-init
   Wire.begin
   Wire.reset
   init
-  display_memory width height * 8 / 0 fill
-  0 0 S" Hello World" drawline
-  0 1 S" Looks like an" drawline
-  0 2 S" OLED to me" drawline
-  display
+  lcd-clear
+  lcd-update
 ;
 
