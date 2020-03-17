@@ -97,6 +97,14 @@ ext-wordlist set-current
 8 6 1 	as3935-write: >as3935-disp_srco
 8 7 1 	as3935-write: >as3935-disp_lco
 
+: as3935-preset_default
+  [ hex ] 96 3C [ decimal ] as3935! 
+;
+
+: as3935-calib_tco
+  [ hex ] 96 3D [ decimal ] as3935! 
+;
+
 : as3935-dump
   base @ >r
   hex

@@ -1,8 +1,6 @@
 
 ext-wordlist set-current
 
-2 constant LED_BUILTIN
-
  0 constant INPUT
  1 constant OUTPUT
  2 constant INPUT_PULLUP
