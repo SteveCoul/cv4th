@@ -107,11 +107,11 @@ width height * 8 / buffer: display_memory
 
 : begindata
   LCD_I2C Wire.BeginTransmission
-  64 Wire.sendByte drop
+  64 Wire.write drop
 ;
 
 : senddata
-  Wire.sendByte drop
+  Wire.write drop
 ;
 
 : enddata
@@ -120,8 +120,8 @@ width height * 8 / buffer: display_memory
 
 : sendcommand
   LCD_I2C Wire.BeginTransmission
-  0 Wire.sendByte drop
-  Wire.sendByte drop
+  0 Wire.write drop
+  Wire.write drop
   true Wire.endTransmission
 ;
 

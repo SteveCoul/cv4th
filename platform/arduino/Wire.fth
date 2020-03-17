@@ -42,7 +42,7 @@ ext-wordlist set-current
   130 0 wire_fd reposition-file drop
 ;
 
-: Wire.sendByte				( u -- 0|1 )
+: Wire.write				( u -- 0|1 )
   wire_tmp c!
   wire_tmp 1 wire_fd write-file 
 ;

@@ -12,17 +12,17 @@ constant DS3231_ADDRESS
 : ds3231_clear
   DS3231_ADDRESS
   Wire.beginTransmission
-  0 Wire.sendByte drop
-  0 Wire.sendByte drop
-  0 Wire.sendByte drop
-  0 Wire.sendByte drop
+  0 Wire.write drop
+  0 Wire.write drop
+  0 Wire.write drop
+  0 Wire.write drop
   true Wire.endTransmission
 ;
 
 : ds3231_dump
   DS3231_ADDRESS
   dup Wire.beginTransmission 
-  0 Wire.sendByte drop
+  0 Wire.write drop
   true Wire.endTransmission
 
   19 true Wire.requestFrom

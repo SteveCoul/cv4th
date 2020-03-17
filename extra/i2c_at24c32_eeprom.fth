@@ -12,8 +12,8 @@ constant AT24C32_ADDRESS
 
 : eeprom@
   AT24C32_ADDRESS Wire.beginTransmission 
-  dup 8 rshift 15 and Wire.sendByte drop
-  255 and Wire.sendByte drop
+  dup 8 rshift 15 and Wire.write drop
+  255 and Wire.write drop
   true Wire.endTransmission
 
   AT24C32_ADDRESS 1 true Wire.requestFrom if
@@ -25,9 +25,9 @@ constant AT24C32_ADDRESS
 
 : eeprom!
   AT24C32_ADDRESS Wire.beginTransmission 
-  dup 8 rshift 15 and Wire.sendByte drop
-  255 and Wire.sendByte drop
-  Wire.sendByte drop
+  dup 8 rshift 15 and Wire.write drop
+  255 and Wire.write drop
+  Wire.write drop
   true Wire.endTransmission
 ;
 

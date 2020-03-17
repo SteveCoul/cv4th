@@ -69,7 +69,7 @@ ext-wordlist set-current
   txbuffer RingBuffer.empty
 ;
 
-: Wire.sendByte				( u -- 0|1 )
+: Wire.write				( u -- 0|1 )
   txbuffer RingBuffer.push
 ;
 

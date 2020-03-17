@@ -15,3 +15,5 @@ CTCONST
 	which is my main consideration atm. ( since a literal
 	and a call are usually 1 byte opcode 2 bytes value anyhow )
 
+
+Wire		endTransmission is supposed to return a status
