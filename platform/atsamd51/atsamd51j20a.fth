@@ -23,9 +23,6 @@ include platform/arduino/Wire.fth
 
 include extra/thread.fth
 
-\ ext-wordlist get-order 1+ set-order
-\ include extra/demo_i2c.fth
-
 ext-wordlist get-order 1+ set-order
 87 env-constant AT24C32_ADDRESS
 include extra/i2c_at24c32_eeprom.fth

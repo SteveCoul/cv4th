@@ -17,8 +17,8 @@ include platform/arduino/Wire.fth
 
 ext-wordlist get-order 1+ set-order
 
-\ 3 env-constant AS3935_ADDRESS
-\ include extra/demo_i2c.fth
+3 env-constant AS3935_ADDRESS
+include extra/i2c_as3935_lightning_detector.fth
 
 include extra/i2c_ssd1306_lcd.fth
 
