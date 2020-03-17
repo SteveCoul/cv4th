@@ -1,5 +1,6 @@
 
 #include <Arduino.h>
+#include <Wire.h>
 
 #include "io_platform.h"
 
@@ -110,6 +111,111 @@ ioSubsystem io_digital = {	NULL,
 
 /* ********************************************************************************** *
  *
+ * Wire driver
+ *	
+ * ********************************************************************************** */
+
+static
+ior_t wire_open( const char* name, unsigned int mode, FileReference_t* priv ) {
+	Wire.begin();
+	return IOR_OK;
+}
+
+static
+ior_t wire_create( const char* name, unsigned int mode, FileReference_t* priv ) {
+	return IOR_UNKNOWN;
+}
+
+static
+ior_t wire_close( FileReference_t* priv ) {
+	return IOR_OK;
+}
+
+/**
+ *	read +ve amount performs a requestFrom for the given amount +ve
+ *
+ *	read 0 read and read next byte into buffer 
+ */
+static
+ior_t wire_read( FileReference_t* priv, void* buffer, unsigned int length ) {
+	ior_t rc;
+	if ( length == 0 ) {
+		unsigned char* p = (unsigned char*)buffer;
+		p[0] = Wire.read();
+		rc = IOR_OK;
+	} else {
+		rc = (ior_t)Wire.requestFrom( priv->integer, length, priv->flag );
+	}
+	return rc;
+}
+
+/**
+ *	write is used to send data bytes between begin/end transmission (the ior in this case
+ *  is num bytes written )
+ */
+static
+ior_t wire_write( FileReference_t* priv, void* buffer, unsigned int length ) {
+	unsigned char*p = (unsigned char*)buffer;
+	return (ior_t)Wire.write( p, length );
+}
+
+static ior_t wire_position( FileReference_t* priv, unsigned long int* position ) {
+	return IOR_UNKNOWN;
+}
+
+/**
+ *	fileSize returns availble Rx bytes
+ *
+ */
+static ior_t wire_size( FileReference_t* priv, unsigned long int* size ) {
+	size[0] = Wire.available();
+	return IOR_OK;
+}
+
+/**
+ * 	seek is used to configure/send commands
+ *	Seek 0..7F will set i2c address
+ *	seek 80 means 'dont send end after Tx/Rx'
+ *	Seek 81 means 'send end after Tx/Rx'
+ *  Seek 82 means 'begin transmission'
+ *	Seek 83 means 'endTransmission'
+ */
+static ior_t wire_seek( FileReference_t* priv, unsigned long int pos ) {
+	ior_t rc;
+	if ( ( pos >= 0 ) && ( pos <= 0x7F ) ) {
+		priv->integer = pos;
+		rc = IOR_OK;
+	} else if ( pos == 0x80 ) {
+		priv->flag = false;
+		rc = IOR_OK;
+	} else if ( pos == 0x81 ) {	
+		priv->flag = true;
+		rc = IOR_OK;
+	} else if ( pos == 0x82 ) {
+		Wire.beginTransmission( priv->integer );
+		rc = IOR_OK;
+	} else if ( pos == 0x83 ) {
+		Wire.endTransmission( priv->flag );
+		rc = IOR_OK;
+	} else {
+		rc = IOR_UNKNOWN;
+	}
+	return rc;
+}
+
+ioSubsystem io_wire = {	NULL,
+						"wire",
+						wire_open,
+						wire_create,
+						wire_close,
+						wire_read,
+						wire_write,
+						wire_position,
+						wire_size,
+						wire_seek };
+
+/* ********************************************************************************** *
+ *
  * ********************************************************************************** */
 
 int io_platform_init( void ) {
@@ -123,6 +229,7 @@ int io_platform_init( void ) {
 	}
 
 	ioRegister( &io_digital );
+	ioRegister( &io_wire );
 	return 0;
 }
 

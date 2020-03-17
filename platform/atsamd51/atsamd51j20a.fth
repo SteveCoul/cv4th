@@ -14,9 +14,13 @@ include kernel/structure.fth
 include extra/ringbuffer.fth
 include extra/vi.fth
 include extra/toys.fth
-PIN_D5 env-constant I2C_SDA_PIN
-PIN_D6 env-constant I2C_SCL_PIN
-include extra/Wire_bitbang.fth
+
+
+\ PIN_D5 env-constant I2C_SDA_PIN
+\ PIN_D6 env-constant I2C_SCL_PIN
+\ include extra/Wire_bitbang.fth
+include platform/arduino/Wire.fth
+
 include extra/thread.fth
 
 \ ext-wordlist get-order 1+ set-order
