@@ -1,4 +1,4 @@
-\ 17032
+\ 17142
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -404,6 +404,10 @@ forth-wordlist set-current
   repeat
   2drop
 ;
+
+: aligned 1 cells 1- + 1 cells 1- invert and ;									\ \ CORE
+
+: align	A_HERE @ aligned A_HERE ! ;												\ \ CORE
 
 internals set-current
 
@@ -1229,7 +1233,7 @@ internals set-current
   here cell+ 1+ ,
   opTOR c,				\ lit>r otherwise known as branch :-)
   opRET c,
-
+  align
   here swap !
 ;
 
@@ -1311,10 +1315,6 @@ forth-wordlist set-current
     ' defer@
   then
 ;
-
-: aligned 1 cells 1- + 1 cells 1- invert and ;									\ \ CORE
-
-: align	A_HERE @ aligned A_HERE ! ;												\ \ CORE
 
 : save-input																	\ \ CORE-EXT
   line# @
