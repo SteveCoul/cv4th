@@ -11,9 +11,23 @@
 
 internals get-order 1+ set-order
 
+begin-structure SystemContext
+	field: sc.IP
+	field: sc.DP
+	field: sc.RP
+	field: sc.LP
+	field: sc.DS
+	field: sc.RS
+end-structure
+
+begin-structure	ThreadContext
+	aligned SystemContext +field	tc.system
+	A_SIZE_DATASTACK	  +field	tc.ds
+	A_SIZE_RETURNSTACK	  +field	tc.rs
+end-structure
 
 3 constant max_threads
-max_threads context-size cells * buffer: threads
+max_threads ThreadContext * buffer: threads
 
 0 value num_threads
 0 value cur_thread
@@ -21,17 +35,17 @@ max_threads context-size cells * buffer: threads
 : .thread
   base @ >r
   cr ." Thread " dup .
-  cr ."   IP   " dup 0 cells + @ .
-  cr ."   DP   " dup 1 cells + @ .
-  cr ."   RP   " dup 2 cells + @ .
-  cr ."   LP   " dup 3 cells + @ .
-  cr ."   DS   " dup 4 cells + @ .
-  cr ."   RS   " dup 5 cells + @ .
+  cr ."   IP   " dup tc.system sc.IP @ .
+  cr ."   DP   " dup tc.system sc.DP @ .
+  cr ."   RP   " dup tc.system sc.RP @ .
+  cr ."   LP   " dup tc.system sc.LP @ .
+  cr ."   DS   " dup tc.system sc.DS @ .
+  cr ."   RS   " dup tc.system sc.RS @ .
   drop
   r> base !
 ;
 
-: .threads num_threads 0 ?do threads i context-size cells * + .thread loop ; 
+: .threads num_threads 0 ?do threads i ThreadContext * + .thread loop ; 
 
 : inc_cur
   1 cur_thread + to cur_thread
@@ -40,22 +54,22 @@ max_threads context-size cells * buffer: threads
 
 : schedule 
   num_threads if
-	threads cur_thread context-size cells * +
+	threads cur_thread ThreadContext * + tc.system
 	inc_cur
-	threads cur_thread context-size cells * +
+	threads cur_thread ThreadContext * + tc.system
 	swap
 	[ opCONTEXT_SWITCH c, ] 
   then
 ;
 
 : +thread	\ xt dstack rstack -- 
-  threads num_threads context-size cells * + >r
-  r@ 5 cells + !
-  r@ 4 cells + !
-  0 r@ 3 cells + !
-  0 r@ 2 cells + !
-  0 r@ 1 cells + !
-  r> !
+  threads num_threads ThreadContext * + >r
+  r@ tc.system sc.RS !
+  r@ tc.system sc.DS !
+  0 r@ tc.system sc.LP !
+  0 r@ tc.system sc.RP !
+  0 r@ tc.system sc.DP !
+  r> tc.system sc.IP !
   1 num_threads + to num_threads
 ;
 
