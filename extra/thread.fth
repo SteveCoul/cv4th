@@ -14,6 +14,7 @@ internals get-order 1+ set-order
 
 3 constant max_threads
 max_threads context-size cells * buffer: threads
+
 0 value num_threads
 0 value cur_thread
 
@@ -49,7 +50,6 @@ max_threads context-size cells * buffer: threads
 
 : +thread	\ xt dstack rstack -- 
   threads num_threads context-size cells * + >r
-  base @ r@ 6 cells + !
   r@ 5 cells + !
   r@ 4 cells + !
   0 r@ 3 cells + !
