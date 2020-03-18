@@ -22,8 +22,7 @@ end-structure
 
 begin-structure	ThreadContext
 	aligned SystemContext +field	tc.system
-	A_SIZE_DATASTACK	  +field	tc.ds
-	A_SIZE_RETURNSTACK	  +field	tc.rs
+	field: tc.base
 end-structure
 
 3 constant max_threads
@@ -41,6 +40,7 @@ max_threads ThreadContext * buffer: threads
   cr ."   LP   " dup tc.system sc.LP @ .
   cr ."   DS   " dup tc.system sc.DS @ .
   cr ."   RS   " dup tc.system sc.RS @ .
+  cr ."   Base " dup tc.base @ .
   drop
   r> base !
 ;
@@ -52,18 +52,28 @@ max_threads ThreadContext * buffer: threads
   cur_thread num_threads = if 0 to cur_thread then
 ;
 
+: (schedule)				\ next prev --
+  dup if
+	base @ over tc.base !
+  then
+
+  over tc.base @ base !
+  [ opCONTEXT_SWITCH c, ] 
+;
+
 : schedule 
   num_threads if
 	threads cur_thread ThreadContext * + tc.system
 	inc_cur
 	threads cur_thread ThreadContext * + tc.system
 	swap
-	[ opCONTEXT_SWITCH c, ] 
+    (schedule)
   then
 ;
 
-: +thread	\ xt dstack rstack -- 
+: +thread	\ xt ds rs -- 
   threads num_threads ThreadContext * + >r
+  base @ r@ tc.base !
   r@ tc.system sc.RS !
   r@ tc.system sc.DS !
   0 r@ tc.system sc.LP !
@@ -73,24 +83,24 @@ max_threads ThreadContext * buffer: threads
   1 num_threads + to num_threads
 ;
 
-variable threadone 
-variable trigger 0 trigger !
-: thread1 
-  cr ." Thread 1 start"
-  begin 
-    1 threadone +!  
-    schedule 
-    trigger @ 0 trigger ! ?dup if cr ." thread1 throwing" throw then
-  again 
-; 
+1024 buffer: ds
+1024 buffer: rs
+: thread begin schedule hex again ;
+' thread ds rs +thread
 
-1024 buffer: d1 1024 buffer: r1 
-' thread1 d1 r1 +thread
+variable boot-thread-context
 
 : boot
-  threads @ A_QUIT !	\ put quit vector back so if we same image it'll work again
+  boot-thread-context @ tc.system sc.IP @ A_QUIT !	\ put quit vector back so if we save image it'll work again
   ['] schedule is at-idle
-  threads 0 [ opCONTEXT_SWITCH c, ] 
+  boot-thread-context @ 0 
+  0 to cur_thread
+  begin
+    threads cur_thread ThreadContext * + boot-thread-context @ <>
+  while
+    1 cur_thread + to cur_thread
+  repeat
+  (schedule)
   cr cr ." How did we get here?" cr cr
 ;
 
@@ -98,9 +108,8 @@ internals ext-wordlist forth-wordlist 3 set-order
 
 onboot: kickoff 
   A_QUIT @ A_DATASTACK @ A_RETURNSTACK @ +thread
+  threads num_threads 1- ThreadContext * + boot-thread-context !
   ['] boot A_QUIT !
 onboot;
-
-
 
 
