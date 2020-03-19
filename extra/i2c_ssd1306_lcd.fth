@@ -1,6 +1,8 @@
 
 internals ext-wordlist forth-wordlist 3 set-order 
 
+ext-wordlist set-current
+
 S" SSD1306_ADDRESS" environment? 0= [IF]
 	cr .( SSD1306_ADDRESS not in environment ) abort [THEN]
 constant SSD1306_ADDRESS

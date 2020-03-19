@@ -2,6 +2,8 @@
 only forth definitions
 internals ext-wordlist get-order 2 + set-order
 
+internals set-current
+
 variable last-word 
 variable line-counter
 variable total-s
@@ -42,6 +44,7 @@ variable print-over
   total-s @ cr . ."  bytes total, " header-s @ . ."  used for headers and " code-s @ . ."  for code"
 ;
 
+ext-wordlist set-current
 
 : size-words-over
   print-over !
@@ -64,7 +67,10 @@ variable print-over
 	r> [literal]
 ; immediate
 
+internals set-current
 : (size-includes) cr dup link>xt execute 10 .r space name>string type true ;
+
+ext-wordlist set-current
 : size-includes
   ['] (size-includes) wid-files traverse-wordlist
 ;
