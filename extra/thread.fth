@@ -97,7 +97,7 @@ internals set-current
     r@ sc.DS !
     r> sc.RS !
 
-	base @ r@ tc.base !
+	10 r@ tc.base !
 	thread_list @ r@ tc.link !
 	r> thread_list !
 ;
