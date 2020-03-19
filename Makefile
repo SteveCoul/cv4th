@@ -54,6 +54,7 @@ ALL_FORTH=platform/*.fth extra/*.fth kernel/*.fth platform/*/*.fth
 all::
 
 clean:
+	rm -f *.log
 	rm -rf arduino
 	rm -f *.o
 	rm -f *.img
@@ -182,7 +183,9 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../src/io_platform.c arduino/io_platform.cpp
 	echo "all:" > arduino/Makefile
 	echo "\tarduino-cli compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. \"" >> arduino/Makefile
+ifeq ($(NO_UPLOAD),)
 	echo "\tarduino-cli upload -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
+endif
 	ln -s ../src/runner.c arduino/arduino.ino
 
 all:: arduino_build_tree
