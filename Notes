@@ -17,3 +17,9 @@ CTCONST
 
 
 Wire		endTransmission is supposed to return a status
+
+Threads		When I have start/stop implemented, I need a deferred 
+			hook into marker so I can trim threads. For each
+			thread in range, schedule, until it becomes the non
+			active thread, remove from list. Then the marker code
+			can clean up
