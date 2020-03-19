@@ -56,17 +56,6 @@ ext-wordlist set-current
   (size-words)
 ;
 
-: z" 
-	postpone AHEAD
-	[char] " parse
-	here >r
-	dup 1+ allot
-	dup r@ + 0 swap c!
-    r@ swap move
-	postpone then
-	r> [literal]
-; immediate
-
 internals set-current
 : (size-includes) cr dup link>xt execute 10 .r space name>string type true ;
 
