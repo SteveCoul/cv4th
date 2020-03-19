@@ -3,37 +3,48 @@ CFLAGS=-Wall -Wpedantic -Werror -Os
 
 # #############################
 
+ifeq ($(TARGET),host)
 # need to stay under 64k for 16 bit builds
 DICTIONARY_SIZE=60
 FORTH_PLATFORM=platform/nix.fth
 HOST_PLATFORM=y
-
-#ARDUINO_PLATFORM?="esp8266:esp8266:d1"
-#ARDUINO_PORT?="/dev/cu.usbserial-20"
-#ARDUINO_FLAGS?="-DXIP"
-#DICTIONARY_SIZE=40
-#ALIGNMENT_FLAGS=-a
-#ENDIAN_FLAGS=
-#PAD_IMAGE=y
-#FORTH_PLATFORM=platform/esp8266/mini.fth
-
-#ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-#ARDUINO_PORT?="/dev/cu.usbmodem201" 
-#ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
-#DICTIONARY_SIZE=128
-#ALIGNMENT_FLAGS=-a
-#ENDIAN_FLAGS=
-#PAD_IMAGE=n
-#FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
-
-#ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
-#ARDUINO_PORT?="/dev/cu.usbmodem201" 
-#ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
-#DICTIONARY_SIZE=24
-#ALIGNMENT_FLAGS=-a
-#ENDIAN_FLAGS=
-#PAD_IMAGE=n
-#FORTH_PLATFORM=platform/atsamd21/atsamd21g18.fth
+else 
+ifeq ($(TARGET),mini)
+ARDUINO_PLATFORM?="esp8266:esp8266:d1"
+ARDUINO_PORT?="/dev/cu.usbserial-20"
+ARDUINO_FLAGS?="-DXIP"
+DICTIONARY_SIZE=40
+ALIGNMENT_FLAGS=-a
+ENDIAN_FLAGS=
+PAD_IMAGE=y
+FORTH_PLATFORM=platform/esp8266/mini.fth
+else 
+ifeq ($(TARGET),samd51)
+ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
+ARDUINO_PORT?="/dev/cu.usbmodem201" 
+ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
+DICTIONARY_SIZE=128
+ALIGNMENT_FLAGS=-a
+ENDIAN_FLAGS=
+PAD_IMAGE=n
+FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
+else 
+ifeq ($(TARGET),samd21)
+ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+ARDUINO_PORT?="/dev/cu.usbmodem201" 
+ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
+DICTIONARY_SIZE=24
+ALIGNMENT_FLAGS=-a
+ENDIAN_FLAGS=
+PAD_IMAGE=n
+FORTH_PLATFORM=platform/atsamd21/atsamd21g18.fth
+else
+fail-target:
+	@echo no TARGET set
+endif
+endif 
+endif
+endif
 
 # #############################
 ALL_FORTH=platform/*.fth extra/*.fth kernel/*.fth platform/*/*.fth
