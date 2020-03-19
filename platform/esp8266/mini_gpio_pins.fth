@@ -1,4 +1,5 @@
 
+ext-wordlist get-order 1+ set-order
 ext-wordlist set-current
 
 16 constant PIN_D0
