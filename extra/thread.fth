@@ -1,4 +1,7 @@
 
+forth-wordlist ext-wordlist internals 3 set-order
+internals set-current
+
 (
 	system-context:
 			instruction-pointer
@@ -8,8 +11,6 @@
 			datastack-base
 			returnstack-base
 )
-
-internals get-order 1+ set-order
 
 begin-structure SystemContext
 	field: sc.IP
@@ -23,17 +24,19 @@ end-structure
 begin-structure	ThreadContext
 	aligned SystemContext +field	tc.system
 	field: tc.base
+	field: tc.link
 end-structure
 
-3 constant max_threads
-max_threads ThreadContext * buffer: threads
+variable thread_list 0 thread_list !
 
-0 value num_threads
-0 value cur_thread
+0 value cthread
+
+ext-wordlist set-current
 
 : .thread
   base @ >r
   cr ." Thread " dup .
+  dup cthread = if ."  (Current)" then
   cr ."   IP   " dup tc.system sc.IP @ .
   cr ."   DP   " dup tc.system sc.DP @ .
   cr ."   RP   " dup tc.system sc.RP @ .
@@ -41,16 +44,22 @@ max_threads ThreadContext * buffer: threads
   cr ."   DS   " dup tc.system sc.DS @ .
   cr ."   RS   " dup tc.system sc.RS @ .
   cr ."   Base " dup tc.base @ .
+  cr ."   Link " dup tc.link @ .
   drop
   r> base !
 ;
 
-: .threads num_threads 0 ?do threads i ThreadContext * + .thread loop ; 
-
-: inc_cur
-  1 cur_thread + to cur_thread
-  cur_thread num_threads = if 0 to cur_thread then
+: .threads
+  thread_list @
+  begin
+    ?dup
+  while
+	dup .thread
+	tc.link @
+  repeat
 ;
+
+internals set-current
 
 : (schedule)				\ next prev --
   dup if
@@ -61,55 +70,65 @@ max_threads ThreadContext * buffer: threads
   [ opCONTEXT_SWITCH c, ] 
 ;
 
+ext-wordlist set-current
+
 : schedule 
-  num_threads if
-	threads cur_thread ThreadContext * + tc.system
-	inc_cur
-	threads cur_thread ThreadContext * + tc.system
-	swap
-    (schedule)
-  then
+  cthread tc.system
+  cthread tc.link @ ?dup if to cthread else thread_list @ to cthread then
+  cthread tc.system 
+  swap (schedule)
 ;
 
-: +thread	\ xt ds rs -- 
-  threads num_threads ThreadContext * + >r
-  base @ r@ tc.base !
-  r@ tc.system sc.RS !
-  r@ tc.system sc.DS !
-  0 r@ tc.system sc.LP !
-  0 r@ tc.system sc.RP !
-  0 r@ tc.system sc.DP !
-  r> tc.system sc.IP !
-  1 num_threads + to num_threads
+internals set-current
+
+: (thread:)		( xt ds rs -- )
+  create
+	here >r
+	ThreadContext allot
+	dup 0= if drop here A_SIZE_RETURNSTACK @ cells allot then
+	over 0= if nip here A_SIZE_DATASTACK @ cells allot swap then
+	( xt rs ds -- : R: context^ -- )
+	r@ tc.system >r
+	( xt rs ds -- R: context^ syscontext^ -- )
+	rot r@ sc.IP !
+	0 r@ sc.DP !
+	0 r@ sc.RP !
+	0 r@ sc.LP !
+    r@ sc.DS !
+    r> sc.RS !
+
+	base @ r@ tc.base !
+	thread_list @ r@ tc.link !
+	r> thread_list !
 ;
 
-1024 buffer: ds
-1024 buffer: rs
-: thread begin schedule hex again ;
-' thread ds rs +thread
+ext-wordlist set-current
 
-variable boot-thread-context
+: thread:		( xt -- )
+  0 0 (thread:)
+;
+
+0 A_DATASTACK @ A_RETURNSTACK @ (thread:) main-thread
+
+internals set-current
 
 : boot
-  boot-thread-context @ tc.system sc.IP @ A_QUIT !	\ put quit vector back so if we save image it'll work again
-  ['] schedule is at-idle
-  boot-thread-context @ 0 
-  0 to cur_thread
-  begin
-    threads cur_thread ThreadContext * + boot-thread-context @ <>
-  while
-    1 cur_thread + to cur_thread
-  repeat
-  (schedule)
+  \ Get the QUIT vector out of main thread that we stored during boot setup
+  \ to trigger this word and put it back so if I save an image it'll do the
+  \ same thing again
+  main-thread tc.system sc.IP @ A_QUIT !
+  main-thread to cthread					\ make this thread current
+  ['] schedule is at-idle					\ enable idle scheduler
+  main-thread 0 (schedule)								\ and off we go
   cr cr ." How did we get here?" cr cr
 ;
 
 internals ext-wordlist forth-wordlist 3 set-order 
 
 onboot: kickoff 
-  A_QUIT @ A_DATASTACK @ A_RETURNSTACK @ +thread
-  threads num_threads 1- ThreadContext * + boot-thread-context !
+  A_QUIT @ main-thread tc.system sc.IP !
   ['] boot A_QUIT !
 onboot;
 
+only forth definitions
 
