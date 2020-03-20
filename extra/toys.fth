@@ -66,3 +66,32 @@ ext-wordlist set-current
   ['] (size-includes) wid-files traverse-wordlist
 ;
 
+: device-dump		\ a-addr len --													
+  base @ >r hex
+  over +	
+
+  begin			\ ptr end --
+	2dup <
+  while
+    cr
+    over .8 ." : "
+
+	16 0 do	
+		over i + over < if over i + 0 d8@ .2 bl emit else 3 spaces then
+		i 7 = if space then
+	loop
+
+	[char] | emit space
+
+	16 0 do
+	    over i + over < if over i + 0 d8@ aschar emit then
+	loop
+
+    swap 16 + swap 
+  repeat
+  2drop
+  cr
+  r> base !
+;
+
+
