@@ -1357,7 +1357,8 @@ ext-wordlist set-current
 : toupper dup islower if 32 - then ;
 forth-wordlist set-current
 
-: >number		\ ud c-addr u -- ud c-addr u									\ \ CORE
+internals set-current
+: (>number)		\ ud c-addr u -- ud c-addr u									
 	begin
 		dup 0= if exit then
 		over c@ toupper
@@ -1380,6 +1381,23 @@ forth-wordlist set-current
 		r> 
 		r> 
 	0 until
+;
+
+forth-wordlist set-current
+
+: >number		\ ud c-addr u -- ud c-addr u									\ \ CORE
+  dup 2 > if
+    over c@ [char] 0 = if
+	  over 1+ c@ toupper [char] X = if
+		base @ >r
+		2 /string
+		hex (>number)
+		r> base !
+		exit
+	  then
+    then
+  then
+  (>number)
 ;
 
 : 2literal swap postpone literal postpone literal ; immediate					\ \ DOUBLE
