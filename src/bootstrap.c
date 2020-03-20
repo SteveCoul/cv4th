@@ -379,6 +379,7 @@ int main( int argc, char** argv ) {
 	opword( opDUP, "dup" );
 	opword( opPICK, "pick" );
     opword( opDMINUS, "d-" );
+	opword( opEXECUTE, "execute" );
 	opword( opFETCH, "@" );
 	opword( opEQUALS, "=" );
 	opword( opSTORE, "!" );
@@ -422,9 +423,6 @@ int main( int argc, char** argv ) {
 		exit(0);
 	}
 
-	// DO NOT embed opcode for execute or we can't run it from the bootstrap interpreter ( I think? maybe try one day )
-	lay_header( opNONE, "execute" );
-	c_comma( opEXECUTE ); c_comma( opRET );
 	// Do not make the r> >r r@ words here because compiling the opcode behavior as above doesn't work if you ' execute etc.
 	// ditto 2r> 2>r 2r@
 
