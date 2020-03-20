@@ -11,7 +11,6 @@ HOST_PLATFORM=y
 else 
 ifeq ($(TARGET),mini)
 ARDUINO_PLATFORM?="esp8266:esp8266:d1"
-ARDUINO_PORT?="/dev/cu.usbserial-20"
 ARDUINO_FLAGS?="-DXIP"
 DICTIONARY_SIZE=40
 ALIGNMENT_FLAGS=-a
@@ -21,7 +20,6 @@ FORTH_PLATFORM=platform/esp8266/mini.fth
 else 
 ifeq ($(TARGET),samd51)
 ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-ARDUINO_PORT?="/dev/cu.usbmodem201" 
 ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
 DICTIONARY_SIZE=128
 ALIGNMENT_FLAGS=-a
@@ -31,7 +29,6 @@ FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
 else 
 ifeq ($(TARGET),samd21)
 ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
-ARDUINO_PORT?="/dev/cu.usbmodem201" 
 ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
 DICTIONARY_SIZE=24
 ALIGNMENT_FLAGS=-a
@@ -164,6 +161,9 @@ all:: forth_platform.img.c
 
 ifneq ($(ARDUINO_PLATFORM),)
 
+ARDUINO_PORT=$(shell arduino-cli board list | grep $(ARDUINO_PLATFORM) | cut -d ' ' -f 1)
+ARDUINO_CLI=$(shell which arduino-cli)
+
 arduino_build_tree: forth_platform.img.c
 	rm -rf arduino
 	mkdir arduino
@@ -181,15 +181,15 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../inc/opcode.h arduino/opcode.h
 	ln -s ../src/io_platform_arduino.cpp arduino/io_platform_arduino.cpp
 	ln -s ../src/io_platform.c arduino/io_platform.cpp
-	echo "all:" > arduino/Makefile
-	echo "\tarduino-cli compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. \"" >> arduino/Makefile
+	echo "all:" >> arduino/Makefile
+	echo "\t$(ARDUINO_CLI) compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. \"" >> arduino/Makefile
 ifeq ($(NO_UPLOAD),)
-	echo "\tarduino-cli upload -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
+	echo "\t$(ARDUINO_CLI) upload -b $(ARDUINO_PLATFORM) -p $(ARDUINO_PORT)" >> arduino/Makefile
 endif
 	ln -s ../src/runner.c arduino/arduino.ino
 
 all:: arduino_build_tree
-	make -C arduino
+	PATH=~/Applications/Arduino.app/$$PATH make -C arduino
 
 endif
 
