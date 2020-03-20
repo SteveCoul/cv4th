@@ -65,7 +65,7 @@ forth-wordlist set-current
 
 : ms			( ms -- )
   rtcTicksPerSecond * 1000 / 
-  rtc@ + begin dup rtc@ < until drop
+  rtc@ + begin at-idle dup rtc@ < until drop
 ;
 
 only forth definitions
