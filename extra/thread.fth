@@ -1,8 +1,21 @@
 
+( MultiThreading support cooperative scheduler 
+
+  All threads must call 'schedule' as often as possible.
+
+  - Only one thread should access pictured numeric buffer.
+  - PAD is not thread safe.
+  - Only one thread should perform any dictionary operations.
+  - Invoking a MARKER which removes a thread definition will blow up.
+
+)
+
 forth-wordlist ext-wordlist internals 3 set-order
 internals set-current
 
-(
+( The system context is defined in the virtual machine and is
+  swapped with the opCONTEXT opcode between two threads.
+
 	system-context:
 			instruction-pointer
 			datastack-pointer
@@ -38,7 +51,7 @@ variable thread_list 0 thread_list !
 
 ext-wordlist set-current
 
-: .thread
+: .thread		( thread -- )
   base @ >r
   cr ." Thread " dup .
   dup cthread = if ."  (Current)" then

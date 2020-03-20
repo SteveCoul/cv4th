@@ -1,4 +1,6 @@
 
+( Generic ring buffer API )
+
 ext-wordlist forth-wordlist internals 3 set-order definitions
 
 : RingBuffer.inc		\ rb-addr offset --

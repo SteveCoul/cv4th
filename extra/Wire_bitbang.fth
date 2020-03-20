@@ -1,4 +1,6 @@
 
+( Software implementation of I2C protocol implement our Wire wordset )
+
 require extra/ringbuffer.fth
 
 ext-wordlist forth-wordlist internals 3 set-order definitions             
