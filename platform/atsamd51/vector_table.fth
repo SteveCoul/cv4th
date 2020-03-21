@@ -1,6 +1,8 @@
 
 ( I am assuming 32bit - better ensure )
 
+require extra/thread.fth
+
 internals ext-wordlist forth-wordlist 3 set-order 
 
 internals set-current
@@ -138,6 +140,56 @@ decimal
 
 forth-wordlist set-current
 
+defer EXTINT0	:noname cr ." EXTINT0 invoked " ; is EXTINT0
+defer EXTINT1	:noname cr ." EXTINT1 invoked " ; is EXTINT1
+defer EXTINT2	:noname cr ." EXTINT2 invoked " ; is EXTINT2
+defer EXTINT3	:noname cr ." EXTINT3 invoked " ; is EXTINT3
+defer EXTINT4	:noname cr ." EXTINT4 invoked " ; is EXTINT4
+defer EXTINT5	:noname cr ." EXTINT5 invoked " ; is EXTINT5
+defer EXTINT6	:noname cr ." EXTINT6 invoked " ; is EXTINT6
+defer EXTINT7	:noname cr ." EXTINT7 invoked " ; is EXTINT7
+defer EXTINT8	:noname cr ." EXTINT8 invoked " ; is EXTINT8
+defer EXTINT9	:noname cr ." EXTINT9 invoked " ; is EXTINT9
+defer EXTINT10	:noname cr ." EXTINT10 invoked " ; is EXTINT10
+defer EXTINT11	:noname cr ." EXTINT11 invoked " ; is EXTINT11
+defer EXTINT12	:noname cr ." EXTINT12 invoked " ; is EXTINT12
+defer EXTINT13	:noname cr ." EXTINT13 invoked " ; is EXTINT13
+defer EXTINT14	:noname cr ." EXTINT14 invoked " ; is EXTINT14
+defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
+
+: (poll-interrupts)
+  isr_events @ ?dup if
+   dup 1 and if EXTINT0 then
+   dup 2 and if EXTINT1 then
+   dup 4 and if EXTINT2 then
+   dup 8 and if EXTINT3 then
+   dup 16 and if EXTINT4 then
+   dup 32 and if EXTINT5 then
+   dup 64 and if EXTINT6 then
+   dup 128 and if EXTINT7 then
+   dup 256 and if EXTINT8 then
+   dup 512 and if EXTINT9 then
+   dup 1024 and if EXTINT10 then
+   dup 2048 and if EXTINT11 then
+   dup 4096 and if EXTINT12 then
+   dup 8192 and if EXTINT13 then
+   dup 16384 and if EXTINT14 then
+   dup 32768 and if EXTINT15 then
+   drop 0 isr_events !
+  then
+  schedule
+;
+
+: interrupt-count	( n --  v )
+  cells isr_counts + @
+;
+
+: poll-interrupts
+  begin ['] (poll-interrupts) catch >except .except again
+;
+
+' poll-interrupts thread: poll-interrupt-thread
+
 : initInterrupts
   \ clear count fields for each isr
   isr_counts num-isrs cells 0 fill
@@ -155,15 +207,6 @@ forth-wordlist set-current
 	my-vector-table EXTINT_IRQ0 cells + i cells + !
   loop
   my-vector-table >vtor
-;
-
-: showInterrupts
-  base @ >r
-  cr ." events " 2 base ! isr_events @ 0 <# # # # # # # # # # # # # # # # # #> type 
-  r> base !
-  num-isrs 0 ?do
-	cr i 2 .r [char] : emit space isr_counts i cells + @ .
-  loop
 ;
 
 ( 
