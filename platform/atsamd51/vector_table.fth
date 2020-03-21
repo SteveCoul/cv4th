@@ -202,10 +202,10 @@ defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
 	
   copy-vectors
 
-\  num-isrs 0 ?do
-\	isrs i size-isr-routine * + rel>abs drop 1+ 
-\	my-vector-table EXTINT_IRQ0 cells + i cells + !
-\  loop
+  num-isrs 0 ?do
+	isrs i size-isr-routine * + rel>abs drop 1+ 
+	my-vector-table EXTINT_IRQ0 cells + i cells + !
+  loop
 
   my-vector-table >vtor
 ;
