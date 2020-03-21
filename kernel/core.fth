@@ -2278,6 +2278,7 @@ internals set-current
 wordlist constant wid-onboot
 
 : (onboot)
+  cr ." onboot: " dup link>name ctype
   link>xt
   ['] execute catch if cr ." Warning exceptions in boot code" then
   true
