@@ -138,7 +138,7 @@ constant my-vector-table-storage
 ;
 decimal
 
-forth-wordlist set-current
+ext-wordlist set-current
 
 defer EXTINT0	:noname cr ." EXTINT0 invoked " ; is EXTINT0
 defer EXTINT1	:noname cr ." EXTINT1 invoked " ; is EXTINT1
@@ -208,6 +208,10 @@ defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
   loop
   my-vector-table >vtor
 ;
+
+onboot: newVectorTable
+	initInterrupts
+onboot;
 
 ( 
 
