@@ -9,6 +9,20 @@ constant DS3231_ADDRESS
 	cr .( No Wire implementation found ) abort
 [THEN]
 
+: ds3231@
+  DS3231_ADDRESS Wire.beginTransmission
+    Wire.write drop
+  true Wire.endTransmission
+  DS3231_ADDRESS 1 true Wire.requestFrom 1 <> if -1 else Wire.read then
+;
+ 
+: ds3231!
+  DS3231_ADDRESS Wire.beginTransmission
+    Wire.write drop
+    Wire.write drop
+  true Wire.endTransmission
+;
+ 
 : ds3231_clear
   DS3231_ADDRESS
   Wire.beginTransmission
