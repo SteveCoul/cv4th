@@ -210,7 +210,7 @@ defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
 ;
 
 onboot: newVectorTable
-	initInterrupts
+\	initInterrupts
 onboot;
 
 ( 
