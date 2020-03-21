@@ -10,6 +10,8 @@
 
 )
 
+require kernel/structure.fth
+
 forth-wordlist ext-wordlist internals 3 set-order
 internals set-current
 
