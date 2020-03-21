@@ -217,6 +217,10 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		opcode = GET_BYTE( machine, IP ); IP++;
 
 		switch( opcode ) {
+		/* debug */
+		case opDEBUG:
+			io_platform_println_term("DEBUG opcode invoked - no action");
+			break;
 		/* threading */
 		case opCONTEXT_SWITCH:					/* new old -- */
 			/* warning, if runmode = 0 we came from the bootstrap and you cannot multithread there */

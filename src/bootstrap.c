@@ -439,6 +439,7 @@ int main( int argc, char** argv ) {
 
 	internals_definitions();
 	opconstant( opNONE );
+	opconstant( opDEBUG );
 	opconst_db( opD8FETCH );
 	opconst_db( opD16FETCH );
 	opconst_db( opD32FETCH );

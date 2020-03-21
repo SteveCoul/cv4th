@@ -161,8 +161,8 @@ all:: forth_platform.img.c
 
 ifneq ($(ARDUINO_PLATFORM),)
 
-ARDUINO_PORT=$(shell arduino-cli board list | grep $(ARDUINO_PLATFORM) | cut -d ' ' -f 1)
 ARDUINO_CLI=$(shell which arduino-cli)
+ARDUINO_PORT=$(shell $(ARDUINO_CLI) board list | grep $(ARDUINO_PLATFORM) | cut -d ' ' -f 1)
 
 arduino_build_tree: forth_platform.img.c
 	rm -rf arduino
