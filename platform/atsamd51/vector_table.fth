@@ -10,7 +10,7 @@ internals set-current
 hex
 E000ED08 constant SCB-VTOR
 
-40002800 14 + constant EIC-INTFLAG
+40002800 14 + constant EIC-INTFLAG		\ TODO get this from the eit.fth cortexm4 file
 
 1C constant EXTINT_IRQ0
 
