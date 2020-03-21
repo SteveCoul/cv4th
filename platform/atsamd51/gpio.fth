@@ -34,22 +34,22 @@ internals set-current
 ;
 
 : enableInput		( n -- )
-  pinToIndexAndPort swap PORT_PINCFGn + + s>d	( ad-addr -- )
+  pinToIndexAndPort swap PORT_PINCFGn + s>d	( ad-addr -- )
   2dup d8@ 2 or rot rot d8!
 ;
 
 : disableInput		( n -- )
-  pinToIndexAndPort swap PORT_PINCFGn + + s>d	( ad-addr -- )
+  pinToIndexAndPort swap PORT_PINCFGn + s>d	( ad-addr -- )
   2dup d8@ 2 invert and rot rot d8!
 ;
 
 : enablePull		( n -- )
-  pinToIndexAndPort swap PORT_PINCFGn + + s>d	( ad-addr -- )
+  pinToIndexAndPort swap PORT_PINCFGn + s>d	( ad-addr -- )
   2dup d8@ 4 or rot rot d8!
 ;
 
 : disablePull		( n -- )
-  pinToIndexAndPort swap PORT_PINCFGn + + s>d	( ad-addr -- )
+  pinToIndexAndPort swap PORT_PINCFGn + s>d	( ad-addr -- )
   2dup d8@ 4 invert and rot rot d8!
 ;
 
@@ -92,12 +92,14 @@ PIN_D13 constant LED_BUILTIN
  0 constant LOW
 
 : pinMode		( pin mode -- )
+  swap >r
   case
-	OUTPUT of swap makeOutput endof
-	INPUT  of swap dup makeInput disablePull endof
-	INPUT_PULLUP of swap dup makeInput dup enablePull setHigh endof
-    swap drop
+	OUTPUT of r@ makeOutput r@ enableInput endof
+	INPUT  of R@ makeInput r@ disablePull endof
+	INPUT_PULLUP of r@ makeInput r@ enablePull r@ setHigh endof
+	\ INPUT_PULLDOWN of r@ makeInput r@ enablePull r@ setLow endof
   endcase
+  r> drop
 ;
 
 : writeDigital	( pin level -- )
