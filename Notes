@@ -23,3 +23,11 @@ Threads		When I have start/stop implemented, I need a deferred
 			thread in range, schedule, until it becomes the non
 			active thread, remove from list. Then the marker code
 			can clean up
+
+			Consider an autoscheduler in the VM itself so I can
+			stop calling (schedule). In some cases it's nice to
+			have control, but in others perhaps not.
+
+			I would do this by periodically injecting (schedule)
+			onto the return stack after an opRET opcode.
+
