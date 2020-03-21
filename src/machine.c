@@ -262,6 +262,22 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			}	
 			break;
 		/* device access. Note addresses are 2 cells! */
+		case opREL2ABS:
+			{
+				uint8_t* ptr = (uint8_t*)(machine->memory);
+				ATHROW( DP<1, ;, -4 );
+				tmp = datastack[ DP-1 ];
+				DP--;
+				tmp = tmp + (uint32_t)ptr;
+#ifdef VM_16BIT
+				DP++; datastack[ DP -1 ] = ( tmp & 65535 );
+				DP++; datastack[ DP -1 ] = ( tmp >> 16 ) & 65535;
+#else
+				DP++; datastack[ DP -1 ] = tmp;
+				DP++; datastack[ DP -1 ] = 0;
+#endif
+			}
+			break;
 		case opD8FETCH:
 			ATHROW( DP<2, ;, -4 );
 			{

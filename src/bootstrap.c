@@ -411,6 +411,7 @@ int main( int argc, char** argv ) {
 	opword( opD8STORE, "d8!" );
 	opword( opD16STORE, "d16!" );
 	opword( opD32STORE, "d32!" );
+	opword( opREL2ABS, "rel>abs" );
 
 	forth_definitions();
 	lay_header( opNONE, "cells" );
