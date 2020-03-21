@@ -23,11 +23,11 @@ variable isr_events
 num-isrs cells buffer: isr_counts
 
 here
-100 cells 100 + allot
+100 cells 200 + allot
 constant my-vector-table-storage
 
 : my-vector-table		\ have to do this at runtime because its the absolute address that needs aligning 
-  my-vector-table-storage 100 + rel>abs drop FF invert and
+  my-vector-table-storage 200 + rel>abs drop 1FF invert and
   0 rel>abs drop -
 ;
 
@@ -202,15 +202,16 @@ defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
 	
   copy-vectors
 
-  num-isrs 0 ?do
-	isrs i size-isr-routine * + rel>abs drop 1+ 
-	my-vector-table EXTINT_IRQ0 cells + i cells + !
-  loop
+\  num-isrs 0 ?do
+\	isrs i size-isr-routine * + rel>abs drop 1+ 
+\	my-vector-table EXTINT_IRQ0 cells + i cells + !
+\  loop
+
   my-vector-table >vtor
 ;
 
 onboot: newVectorTable
-\	initInterrupts
+	initInterrupts
 onboot;
 
 ( 
