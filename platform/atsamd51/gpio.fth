@@ -53,6 +53,31 @@ internals set-current
   2dup d8@ 4 invert and rot rot d8!
 ;
 
+: enableMux		( n -- )
+  pinToIndexAndPort swap PORT_PINCFGn + s>d	( ad-addr -- )
+  2dup d8@ 1 or rot rot d8!
+;
+
+: disableMux		( n -- )
+  pinToIndexAndPort swap PORT_PINCFGn + s>d	( ad-addr -- )
+  2dup d8@ 1 invert and rot rot d8!
+;
+
+: setMux			( n v -- )
+  swap pinToIndexAndPort PORT_PMUXn		( v idx0..31 PORTMUXn -- )
+  over 1 rshift +						( v idx0..31 PORTMUX -- )
+  swap 1 and if ( v PORTMUX -- )
+	\ odd
+    dup s>d d8@ 15 and
+	rot 15 and 4 lshift or
+  else
+	\ even
+	dup s>d d8@ 240 and
+    rot 15 and or
+  then
+  swap s>d d8!
+;
+
 ext-wordlist set-current
 
 \ Arduino Names
@@ -87,6 +112,7 @@ PIN_D13 constant LED_BUILTIN
  0 constant INPUT
  1 constant OUTPUT
  2 constant INPUT_PULLUP
+ 3 constant INPUT_PULLDOWN
 
  1 constant HIGH
  0 constant LOW
@@ -97,12 +123,13 @@ PIN_D13 constant LED_BUILTIN
 	OUTPUT of r@ makeOutput r@ enableInput endof
 	INPUT  of R@ makeInput r@ disablePull endof
 	INPUT_PULLUP of r@ makeInput r@ enablePull r@ setHigh endof
-	\ INPUT_PULLDOWN of r@ makeInput r@ enablePull r@ setLow endof
+	INPUT_PULLDOWN of r@ makeInput r@ enablePull r@ setLow endof
   endcase
   r> drop
 ;
 
 : writeDigital	( pin level -- )
+  \ TODO if pin is an output writing HIGH enables pullup, writing LOW disables pullup
   case
 	HIGH of swap setHigh endof
 	LOW of swap setLow endof
