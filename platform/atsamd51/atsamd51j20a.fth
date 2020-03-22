@@ -8,6 +8,7 @@ ext-wordlist get-order 1+ set-order
 require platform/atsamd51/flash.fth
 require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
+require platform/atsamd51/peripherals.fth
 require platform/atsamd51/vector_table.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
