@@ -40,6 +40,11 @@ decimal
   eicWait
 ;
 
+: eicDisable 
+  EIC CTRLA s>d 2dup d8@ 2 invert and rot rot d8!
+  eicWait
+;
+
 : eicDisableInterrupt
   1 swap lshift EIC ITENCLR s>d d32!
 ;
@@ -50,14 +55,16 @@ decimal
 
 \ I currently have no use for the ITENCLR because my isrs all do that in native
 
+hex
 : eicConfigAllForRisingEdge \ I havne't figure out all this yet
-  153 EIC CONFIG0 s>d d32!
-  153 EIC CONFIG1 s>d d32!
+  99999999 EIC CONFIG0 s>d d32!
+  99999999 EIC CONFIG1 s>d d32!
 ;
+decimal
 
 : .config		( field idx -- )
   cr ."  config EXTINT " .
-  cr ."    filten " dup 128 and if [char] Y else [char] n then emit
+  cr ."    filten " dup 8 and if [char] Y else [char] n then emit
   ." , sense "
   7 and
   case
@@ -78,7 +85,7 @@ decimal
   cr ."   clock " dup 16 and if ." CLK_ULP32K" else ." GCLK_EIC" then
   cr ."   enable " if [char] Y else [char] n then emit
   cr ."   Interrupt flags 0..15 " EIC INTFLAG s>d d32@ 16 0 do dup 1 and . 1 rshift loop drop
-  EIC CONFIG0 s>d d32@
+  EIC CONFIG0 s>d d32@ 
   dup 15 and 0 .config 4 rshift
   dup 15 and 1 .config 4 rshift
   dup 15 and 2 .config 4 rshift
