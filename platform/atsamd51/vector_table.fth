@@ -1,5 +1,5 @@
 
-( I am assuming 32bit - better ensure )
+( I am assuming 32bit - better ensure, only really hooks EXTINTs )
 
 require extra/thread.fth
 
