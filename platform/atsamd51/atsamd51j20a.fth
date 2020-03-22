@@ -8,8 +8,11 @@ ext-wordlist get-order 1+ set-order
 require platform/atsamd51/flash.fth
 require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
+require platform/atsamd51/irqs.fth
 require platform/atsamd51/peripherals.fth
 require platform/atsamd51/vector_table.fth
+require platform/cortexm4/eic.fth
+require platform/cortexm4/nvic.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
 require kernel/structure.fth
@@ -35,8 +38,6 @@ require extra/i2c_ds3231_rtc.fth
 ext-wordlist get-order 1+ set-order
 60 env-constant SSD1306_ADDRESS
 require extra/i2c_ssd1306_lcd.fth
-
-require platform/cortexm4/eic.fth
 
 require platform/done.fth
 
