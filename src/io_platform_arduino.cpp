@@ -39,6 +39,7 @@ int io_platform_read_term( void ) {
 void io_platform_write_term( char c ) {
 	if ( c == 10 ) { Serial.write(13); }
 	Serial.write(c);
+	Serial.flush();
 }
 
 /* ********************************************************************************** *
