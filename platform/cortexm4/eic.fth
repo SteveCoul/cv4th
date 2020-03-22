@@ -55,3 +55,46 @@ decimal
   153 EIC CONFIG1 s>d d32!
 ;
 
+: .config		( field idx -- )
+  cr ."  config EXTINT " .
+  cr ."    filten " dup 128 and if [char] Y else [char] n then emit
+  ." , sense "
+  7 and
+  case
+  0 of ." None" endof
+  1 of ." Rising" endof
+  2 of ." Falling" endof
+  3 of ." Edge" endof
+  4 of ." High" endof
+  5 of ." Low" endof
+  6 of ." reserved" endof
+  7 of ." reserved" endof
+  endcase
+;
+
+: .eic
+  cr ." EIC"
+  EIC CTRLA s>d d8@
+  cr ."   clock " dup 16 and if ." CLK_ULP32K" else ." GCLK_EIC" then
+  cr ."   enable " if [char] Y else [char] n then emit
+  cr ."   Interrupt flags 0..15 " EIC INTFLAG s>d d32@ 16 0 do dup 1 and . 1 rshift loop drop
+  EIC CONFIG0 s>d d32@
+  dup 15 and 0 .config 4 rshift
+  dup 15 and 1 .config 4 rshift
+  dup 15 and 2 .config 4 rshift
+  dup 15 and 3 .config 4 rshift
+  dup 15 and 4 .config 4 rshift
+  dup 15 and 5 .config 4 rshift
+  dup 15 and 6 .config 4 rshift
+      15 and 7 .config 4 rshift
+  EIC CONFIG1 s>d d32@
+  dup 15 and 8 .config 4 rshift
+  dup 15 and 9 .config 4 rshift
+  dup 15 and 10 .config 4 rshift
+  dup 15 and 11 .config 4 rshift
+  dup 15 and 12 .config 4 rshift
+  dup 15 and 13 .config 4 rshift
+  dup 15 and 14 .config 4 rshift
+      15 and 15 .config 4 rshift
+;
+
