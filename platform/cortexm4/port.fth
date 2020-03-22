@@ -47,5 +47,50 @@ decimal
 56 constant PB24 	57 constant PB25 	58 constant PB26 	59 constant PB27
 60 constant PB28 	61 constant PB2 	62 constant PB30 	63 constant PB31
 
+: >port			( n -- n' port )
+  dup 32 < if PORT_A else 32 - PORT_B then ;
+
+: .dir			( n -- )
+  >port PORT_DIR s>d d32@ 1 rot lshift and if [char] O else [char] I then space space emit ;
+
+: .out			( n -- )
+  >port PORT_OUT s>d d32@ 1 rot lshift and if [char] H else [char] L then space space emit ;
+
+: .in			( n -- )
+  >port PORT_IN s>d d32@ 1 rot lshift and if [char] H else [char] L then space emit ;
+
+: .pmux			( n -- )
+  >port PORT_PMUXn						
+  over 1 rshift + s>d d8@
+  swap 1 and if 4 rshift then 15 and
+  4 .r ;
+
+: .pmuxen		( n -- )
+  >port PORT_PINCFGn + s>d d8@ 1 and if [char] Y else [char] n then 5 spaces emit ;
+
+: .inen			( n -- )
+  >port PORT_PINCFGn + s>d d8@ 2 and if [char] Y else [char] n then 3 spaces emit ;
+
+: .drv			( n -- )
+  >port PORT_PINCFGn + s>d d8@ 64 and if ." strong" else ." normal" then ;
+
+: .port			( n -- )
+  cr 
+  dup 2 .r [char] : emit space
+  dup .dir space
+  dup .out space
+  dup .in space
+  dup .pmux space
+  dup .pmuxen space
+  dup .inen space
+  dup .drv space
+  drop
+;
+
+: .banner cr ."     DIR OUT IN PMUX PMUXen INen DrvStr " ;
+
+: .portA .banner 32 0 do i .port loop ;
+: .portB .banner 32 0 do i 32 + .port loop ;
+
 ext-wordlist set-current
 
