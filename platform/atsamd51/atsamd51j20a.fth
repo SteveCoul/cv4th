@@ -5,14 +5,16 @@ ext-wordlist get-order 1+ set-order
 1024 16 * env-constant /FLASH_SIZE
 512 env-constant /FLASH_PAGE_SIZE
 
+require platform/cortexm4/eic.fth
+require platform/cortexm4/nvic.fth
+require platform/cortexm4/gclk.fth
 require platform/atsamd51/flash.fth
 require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
 require platform/atsamd51/irqs.fth
 require platform/atsamd51/peripherals.fth
 require platform/atsamd51/vector_table.fth
-require platform/cortexm4/eic.fth
-require platform/cortexm4/nvic.fth
+require platform/atsamd51/interrupts.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
 require kernel/structure.fth

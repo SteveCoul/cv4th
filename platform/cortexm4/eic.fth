@@ -12,24 +12,31 @@ hex
 40002800 	constant  	EIC
 
 begin-structure _EIC
-	1 +field	CTRLA
-	1 +field	NMICTR
-	2 +field	NMIFLAG
-    4 +field	SYNCBUSY
-	4 +field	EVCTRL
-	4 +field	ITENCLR
-	4 +field	ITENSET
-	4 +field	INTFLAG
-	4 +field	ASYNCH
-	4 +field	CONFIG0
-	4 +field	CONFIG1
-	12 +field	reserved
-	4 +field	DEBOUNCEN
-	4 +field	DPRESCALER
-	4 +field	PINSTATE
+	1 +field	CTRLA		\ 00
+	1 +field	NMICTR		\ 01
+	2 +field	NMIFLAG		\ 02
+    4 +field	SYNCBUSY	\ 04
+	4 +field	EVCTRL		\ 08
+	4 +field	ITENCLR		\ 0C
+	4 +field	ITENSET		\ 10
+	4 +field	INTFLAG		\ 14
+	4 +field	ASYNCH		\ 18
+	4 +field	CONFIG0		\ 1C
+	4 +field	CONFIG1		\ 20
+	12 +field	reserved	\ 24
+	4 +field	DEBOUNCEN	\ 30
+	4 +field	DPRESCALER	\ 34
+	4 +field	PINSTATE	\ 38
 end-structure
 
 decimal
+
+0 constant SENSE_NONE
+1 constant SENSE_RISE
+2 constant SENSE_FALL
+3 constant SENSE_BOTH
+4 constant SENSE_HIGH
+5 constant SENSE_LOW
 
 : eicWait
   begin EIC SYNCBUSY s>d d32@ 2 and 0= until
@@ -55,13 +62,17 @@ decimal
 
 \ I currently have no use for the ITENCLR because my isrs all do that in native
 
-hex
-: eicConfigAllForRisingEdge \ I havne't figure out all this yet
-  99999999 EIC CONFIG0 s>d d32!
-  99999999 EIC CONFIG1 s>d d32!
-;
-decimal
+: andMASK			( idx -- idx mask )
+  7 over 4 * lshift invert ;
 
+: eicConfig			( index sense -- )
+  swap dup 8 < if EIC CONFIG0 else 8 - EIC CONFIG1 then	( sense idx CONFIG -- )
+  rot 7 and 	( idx CONFIG sense -- )
+  rot andMASK	( config sense idx and-mask -- )
+  >r 4 * lshift ( config ormask -- : R: and-mask )
+  over s>d d32@ r> and or swap s>d d32!
+;
+ 
 : .config		( field idx -- )
   cr ."  config EXTINT " .
   cr ."    filten " dup 8 and if [char] Y else [char] n then emit
