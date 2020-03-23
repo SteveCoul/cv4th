@@ -67,7 +67,7 @@ ext-wordlist set-current
   wire_fd file-size 2drop
 ;
 
-onboot: setwire -1 to wire_fd onboot;
+onboot: wire -1 to wire_fd onboot;
 
 only forth definitions
 

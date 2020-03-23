@@ -30,8 +30,7 @@ RTC 00 + constant RTC_CTRLA
 RTC 18 + constant RTC_COUNT
 decimal
 
-onboot: rtcinit
-  cr ." Init RTC"
+onboot: clock
   OSC32KCTRL_RTCCTRL_XOSC32K OSC32KCTRL_RTCCTRL s>d d8!
   RTC_CTRLA s>d d16@
   	RTC_CTRLA_ENABLE_MASK 

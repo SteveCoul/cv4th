@@ -1,4 +1,4 @@
-\ 17142
+\ 17267
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -2277,15 +2277,17 @@ internals set-current
 
 wordlist constant wid-onboot
 
-: (onboot)
-  cr ." onboot: " dup link>name ctype
-  link>xt
-  ['] execute catch if cr ." Warning exceptions in boot code" then
-  true
+: (onboot)			( wid -- )
+  ?dup if
+	dup @ recurse
+	cr ." onboot: " dup link>name ctype
+    link>xt
+    ['] execute catch if cr ."   Warning exception in boot code" then
+  then
 ;
 
-: onboot
-  ['] (onboot) wid-onboot traverse-wordlist
+: onboot			( -- )
+  wid-onboot @ (onboot) 
   postpone [ prompt?
 ;
 
@@ -2304,5 +2306,4 @@ ext-wordlist set-current
 ; immediate
 
 only forth definitions
-
 

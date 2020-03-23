@@ -166,7 +166,7 @@ internals set-current
 
 internals ext-wordlist forth-wordlist 3 set-order 
 
-onboot: kickoff 
+onboot: thread
   A_QUIT @ main-thread tc.entrypoint !
   ['] boot A_QUIT !
 onboot;

@@ -22,7 +22,7 @@ variable flash_fd
   then
 ;
 
-onboot: flashfileinit
+onboot: flashfile
 	S" flashfile" r/w bin open-file 0= if 
 		flash_fd !
 	else

@@ -190,7 +190,7 @@ defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
 
 ' poll-interrupts thread: poll-interrupt-thread
 
-: initInterrupts
+onboot: vector-table
   \ clear count fields for each isr
   isr_counts num-isrs cells 0 fill
   0 isr_events !
@@ -208,10 +208,6 @@ defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
   loop
 
   my-vector-table >vtor
-;
-
-onboot: newVectorTable
-	initInterrupts
 onboot;
 
 ( 
