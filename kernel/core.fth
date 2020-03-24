@@ -1,4 +1,4 @@
-\ 17331
+\ 17295
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -532,13 +532,13 @@ internals set-current
    then
   repeat
   r>
-  dup 0 65536 within if
-	opDOLIT_U16 c, w,
-  else
-    dup 0 256 within if
+  dup 0 256 within if
       opDOLIT_U8 c, c,
     else
-      opDOLIT c, ,
+      dup 0 65536 within if
+	    opDOLIT_U16 c, w,
+      else
+        opDOLIT c, ,
     then
   then
 ;
