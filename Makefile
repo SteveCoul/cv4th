@@ -84,6 +84,11 @@ clean:
 	rm -f *.log
 	rm -rf arduino
 	rm -f *.o
+	rm -f *.elf
+	rm -f *.bin
+	rm -f *.s
+	rm -f *.ii
+	rm -f *.d
 	rm -f *.img
 	rm -f *.img.c
 	rm -f toC
@@ -265,7 +270,6 @@ forth.elf:	$(BARE_METAL_OBJECTS) forth_platform.img.c
 	$(CC_GCC) $(CC_LFLAGS) -Iinc -o $@ $(BARE_METAL_OBJECTS) forth_platform.img.c
 
 forth.bin: forth.elf
-	$(GCC_PREFIX)/bin/arm-none-eabi-objdump -x -d $^ > forth.dump
 	$(GCC_PREFIX)/bin/arm-none-eabi-objcopy -O binary $^ $@
 
 all:: forth.bin
