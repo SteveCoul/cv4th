@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "io_platform.h"
+#include "platform.h"
 #include "machine.h"
 #include "kernel_image.h"
 
@@ -30,11 +30,11 @@ int main( int argc, char** argv ) {
 	machine_set_endian( &machine, ENDIAN_NATIVE, 1 );
 
 	if ( DEBUG ) {
-		io_platform_print_term("Cell size "); 
-		io_platform_printN_term( (int)sizeof(cell_t) );
-		io_platform_print_term(", Header ");
-		io_platform_printHEX_term( head );
-		io_platform_println_term( "" );
+		platform_print_term("Cell size "); 
+		platform_printN_term( (int)sizeof(cell_t) );
+		platform_print_term(", Header ");
+		platform_printHEX_term( head );
+		platform_println_term( "" );
 	}
 
 	if ( head != HEADER_ID ) {
@@ -51,22 +51,22 @@ int main( int argc, char** argv ) {
 	machine.memory = (cell_t*)malloc( size );
 #endif
 	if ( DEBUG ) {
-		io_platform_print_term("Dictionary size "); 
-		io_platform_printN_term( size );
-		io_platform_print_term(" bytes required by image) --> pointer = " );
-		io_platform_printHEX_term( (unsigned long long )(machine.memory) );
-		io_platform_println_term( "" );
+		platform_print_term("Dictionary size "); 
+		platform_printN_term( size );
+		platform_print_term(" bytes required by image) --> pointer = " );
+		platform_printHEX_term( (unsigned long long )(machine.memory) );
+		platform_println_term( "" );
 	}
 
 	if ( DEBUG ) {
-		io_platform_print_term("SETUP ");
-		io_platform_printHEX_term( setup );
-		io_platform_println_term( "" );
+		platform_print_term("SETUP ");
+		platform_printHEX_term( setup );
+		platform_println_term( "" );
 	}
 
 	if ( machine.memory ) {
 #ifndef XIP
-		if ( DEBUG ) io_platform_println_term( "Copy data" );
+		if ( DEBUG ) platform_println_term( "Copy data" );
 		memset( machine.memory, 0, size );
 		memmove( machine.memory, image_data, image_data_len );
 #endif
@@ -78,7 +78,7 @@ int main( int argc, char** argv ) {
 
 	if ( setup ) {
 		machine.IP = setup;
-		if ( DEBUG ) io_platform_println_term( "Run setup" );
+		if ( DEBUG ) platform_println_term( "Run setup" );
 		machine_execute( &machine, A_THROW, 0 );
 	}
 
@@ -86,13 +86,13 @@ int main( int argc, char** argv ) {
 	   ( such as for multitasking bootstrap ), also read it from the
 	   image not the source (except for XIP of course) */
 
-	if ( DEBUG ) io_platform_println_term( "boot" );
+	if ( DEBUG ) platform_println_term( "boot" );
 	
 	machine.IP = GET_CELL( &machine, A_QUIT );
 	if ( DEBUG ) {
-		io_platform_print_term("QUIT ");
-		io_platform_printHEX_term( machine.IP );
-		io_platform_println_term( "" );
+		platform_print_term("QUIT ");
+		platform_printHEX_term( machine.IP );
+		platform_println_term( "" );
 	}
 #ifdef ARDUINO
 }

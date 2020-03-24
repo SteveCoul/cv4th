@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#include "io_platform.h"
+#include "platform.h"
 
 #ifdef __SAMD21G18A__
 #define Serial SerialUSB
@@ -14,7 +14,7 @@
  *
  * ********************************************************************************** */
 
-int io_platform_read_term( void ) {
+int platform_read_term( void ) {
 	yield();
 	int rc;
 	if ( Serial.available() >= 1 )
@@ -36,7 +36,7 @@ int io_platform_read_term( void ) {
 	return rc;
 }
 
-void io_platform_write_term( char c ) {
+void platform_write_term( char c ) {
 	if ( c == 10 ) { Serial.write(13); }
 	Serial.write(c);
 	Serial.flush();
@@ -219,7 +219,7 @@ ioSubsystem io_wire = {	NULL,
  *
  * ********************************************************************************** */
 
-int io_platform_init( void ) {
+int platform_init( void ) {
 
 	Serial.begin(115200);
 	int counter = 5;
@@ -234,6 +234,6 @@ int io_platform_init( void ) {
 	return 0;
 }
 
-void io_platform_term( void ) {
+void platform_term( void ) {
 }
 

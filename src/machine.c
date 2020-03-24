@@ -7,7 +7,7 @@
 #include "common.h"
 #include "io.h"
 #include "io_file.h"
-#include "io_platform.h"
+#include "platform.h"
 #include "machine.h"
 #include "opcodes.h"
 
@@ -125,8 +125,8 @@ void machine_init( machine_t* machine ) {
 	machine->DP = 0;
 	machine->RP = 0;
 	machine->LP = 0;	
-	(void)io_platform_init();
-	atexit( io_platform_term );
+	(void)platform_init();
+	atexit( platform_term );
 }
 
 void machine_set_endian( machine_t* machine, machine_endian_t which, int unaligned_workaround ) {
@@ -135,16 +135,16 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 	machine_endian_t me = (p[3] == (HEADER_ID & 255)) ? ENDIAN_BIG : ENDIAN_LITTLE;
 
 	if ( DEBUG ) {
-		io_platform_print_term("Machine is ");
-		io_platform_print_term( me == ENDIAN_BIG ? "Big" : "Little" );
-		io_platform_println_term(" endian" );
+		platform_print_term("Machine is ");
+		platform_print_term( me == ENDIAN_BIG ? "Big" : "Little" );
+		platform_println_term(" endian" );
 
 		switch(which){
-		case ENDIAN_BIG: io_platform_println_term("\trequest was for big endian"); break;
-		case ENDIAN_LITTLE: io_platform_println_term("\trequest was for little endian"); break;
-		case ENDIAN_NATIVE: io_platform_println_term("\trequest was for native endian"); break;
-		case ENDIAN_SWAP: io_platform_println_term("\trequest was for swapped-native endian"); break;
-		default: io_platform_println_term("\trequest was for unknown endian"); break;
+		case ENDIAN_BIG: platform_println_term("\trequest was for big endian"); break;
+		case ENDIAN_LITTLE: platform_println_term("\trequest was for little endian"); break;
+		case ENDIAN_NATIVE: platform_println_term("\trequest was for native endian"); break;
+		case ENDIAN_SWAP: platform_println_term("\trequest was for swapped-native endian"); break;
+		default: platform_println_term("\trequest was for unknown endian"); break;
 		}
 	}
 
@@ -155,13 +155,13 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 
 	if ( unaligned_workaround ) {	/* for now, anything with alignment restrictions uses these slow words */
 		if ( me == which ) {
-			if ( DEBUG ) io_platform_println_term("Using native order, alignment safe");
+			if ( DEBUG ) platform_println_term("Using native order, alignment safe");
 			machine->getWord = getWord_NativeOrder_AlignmentSafe;
 			machine->putWord = putWord_NativeOrder_AlignmentSafe;
 			machine->getCell = getCell_NativeOrder_AlignmentSafe;
 			machine->putCell = putCell_NativeOrder_AlignmentSafe;
 		} else {
-			if ( DEBUG ) io_platform_println_term("Using swapped-native order, alignment safe");
+			if ( DEBUG ) platform_println_term("Using swapped-native order, alignment safe");
 			machine->getWord = getWord_Swap_AlignmentSafe;
 			machine->putWord = putWord_Swap_AlignmentSafe;
 			machine->getCell = getCell_Swap_AlignmentSafe;
@@ -169,13 +169,13 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 		}
 	} else {
 		if ( me == which ) {
-			if ( DEBUG ) io_platform_println_term("Using native order, ignore alignment");
+			if ( DEBUG ) platform_println_term("Using native order, ignore alignment");
 			machine->getWord = getWord_NativeOrder_NoAlignment;
 			machine->putWord = putWord_NativeOrder_NoAlignment;
 			machine->getCell = getCell_NativeOrder_NoAlignment;
 			machine->putCell = putCell_NativeOrder_NoAlignment;
 		} else {
-			if ( DEBUG ) io_platform_println_term("Using swapped-native order, ignore alignment");
+			if ( DEBUG ) platform_println_term("Using swapped-native order, ignore alignment");
 			machine->getWord = getWord_Swap_NoAlignment;
 			machine->putWord = putWord_Swap_NoAlignment;
 			machine->getCell = getCell_Swap_NoAlignment;
@@ -192,7 +192,7 @@ void machine_set_endian( machine_t* machine, machine_endian_t which, int unalign
 													datastack[ DP-1 ] = throw_code; \
 													IP=GET_CELL( machine, a_throw );\
 													if ( IP == 0 ) { \
-														io_platform_println_term("Urk - no throw handler");\
+														platform_println_term("Urk - no throw handler");\
 														exit(0); /* FIXME */ \
 													}\
 													break; \
@@ -219,7 +219,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		switch( opcode ) {
 		/* debug */
 		case opDEBUG:
-			io_platform_println_term("DEBUG opcode invoked - no action");
+			platform_println_term("DEBUG opcode invoked - no action");
 			break;
 		/* threading */
 		case opCONTEXT_SWITCH:					/* new old -- */
@@ -542,7 +542,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			break;
 		/* internal magic */
 		case opBYE:	
-			io_platform_println_term("\n\nBYE!!!\n\n");
+			platform_println_term("\n\nBYE!!!\n\n");
 			return;
 			break;
 		case opIP:
@@ -608,7 +608,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 				if ( run_mode == 0 )
 					return;			/* run a single word from boot strap interpreter */
 				/* stack underflow */
-				io_platform_println_term("return stack underflow");
+				platform_println_term("return stack underflow");
 				DP++;
 				datastack[ DP-1 ] = -6;
 				IP=GET_CELL( machine, a_throw );
@@ -1030,7 +1030,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		/* io */
 		case opEKEY:
 			{
-				int rc = io_platform_read_term();
+				int rc = platform_read_term();
 				DP++;
 				datastack[DP-1] = rc;
 			}
@@ -1041,7 +1041,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 				tmp = datastack[DP-1];
 				DP--;
 				c = tmp & 255;
-				io_platform_write_term( c );
+				platform_write_term( c );
 			}
 			break;
 		/* logic */

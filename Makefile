@@ -92,7 +92,7 @@ BOOTSTRAP_HEADERS=
 BOOTSTRAP_HEADERS+=
 BOOTSTRAP_HEADERS+=inc/io.h
 BOOTSTRAP_HEADERS+=inc/io_file.h
-BOOTSTRAP_HEADERS+=inc/io_platform.h
+BOOTSTRAP_HEADERS+=inc/platform.h
 BOOTSTRAP_HEADERS+=inc/machine.h
 BOOTSTRAP_HEADERS+=generated/opcodes.h
 BOOTSTRAP_HEADERS+=inc/common.h
@@ -102,8 +102,8 @@ BOOTSTRAP_SOURCES+=src/bootstrap.c
 BOOTSTRAP_SOURCES+=generated/opcodes.c
 BOOTSTRAP_SOURCES+=src/io.c
 BOOTSTRAP_SOURCES+=src/io_file.c
-BOOTSTRAP_SOURCES+=src/io_platform.c
-BOOTSTRAP_SOURCES+=src/io_platform_nix.c
+BOOTSTRAP_SOURCES+=src/platform.c
+BOOTSTRAP_SOURCES+=src/platform_nix.c
 BOOTSTRAP_SOURCES+=src/machine.c
 BOOTSTRAP_SOURCES+=src/common.c
 
@@ -138,8 +138,8 @@ FORTH_CORE_HEADERS=$(BOOTSTRAP_HEADERES)
 FORTH_CORE_SOURCES=src/runner.c
 FORTH_CORE_SOURCES+=src/io.c
 FORTH_CORE_SOURCES+=src/io_file.c
-FORTH_CORE_SOURCES+=src/io_platform.c
-FORTH_CORE_SOURCES+=src/io_platform_nix.c
+FORTH_CORE_SOURCES+=src/platform.c
+FORTH_CORE_SOURCES+=src/platform_nix.c
 FORTH_CORE_SOURCES+=src/machine.c
 FORTH_CORE_SOURCES+=src/common.c
 FORTH_CORE_OBJECTS=$(FORTH_CORE_SOURCES:src/%.c=host_%.o)
@@ -187,10 +187,10 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../src/io.c arduino/io.cpp
 	ln -s ../inc/io_file.h arduino/io_file.h
 	ln -s ../src/io_file.c arduino/io_file.cpp
-	ln -s ../inc/io_platform.h arduino/io_platform.h
+	ln -s ../inc/platform.h arduino/platform.h
 	ln -s ../generated/opcodes.h arduino/opcodes.h
-	ln -s ../src/io_platform_arduino.cpp arduino/io_platform_arduino.cpp
-	ln -s ../src/io_platform.c arduino/io_platform.cpp
+	ln -s ../src/platform_arduino.cpp arduino/platform_arduino.cpp
+	ln -s ../src/platform.c arduino/platform.cpp
 	echo "all:" >> arduino/Makefile
 	echo "\t$(ARDUINO_CLI) compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. \"" >> arduino/Makefile
 ifeq ($(NO_UPLOAD),)

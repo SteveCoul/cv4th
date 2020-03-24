@@ -4,9 +4,9 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "io_platform.h"
+#include "platform.h"
 
-int io_platform_read_term( void ) {
+int platform_read_term( void ) {
 	int tmp;
 	unsigned char c[3];
 	int ret;
@@ -21,12 +21,12 @@ int io_platform_read_term( void ) {
 	return tmp;
 }
 
-void io_platform_write_term( char c ) {
+void platform_write_term( char c ) {
 	if ( write( STDOUT_FILENO, &c, 1 ))
 		;
 }
 
-int io_platform_init( void ) {
+int platform_init( void ) {
 	struct termios raw;
 	tcgetattr( STDIN_FILENO, &raw );
 	raw.c_lflag &= ~(ECHO | ICANON );
@@ -37,7 +37,7 @@ int io_platform_init( void ) {
 	return 0;
 }
 
-void io_platform_term( void ) {
+void platform_term( void ) {
 	struct termios raw;
 	tcgetattr( STDIN_FILENO, &raw );
 	raw.c_lflag |= (ECHO | ICANON );
