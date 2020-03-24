@@ -9,7 +9,7 @@
 #include "io_file.h"
 #include "io_platform.h"
 #include "machine.h"
-#include "opcode.h"
+#include "opcodes.h"
 
 #define DEBUG 0
 

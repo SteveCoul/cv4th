@@ -10,7 +10,7 @@
 #include "common.h"
 #include "io.h"
 #include "machine.h"
-#include "opcode.h"
+#include "opcodes.h"
 
 static int			input;
 static machine_t*	machine;

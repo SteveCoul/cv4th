@@ -61,11 +61,20 @@ clean:
 	rm -f forth_core
 	rm -f forth
 	rm -f flashfile
+	rm -rf generated
+
+# #############################
+
+all:: generated/opcodes.h generated/opcodes.fth
+
+generated/opcodes.h generated/opcodes.fth: data/opcodes.txt
+	mkdir -p generated
+	scripts/opcodegen.sh data/opcodes.txt generated/opcodes.h generated/opcodes.fth
 
 # #############################
 
 host_%.o:src/%.c
-	$(CC) $(CFLAGS) -Iinc -c -o $@ $^
+	$(CC) $(CFLAGS) -Iinc -Igenerated -c -o $@ $^
 
 %.img.c:%.img
 	$(MAKE) toC
@@ -85,7 +94,7 @@ BOOTSTRAP_HEADERS+=inc/io.h
 BOOTSTRAP_HEADERS+=inc/io_file.h
 BOOTSTRAP_HEADERS+=inc/io_platform.h
 BOOTSTRAP_HEADERS+=inc/machine.h
-BOOTSTRAP_HEADERS+=inc/opcode.h
+BOOTSTRAP_HEADERS+=generated/opcodes.h
 BOOTSTRAP_HEADERS+=inc/common.h
 
 BOOTSTRAP_SOURCES=
@@ -100,7 +109,7 @@ BOOTSTRAP_SOURCES+=src/common.c
 BOOTSTRAP_OBJECTS=$(BOOTSTRAP_SOURCES:src/%.c=host_%.o)
 
 bootstrap: $(BOOTSTRAP_OBJECTS) $(BOOTSTRAP_HEADERS)
-	$(CC) $(CFLAGS) -Iinc -o $@ $(BOOTSTRAP_OBJECTS)
+	$(CC) $(CFLAGS) -Iinc -Igenerated -o $@ $(BOOTSTRAP_OBJECTS)
 
 all:: bootstrap
 
@@ -135,7 +144,7 @@ FORTH_CORE_SOURCES+=src/common.c
 FORTH_CORE_OBJECTS=$(FORTH_CORE_SOURCES:src/%.c=host_%.o)
 
 forth_core: $(FORTH_CORE_OBJECTS) core.img.c
-	$(CC) -Iinc $(CFLAGS) -o $@ $^
+	$(CC) -Iinc -Igenerated $(CFLAGS) -o $@ $^
 
 all:: forth_core
 
@@ -178,7 +187,7 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../inc/io_file.h arduino/io_file.h
 	ln -s ../src/io_file.c arduino/io_file.cpp
 	ln -s ../inc/io_platform.h arduino/io_platform.h
-	ln -s ../inc/opcode.h arduino/opcode.h
+	ln -s ../generated/opcodes.h arduino/opcodes.h
 	ln -s ../src/io_platform_arduino.cpp arduino/io_platform_arduino.cpp
 	ln -s ../src/io_platform.c arduino/io_platform.cpp
 	echo "all:" >> arduino/Makefile
