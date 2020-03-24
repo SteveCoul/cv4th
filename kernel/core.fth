@@ -1,4 +1,4 @@
-\ 17267
+\ 17331
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -848,6 +848,29 @@ here ] . [ opRET c, parse-name .exception $find drop defer!
 
 	  r@ 5 cells+
 	  r@ 1 cells+ @ 
+
+	  dup 1 > if
+		1-
+		begin
+		  2dup + c@ bl should-skip
+        while
+		  1-
+		repeat
+	  then
+
+	  dup 0 > if
+		begin
+		  dup 0= 0= if
+		  	2dup + c@ bl should-skip 0=
+		  else
+			0
+		  then
+		while
+		  1-
+		repeat
+      then
+
+	  dup 0= 0= if 1+ then
 
 	  begin
 		?dup
