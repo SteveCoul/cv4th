@@ -1,41 +1,17 @@
 
-ext-wordlist forth-wordlist internals 3 set-order definitions
+require generated/opcodes.fth
 
-: isconstantdef		\ head -- flag
-  link>name count +	\ ptr
-  dup c@ opDOLIT = if
-	1+ cell+
-	c@ opRET = 
-  else
-    dup c@ opDOLIT_U8 = if 
-	  2 +
-	  c@ opRET = 
-    else
-	  dup c@ opDOLIT_U16 = if
-		3 +
-		c@ opRET =
-	  else
-        drop false 
- 	  then
-    then
-  then
-;
+ext-wordlist forth-wordlist internals 3 set-order definitions
+wid-opcodes get-order 1+ set-order
 
 : opcodename 		\ value -- caddr u | -- 0
-  internals begin	@ ?dup while					
-    dup link>name	
-    dup c@ 2 > if									
-      dup 1+ c@ [char] o = if	
-        dup	2 + c@ [char] p = if			
-          over isconstantdef if			
-            over link>xt execute		
-              3 pick = if nip nip count exit then
-            then
-          then
-        then
-      then
-    drop
-  repeat drop 0
+  wid-opcodes begin	
+	@ ?dup 
+  while					
+	dup link>xt execute		( value link op# -- )
+    2 pick = if nip link>name count exit then
+  repeat
+  drop 0
 ;
 
 : dis-branch

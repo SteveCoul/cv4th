@@ -124,9 +124,6 @@ static void constant( const char* name, cell_t value ) {
 
 #define opconstant( name ) constant( #name, name )
 
-//#define opconst_db( name ) {}
-#define opconst_db( name ) constant( #name, name )
-
 static void internals_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_INTERNALS_WORDLIST ); }
 static void forth_definitions( void ) {	WRITE_CELL( machine, A_CURRENT, A_FORTH_WORDLIST ); }
 static void ext_definitions( void ) { WRITE_CELL( machine, A_CURRENT, A_EXT_WORDLIST ); }
@@ -151,7 +148,18 @@ uint32_t find( const char* name ) {
 			p = GET_CELL( machine, p );
 		}
 	}
+
 	return 0;
+}
+
+static int isOpcode( const char* name ) {
+	unsigned int i;
+	for ( i = 0; opcode_names[i].value != -1; i++ ) {
+		if ( cmp( name, strlen(name), opcode_names[i].name, strlen(opcode_names[i].name), 0 ) == 0 ) {
+			return opcode_names[i].value;
+		}
+	}
+	return -1;
 }
 
 int refill( void ) {
@@ -438,119 +446,19 @@ int main( int argc, char** argv ) {
 	opword( opBYE, "bye" );
 
 	internals_definitions();
-	opconstant( opNONE );
-	opconstant( opDEBUG );
-	opconst_db( opD8FETCH );
-	opconst_db( opD16FETCH );
-	opconst_db( opD32FETCH );
-	opconst_db( opD8STORE );
-	opconst_db( opD16STORE );
-	opconst_db( opD32STORE );
-	opconst_db( op2DROP );
-	opconst_db( op2DUP );
-	opconst_db( op2OVER );
-	opconst_db( op2SWAP );
-	opconstant( op2TOR );
-	opconstant( op2RFROM );
-	opconstant( op2RFETCH );
-	opconst_db( opADD2 );
-	opconst_db( opAND );
-	opconstant( opBRANCH );
-	opconst_db( opBYE );
-	opconstant( opCALL );
-	opconst_db( opCFETCH );
-	opconst_db( opCLOSE_FILE );
-	opconstant( opCONTEXT_SWITCH );
-	opconst_db( opCOMPARE );
-	opconst_db( opCREATE_FILE );
-	opconst_db( opCSTORE );
- 	opconst_db( opDEC );
-	opconst_db( opDELETE_FILE );
-	opconst_db( opDEPTH );
-	opconst_db( opDLESSTHAN );
-	opconstant( opDOCSTR );
+	/* required by kernel/locals.fth */
 	opconstant( opDOLIT );
-	opconstant( opDOLIT_U8 );
-	opconstant( opDOLIT_U16 );
-	opconst_db( opDROP );
-	opconst_db( opDULESSTHAN );
-	opconstant( opDUP );
-	opconstant( opEKEY );
-	opconst_db( opEMIT );
-	opconst_db( opEQUALS );
-	opconst_db( opEXECUTE );
-	opconstant( opFETCH );
-	opconst_db( opFILE_POSITION );
-	opconst_db( opFILE_SIZE );
-	opconst_db( opFILE_STATUS );
-	opconst_db( opFLUSH_FILE );
-	opconst_db( opGREATER_THAN );
-	opconstant( opICOMPARE );
-	opconst_db( opINVERT );
-	opconst_db( opIP );
-	opconstant( opINC );
-	opconst_db( opLESS_THAN );
-	opconstant( opLITM1 );
-	opconstant( opLIT0 );
-	opconstant( opLIT1 );
-	opconstant( opLIT2 );
-	opconstant( opLIT3 );
-	opconstant( opLIT4 );
-	opconstant( opLIT5 );
-	opconstant( opLIT6 );
-	opconstant( opLIT7 );
-	opconstant( opLIT8 );
 	opconstant( opLPFETCH );
 	opconstant( opLPSTORE );
 	opconstant( opLFETCH );
-	opconst_db( opLSHIFT );
 	opconstant( opLSTORE );
-	opconst_db( opMINUS );
-	opconst_db( opMOVE );
-	opconst_db( opMULT );
-	opconst_db( opMULT2 );
-	opconst_db( opNIP );
-	opconst_db( opONEMINUS );
-	opconst_db( opONEPLUS );
-	opconst_db( opOPEN_FILE );
-	opconst_db( opOR );
-	opconst_db( opOVER );
-	opconst_db( opPICK );
-	opconst_db( opPLUS );
-	opconst_db( opPLUSSTORE );
-	opconstant( opQBRANCH );
-	opconst_db( opQDUP );
-	opconstant( opQTHROW );
-	opconst_db( opREAD_FILE );
-	opconst_db( opRENAME_FILE );
-	opconst_db( opREPOSITION_FILE );
-	opconst_db( opRESIZE_FILE );
-	opconstant( opRET );
-	opconstant( opRFETCH );
-	opconstant( opRFROM );
-	opconstant( opROT );
-	opconst_db( opROLL );
-	opconst_db( opRSHIFT );
 	opconstant( opRSPFETCH );
 	opconstant( opRSPSTORE );
-	opconstant( opSHORT_CALL );
-	opconst_db( opSPFETCH );
-	opconst_db( opSPSTORE );
-	opconst_db( opSTORE );
-	opconstant( opSWAP );
-	opconstant( opTOR );
-	opconst_db( opTUCK );
-	opconst_db( opU_GREATER_THAN );
-	opconst_db( opU_LESS_THAN );
-	opconstant( opUMULT );
-	opconst_db( opUMULT2 );
-	opconst_db( opUM_SLASH_MOD );
-	opconst_db( opWFETCH );
-	opconst_db( opWRITE_FILE );
-	opconst_db( opWSTORE );
-	opconst_db( opXOR );
-	opconst_db( opZEROEQ );
 	opconstant( opIMMEDIATE );
+	opconstant( opCALL );
+	opconstant( opRET );
+	/* required by extra/thread.fth */
+	opconstant( opCONTEXT_SWITCH );	
 
 	/* setup our stacks */
 	lay_header( opNONE, "initial-stacks" );
@@ -703,7 +611,11 @@ rescan:
 
 				v = find( tmp_word );
 				if ( v == 0 ) {
-					{
+					int opc = isOpcode( tmp_word );
+					if ( opc >= 0 ) {
+						v = opc;
+					} else {
+					
 						unsigned int j;
 						for ( j = tmp_word[0] == '-' ? 1 : 0; tmp_word[j] != '\0'; j++ ) {
 							if ( ! ( ( tmp_word[j] >= '0' ) && ( tmp_word[j] <= '9' ) ) ) {
@@ -716,10 +628,11 @@ rescan:
 								goto aborted;
 							}
 						}
-					}
+					
 
-					if ( tmp_word[0] == '-' ) v = 0- atoi( tmp_word+1 );
-					else v = atoi( tmp_word );
+						if ( tmp_word[0] == '-' ) v = 0- atoi( tmp_word+1 );
+						else v = atoi( tmp_word );
+					}
 					if ( STATE == 1 ) {
 						literal( v );
 					} else {

@@ -67,9 +67,9 @@ clean:
 
 all:: generated/opcodes.h generated/opcodes.fth
 
-generated/opcodes.h generated/opcodes.fth: data/opcodes.txt
+generated/opcodes.c generated/opcodes.h generated/opcodes.fth: data/opcodes.txt
 	mkdir -p generated
-	scripts/opcodegen.sh data/opcodes.txt generated/opcodes.h generated/opcodes.fth
+	scripts/opcodegen.sh data/opcodes.txt generated/opcodes.h generated/opcodes.fth generated/opcodes.c
 
 # #############################
 
@@ -99,6 +99,7 @@ BOOTSTRAP_HEADERS+=inc/common.h
 
 BOOTSTRAP_SOURCES=
 BOOTSTRAP_SOURCES+=src/bootstrap.c
+BOOTSTRAP_SOURCES+=generated/opcodes.c
 BOOTSTRAP_SOURCES+=src/io.c
 BOOTSTRAP_SOURCES+=src/io_file.c
 BOOTSTRAP_SOURCES+=src/io_platform.c
