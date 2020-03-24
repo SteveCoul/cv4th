@@ -41,5 +41,8 @@ ext-wordlist get-order 1+ set-order
 60 env-constant SSD1306_ADDRESS
 require extra/i2c_ssd1306_lcd.fth
 
+3 env-constant AS3935_ADDRESS
+require extra/i2c_as3935_lightning_detector.fth
+
 require platform/done.fth
 
