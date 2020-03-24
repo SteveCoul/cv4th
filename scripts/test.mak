@@ -8,6 +8,8 @@ all:
 	make clean
 	make TARGET=mini NO_UPLOAD=y
 	make clean
+	make TARGET=samd51bare NO_UPLOAD=y
+	make clean
 	@echo " "
 	@echo " "
 	@echo " "

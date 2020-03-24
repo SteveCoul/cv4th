@@ -1,5 +1,5 @@
 
-CFLAGS=-Wall -Wpedantic -Werror -Os
+#CFLAGS=-Wall -Wpedantic -Werror -Os
 
 # #############################
 
@@ -36,8 +36,38 @@ ENDIAN_FLAGS=
 PAD_IMAGE=n
 FORTH_PLATFORM=platform/atsamd21/atsamd21g18.fth
 else
+ifeq ($(TARGET),samd51bare)
+DICTIONARY_SIZE=128
+FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
+BARE_METAL_TARGET=src/platform_samd51.c
+GCC_PREFIX=/Users/stevencoul/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
+CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++
+CC_CFLAGS=$(CFLAGS)
+CC_CFLAGS+=-mcpu=cortex-m4 
+CC_CFLAGS+=-mthumb 
+CC_CFLAGS+=-ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib 
+CC_CFLAGS+=--param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD 
+CC_CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 
+CC_CFLAGS+=-fpermissive
+CC_LFLAGS=
+CC_LFLAGS+=-Wl,--gc-sections 
+CC_LFLAGS+=-save-temps
+CC_LFLAGS+=-Tscripts/samd51j20_flash_16kbootloader.ld
+CC_LFLAGS+=--specs=nano.specs --specs=nosys.specs 
+CC_LFLAGS+=-mcpu=cortex-m4 
+CC_LFLAGS+=-mthumb  
+CC_LFLAGS+=-mfloat-abi=hard 
+CC_LFLAGS+=-mfpu=fpv4-sp-d16  
+CC_LFLAGS+=-Wl,--check-sections
+CC_LFLAGS+=-Wl,--gc-sections 
+CC_LFLAGS+=-Wl,--unresolved-symbols=report-all 
+CC_LFLAGS+=-Wl,--warn-common 
+CC_LFLAGS+=-Wl,--warn-section-align  
+UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
+else
 fail-target:
 	@echo no TARGET set
+endif
 endif
 endif 
 endif
@@ -134,7 +164,7 @@ all:: toC
 
 # #############################
 
-FORTH_CORE_HEADERS=$(BOOTSTRAP_HEADERES)
+FORTH_CORE_HEADERS=$(BOOTSTRAP_HEADERS)
 FORTH_CORE_SOURCES=src/runner.c
 FORTH_CORE_SOURCES+=src/io.c
 FORTH_CORE_SOURCES+=src/io_file.c
@@ -215,4 +245,33 @@ all:: forth
 endif
 
 # #############################
+
+ifneq ($(BARE_METAL_TARGET),)
+
+BARE_METAL_HEADERS=$(BOOTSTRAP_HEADERS)
+BARE_METAL_SOURCES=src/runner.c
+BARE_METAL_SOURCES+=src/io.c
+BARE_METAL_SOURCES+=src/io_file.c
+BARE_METAL_SOURCES+=$(BARE_METAL_TARGET)
+BARE_METAL_SOURCES+=src/platform.c
+BARE_METAL_SOURCES+=src/machine.c
+BARE_METAL_SOURCES+=src/common.c
+BARE_METAL_OBJECTS=$(BARE_METAL_SOURCES:src/%.c=%.o)
+
+%.o:src/%.c
+	$(CC_GCC) $(CC_CFLAGS) -Iinc -Igenerated -c -o $@ $^
+
+forth.elf:	$(BARE_METAL_OBJECTS) forth_platform.img.c
+	$(CC_GCC) $(CC_LFLAGS) -Iinc -o $@ $(BARE_METAL_OBJECTS) forth_platform.img.c
+
+forth.bin: forth.elf
+	$(GCC_PREFIX)/bin/arm-none-eabi-objdump -x -d $^ > forth.dump
+	$(GCC_PREFIX)/bin/arm-none-eabi-objcopy -O binary $^ $@
+
+all:: forth.bin
+ifeq ($(NO_UPLOAD),)
+	$(UPLOAD) $^
+endif
+
+endif
 
