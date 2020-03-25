@@ -3,6 +3,8 @@
 
 ext-wordlist forth-wordlist internals 3 set-order definitions
 
+private-namespace
+
 : RingBuffer.inc		\ rb-addr offset --
   over 0 cells + @		\ rb-addr offset size --
   rot rot +				\ size ^ptr --
