@@ -159,6 +159,7 @@ internals set-current
 : link>xt			link>name dup c@ + 1+ ;
 : flag>link 		-1 cells + ;
 : name>flag 		1- ;
+: name>xt			dup c@ 1+ + ;
 
 : >name
   dup [ opTOR c, ]
@@ -1821,15 +1822,26 @@ internals set-current
 
 wordlist constant wid-files
 
-: +file
+: +file					( c-addr u wid -- )
   get-current >r
   wid-files set-current
+  rot rot
   ($create) 
-	0 ,
+	,
 	r> set-current
   does>
-	@
+	@ dup get-order 1+ set-order set-current
 ;
+
+S" core" internals +file 
+
+ext-wordlist set-current
+
+: private-namespace
+  file$ @ name>xt execute
+;
+
+internals set-current
 
 : (include-file)					\ caddr u -- descriptor --
   save-input n>r 
@@ -1837,7 +1849,7 @@ wordlist constant wid-files
   0 line# !
 
   2dup cr ." Including " type
-  +file
+  wordlist +file
 
   wid-files @ link>name file$ !
 
@@ -1853,8 +1865,6 @@ wordlist constant wid-files
 	then
   repeat 
   source-id close-file drop
-
-  here file$ @ - file$ @ count + >body !
 
   nr> restore-input
 ;
