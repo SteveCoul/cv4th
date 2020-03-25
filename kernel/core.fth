@@ -1241,6 +1241,7 @@ forth-wordlist set-current
 internals set-current
 : last [fake-variable] ;
 
+ext-wordlist set-current
 : ($create)
   2>r
   here  dup last !
