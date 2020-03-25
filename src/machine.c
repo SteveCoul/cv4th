@@ -268,17 +268,19 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 		/* device access. Note addresses are 2 cells! */
 		case opREL2ABS:
 			{
+				uint64_t address;
 				uint8_t* ptr = (uint8_t*)(machine->memory);
 				ATHROW( DP<1, ;, -4 );
-				tmp = datastack[ DP-1 ];
+				address = datastack[ DP-1 ];
 				DP--;
-				tmp = tmp + (uint32_t)ptr;
+				address = address + (uint64_t)ptr;
 #ifdef VM_16BIT
-				DP++; datastack[ DP -1 ] = ( tmp & 65535 );
-				DP++; datastack[ DP -1 ] = ( tmp >> 16 ) & 65535;
+#error todo  fix overflow of address on 64bit host and 16bit vm
+				DP++; datastack[ DP -1 ] = ( address & 65535 );
+				DP++; datastack[ DP -1 ] = ( address >> 16 ) & 65535;
 #else
-				DP++; datastack[ DP -1 ] = tmp;
-				DP++; datastack[ DP -1 ] = 0;
+				DP++; datastack[ DP -1 ] = address & CELL_MASK;
+				DP++; datastack[ DP -1 ] = (address>>CELL_BITS) & CELL_MASK;
 #endif
 			}
 			break;
