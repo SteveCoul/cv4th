@@ -58,14 +58,6 @@ ext-wordlist set-current
   (size-words)
 ;
 
-internals set-current
-: (size-includes) cr dup link>xt execute 10 .r space name>string type true ;
-
-ext-wordlist set-current
-: size-includes
-  ['] (size-includes) wid-files traverse-wordlist
-;
-
 : device-dump		\ a-addr len --													
   base @ >r hex
   over +	
