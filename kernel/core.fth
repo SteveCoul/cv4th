@@ -1820,6 +1820,14 @@ ext-wordlist set-current
 
 internals set-current
 
+: (private-namespace)		( wid -- )
+  >r
+  get-order over r@ = 0= if
+    r@ swap 1+ set-order
+  then
+  r> set-current
+;
+
 wordlist constant wid-files
 
 : +file					( c-addr u wid -- )
@@ -1830,7 +1838,7 @@ wordlist constant wid-files
 	,
 	r> set-current
   does>
-	@ dup get-order 1+ set-order set-current
+	@ (private-namespace)
 ;
 
 S" core" internals +file 
@@ -1838,7 +1846,11 @@ S" core" internals +file
 ext-wordlist set-current
 
 : private-namespace
-  file$ @ name>xt execute
+  file$ @ ?dup if 
+	name>xt execute
+  else
+	internals (private-namespace)
+  then
 ;
 
 internals set-current
