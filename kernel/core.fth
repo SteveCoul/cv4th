@@ -1825,6 +1825,7 @@ internals set-current
   >r
   get-order over r@ = 0= if
     r@ swap 1+ set-order
+  else 0 ?do drop loop
   then
   r> set-current
 ;
