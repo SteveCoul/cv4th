@@ -1,4 +1,6 @@
 
+require kernel/structure.fth
+
 ext-wordlist forth-wordlist 2 set-order
 
 \ ---------------------------------------------------------
@@ -47,7 +49,9 @@ ext-wordlist set-current
   parse-name dup bank_name c! bank_name 1+ swap move
   0 byte_offset !
   dup base_address !
-  bank_name count ($create) , does> cr ." Registers at " @ .
+\ I don't create a definition for the register bank itself
+\ but I may add one that dumps the bank to console
+\  bank_name count ($create) , does> cr ." Registers at " @ .
 ;
 
 : end-register-bank ;
@@ -68,6 +72,11 @@ variable in_array
 variable current_register
 64 buffer: register_name
 
+begin-structure dreg
+	1 cells +field	dreg.addr
+	1 cells +field	dreg.size
+end-structure
+
 : (register)
   in_array !
   parse-name 
@@ -76,16 +85,20 @@ variable current_register
   c" ." +tmp_name
   register_name +tmp_name
   0 bit_offset !
-  temp_name count ($create) 
+\ I don't create a register definitions yet
+\ but I may create fetch and store for the
+\ whole register here later
+\  temp_name count ($create) 
 	here current_register !
-	base_address @ byte_offset @ + , 
-	dup ,
+	here dreg allot					( size ^dreg -- )
+	base_address @ byte_offset @ + over dreg.addr ! 
+	over swap dreg.size !
 	in_array @ if
 		* 
 	then
 	byte_offset +!
-  does> 
-	cr ." Register " dup @ . ." , size " 1 cells + @ . 
+\  does> 
+\	cr ." Register " dup dreg.addr @ . ." , size " dreg.size @ .
 ;
 
 ext-wordlist set-current
@@ -105,52 +118,85 @@ ext-wordlist set-current
 \ ---------------------------------------------------------
 private-namespace
 
+begin-structure dbit
+	1 cells +field	dbit.addr
+	1 cells +field	dbit.regmask
+	1 cells +field	dbit.valmask
+	1 cells +field	dbit.valshift
+	1 cells +field	dbit.multiplier
+	1 cells +field	dbit.fetch
+	1 cells +field	dbit.store
+end-structure
+
+\ by default register banks work in device memory
+\ I may add an API to change that later
+: default8@  0  d8@ ;
+: default8!  0  d8! ;
+: default16@ 0 d16@ ;
+: default16! 0 d16! ;
+: default32@ 0 d32@ ;
+: default32! 0 d32! ;
+
+: fsxt					( regsiter -- fetchXt storeXt )
+  case
+  8bit of ['] default8@ ['] default8! rot endof
+  16bit of ['] default16@ ['] default16! rot endof
+  32bit of ['] default32@ ['] default32! rot endof
+  1 abort" Illegal register size"
+  endcase
+;
+
 : common				( bit-size c-addr u -- fetch store )
   ($create)
-	current_register @ 0 cells + @ ,		\ address
-	dup nbits bit_offset @ lshift invert ,	\ and reg mask	
-    nbits ,									\ and val mask
-	bit_offset @ ,							\ val shift
+	here dbit allot
+	current_register @ 0 cells + @ over dbit.addr !				( size dbit -- )
+    over nbits bit_offset @ lshift invert over dbit.regmask !
+    swap nbits over dbit.valmask !		( dbit -- )
+    bit_offset @ over dbit.valshift !
 	in_array @ if
-		current_register @ 1 cells + @ ,	\ register size (multiplier)
+		current_register @ dreg.size @ 
 	else
-		0 ,
+		0
 	then
-
-	current_register @ 1 cells + @			\ register size
-
-	case 
-	8bit of ['] d8@ ['] d8! rot endof
-	16bit of ['] d16@ ['] d16! rot endof
-	32bit of ['] d32@ ['] d32! rot endof
-	1 abort" illegal register size"
-	endcase
+	over dbit.multiplier !
+	dup current_register @ dreg.size @ fsxt		
+	rot dbit.store !
+	swap dbit.fetch !
 ;
 
 : bit-store				( bit-size c-addr u -- )
   common
-	nip ,
   does>
-	cr ."  Address " dup 0 cells + @ .hex
-	   ."  Mask " dup 1 cells + @ .hex
-	   ."  Val Mask " dup 2 cells + @ .hex
-	   ."  Position " dup 3 cells + @ .
-	   dup 4 cells + @ ?dup if ."  In array. size*index is " rot * . then
-	   dup 5 cells + @ ."  xt " .hex
-    drop
+	( {mightbeindex?} dbit -- )
+	dup dbit.multiplier @  dup if		( index dbit multiplier -- )
+		rot *							( dbit offset -- )
+	then
+	swap >r
+	r@ dbit.addr @ +
+	( newval address -- R: dbit -- )
+	swap r@ dbit.valmask @ and
+	r@ dbit.valshift @ lshift swap
+	( val address -- R: dbit -- )
+	dup r@ dbit.fetch @ execute
+	( val address reg -- R: dbit -- )
+	r@ dbit.regmask @ and
+	rot or swap
+	( newreg address -- R: dbit -- )
+	r> dbit.store @ execute
 ;
 
 : bit-fetch				( bit-size c-addr u -- )
   common
-	drop ,
   does>
-	cr ."  Address " dup 0 cells + @ .hex
-	   ."  Mask " dup 1 cells + @ .hex
-	   ."  Val Mask " dup 2 cells + @ .hex
-	   ."  Position " dup 3 cells + @ .
-	   dup 4 cells + @ ?dup if ."  In array. size*index is " rot * . then
-	   dup 5 cells + @ ."  xt " .hex
-    drop
+	( {mightbeindex?} dbit -- )
+	dup dbit.multiplier @  dup if		( index dbit multiplier -- )
+		rot *							( dbit offset -- )
+	then
+	( dbit offset -- )
+	over dbit.addr @ +
+    over dbit.fetch @ execute
+	over dbit.valshift @ rshift
+	swap dbit.valmask @ and
 ;
 
 ext-wordlist set-current
@@ -173,9 +219,9 @@ ext-wordlist set-current
 
 only forth definitions
 
-ext-wordlist get-order 1+ set-order
+( Example
 
-0 register-bank GCLK
+444444 register-bank GCLK
 	8bit register CTRLA
 		1 bit swrst
 	end-register
@@ -206,5 +252,7 @@ ext-wordlist get-order 1+ set-order
 		1 bit wrtlock	
 	end-register-array
 end-register-bank
+
+)
 	
 	
