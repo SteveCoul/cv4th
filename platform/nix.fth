@@ -17,6 +17,7 @@ include extra/vi.fth
 include extra/toys.fth
 include extra/thread.fth
 include extra/ringbuffer.fth
+include extra/register.fth
 
 ext-wordlist get-order 1+ set-order
 0 env-constant I2C_SDA_PIN
