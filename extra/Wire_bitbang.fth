@@ -5,14 +5,14 @@ require extra/ringbuffer.fth
 
 ext-wordlist forth-wordlist internals 3 set-order 
 
+private-namespace
+
 [UNDEFINED] pinMode [IF]
 	cr .( You have not included a gpio driver yet, cannot build without it ) abort [THEN]
 S" I2C_SDA_PIN" environment? 0= [IF]  cr .( I2C_SDA_PIN not in environment ) abort [THEN] value SDA_PIN
 S" I2C_SCL_PIN" environment? 0= [IF]  cr .( I2C_SCL_PIN not in environment ) abort [THEN] value SCL_PIN
 
 require extra/ringbuffer.fth
-
-private-namespace
 
 variable i2c_delay 				0 i2c_delay !
 
