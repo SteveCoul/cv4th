@@ -11,18 +11,6 @@ extern uint32_t __StackTop;
 extern "C" int main( int argc, char** argv );
 extern "C" void Reset_Handler( void );
 
-#define PIN 0x20000
-//#define PIN 0x8000
-
-void wait( void ) {
-	for ( int i = 0; i < 1000000; i++ ) i = i;
-}
-
-void ioclock( void ) { ((uint32_t*)0x40021014)[0] = 0x20000;}
-void makeOutput( void ) { ((uint32_t*)0x41008008)[0] = PIN;}
-void setHigh( void )  { ((uint32_t*)0x41008018)[0] = PIN;}
-void setLow( void )  { ((uint32_t*)0x41008014)[0] = PIN;}
-
 void Reset_Handler(void)
 {
   uint32_t *pSrc, *pDest;
@@ -49,17 +37,7 @@ void Reset_Handler(void)
 	__ISB();
 #endif
 
-	ioclock();
-	makeOutput();
-
 	main( 1, NULL );
-	for (;;)
-	{
-		wait();
-		setHigh();
-		wait();
-		setLow();
-	}
 }
 
 void isr_NMI( void ) { }
