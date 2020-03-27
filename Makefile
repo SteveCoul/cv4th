@@ -38,7 +38,7 @@ FORTH_PLATFORM=platform/atsamd21/atsamd21g18.fth
 else
 ifeq ($(TARGET),samd51bare)
 DICTIONARY_SIZE=128
-FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
+FORTH_PLATFORM=platform/atsamd51/atsamd51j20a_bare.fth
 BARE_METAL_TARGET=src/platform_samd51.c
 GCC_PREFIX=/Users/harry/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
 CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++
