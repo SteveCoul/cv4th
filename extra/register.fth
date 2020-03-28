@@ -22,9 +22,34 @@ private-namespace
 \ ---------------------------------------------------------
 private-namespace
 
+: >name 5 + ; \ HACK
+
+variable rlink
+variable blink
 variable base_address
 variable byte_offset
 variable bit_offset
+
+begin-structure dreg
+	1 cells +field	dreg.link	\ must be first
+	1 cells +field	dreg.name
+	1 cells +field	dreg.addr
+	1 cells +field	dreg.size
+	1 cells +field	dreg.list
+	1 cells +field	dreg.alen
+end-structure
+
+begin-structure dbit
+	1 cells +field	dbit.link	\ must be first
+	1 cells +field	dbit.addr
+	1 cells +field  dbit.size
+	1 cells +field	dbit.regmask
+	1 cells +field	dbit.valmask
+	1 cells +field	dbit.valshift
+	1 cells +field	dbit.multiplier
+	1 cells +field	dbit.fetch
+	1 cells +field	dbit.store
+end-structure
 
 \ ---------------------------------------------------------
 private-namespace
@@ -35,6 +60,8 @@ private-namespace
   loop
 ;
 
+: .hex32			( u -- )	
+  base @ >r hex 0 <# # # # # # # # # S" 0x" holds #> type r> base ! ;
 : .hex				( u -- )	
   base @ >r hex 0 <# #s S" 0x" holds #> type r> base ! ;
 
@@ -48,10 +75,35 @@ ext-wordlist set-current
 : register-bank
   parse-name dup bank_name c! bank_name 1+ swap move
   0 byte_offset !
-  dup base_address !
-\ I don't create a definition for the register bank itself
-\ but I may add one that dumps the bank to console
-\  bank_name count ($create) , does> cr ." Registers at " @ .
+  base_address !
+  bank_name count ($create) 
+	here rlink !
+	0 , 
+  does> 
+	cr ." Register bank"
+	@ ?dup if
+		begin
+			?dup
+		while
+			cr
+			dup dreg.addr @ .hex32 space 
+			dup [char] + emit dreg.size @ . space
+			dup dreg.name @ count type		
+			dup dreg.alen @ ?dup if
+				."  [0] " 
+				1 ?do
+					cr
+					dup dreg.addr @ 
+					over dreg.size @ i * +
+					.hex32 space 
+					dup [char] + emit dreg.size @ . space
+					dup dreg.name @ count type		
+					space [char] [ emit i . [char] ] emit
+				loop
+			then
+			@
+		repeat
+	then
 ;
 
 : end-register-bank ;
@@ -72,11 +124,6 @@ variable in_array
 variable current_register
 64 buffer: register_name
 
-begin-structure dreg
-	1 cells +field	dreg.addr
-	1 cells +field	dreg.size
-end-structure
-
 : (register)
   in_array !
   parse-name 
@@ -85,20 +132,25 @@ end-structure
   c" ." +tmp_name
   register_name +tmp_name
   0 bit_offset !
-\ I don't create a register definitions yet
-\ but I may create fetch and store for the
-\ whole register here later
-\  temp_name count ($create) 
+  temp_name count ($create) 
 	here current_register !
 	here dreg allot					( size ^dreg -- )
+	dup rlink @ !
+	dup dreg.link rlink !
+	get-current @ >name over dreg.name !
 	base_address @ byte_offset @ + over dreg.addr ! 
-	over swap dreg.size !
-	in_array @ if
+	0 over dreg.list !
+	dup dreg.list blink !		( size ^dreg -- )
+	2dup dreg.size !		
+	in_array @ if			( #elements? size ^dreg -- )
+		2 pick swap dreg.alen !
 		* 
+	else
+		0 swap dreg.alen !
 	then
 	byte_offset +!
-\  does> 
-\	cr ." Register " dup dreg.addr @ . ." , size " dreg.size @ .
+  does> 
+	cr ." Register " dup dreg.addr @ . ." , size " dreg.size @ .
 ;
 
 ext-wordlist set-current
@@ -117,16 +169,6 @@ ext-wordlist set-current
 
 \ ---------------------------------------------------------
 private-namespace
-
-begin-structure dbit
-	1 cells +field	dbit.addr
-	1 cells +field	dbit.regmask
-	1 cells +field	dbit.valmask
-	1 cells +field	dbit.valshift
-	1 cells +field	dbit.multiplier
-	1 cells +field	dbit.fetch
-	1 cells +field	dbit.store
-end-structure
 
 \ by default register banks work in device memory
 \ I may add an API to change that later
@@ -149,6 +191,9 @@ end-structure
 : common				( bit-size c-addr u -- fetch store )
   ($create)
 	here dbit allot
+	dup blink @ !
+	dup dbit.link blink !
+	2dup dbit.size !
 	current_register @ 0 cells + @ over dbit.addr !				( size dbit -- )
     over nbits bit_offset @ lshift invert over dbit.regmask !
     swap nbits over dbit.valmask !		( dbit -- )
@@ -219,40 +264,3 @@ ext-wordlist set-current
 
 only forth definitions
 
-( Example
-
-444444 register-bank GCLK
-	8bit register CTRLA
-		1 bit swrst
-	end-register
-	3 skip-byte
-	32bit register SYNCBUSY
-		1 bit swrst
-		1 skip-bit
-		12 bit genctrl
-	end-register
-	24 skip-byte
-	12 element 32bit register-array GENCTRLn
-		5 bit src
-		3 skip-bit
-		1 bit genen
-		1 bit idc
-		1 bit oov
-		1 bit oe
-		1 bit divsel
-		1 bit runstdby
-		2 skip-bit
-		16 bit div
-	end-register-array
-	48 skip-byte
-	48 element 32bit register-array PCHCTRLn
-		4 bit gen
-		2 skip-bit
-		1 bit chen
-		1 bit wrtlock	
-	end-register-array
-end-register-bank
-
-)
-	
-	
