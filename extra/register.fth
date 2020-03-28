@@ -5,6 +5,10 @@ ext-wordlist forth-wordlist 2 set-order
 
 \ ---------------------------------------------------------
 private-namespace
+0 constant DEBUG_REGS
+
+\ ---------------------------------------------------------
+private-namespace
 
 64 buffer: temp_name
 
@@ -170,6 +174,14 @@ ext-wordlist set-current
 \ ---------------------------------------------------------
 private-namespace
 
+DEBUG_REGS [IF]
+: default8@		cr ." 8bit fetch from " .hex32 0 ;
+: default16@	cr ." 16bit fetch from " .hex32 0 ;
+: default32@	cr ." 32bit fetch from " .hex32 0 ;
+: default8!		cr ." 8bit Store " swap .hex32 ."  @ " .hex32 ;
+: default16!	cr ." 16bit Store " swap .hex ."  @ " .hex32 ;
+: default32!	cr ." 32bit Store " swap .hex ."  @ " .hex32 ;
+[ELSE]
 \ by default register banks work in device memory
 \ I may add an API to change that later
 : default8@  0  d8@ ;
@@ -178,6 +190,7 @@ private-namespace
 : default16! 0 d16! ;
 : default32@ 0 d32@ ;
 : default32! 0 d32! ;
+[THEN]
 
 : fsxt					( regsiter -- fetchXt storeXt )
   case
@@ -194,7 +207,7 @@ private-namespace
 	dup blink @ !
 	dup dbit.link blink !
 	2dup dbit.size !
-	current_register @ 0 cells + @ over dbit.addr !				( size dbit -- )
+	current_register @ dreg.addr @ over dbit.addr !				( size dbit -- )
     over nbits bit_offset @ lshift invert over dbit.regmask !
     swap nbits over dbit.valmask !		( dbit -- )
     bit_offset @ over dbit.valshift !
@@ -244,6 +257,22 @@ private-namespace
 	swap dbit.valmask @ and
 ;
 
+DEBUG_REGS [IF]
+: bit-dump			( bit-size c-addr u -- )
+  common
+  does>
+	cr ."  link " dup dbit.link @ .hex
+	cr ."  addr " dup dbit.addr @ .hex
+	cr ."  size " dup dbit.size @ .hex
+	cr ."  regmask " dup dbit.regmask @ .hex
+	cr ."  valmask " dup dbit.valmask @ .hex
+	cr ."  valshift " dup dbit.valshift @ .hex
+	cr ."  multiplier " dup dbit.multiplier @ .hex
+	cr ."  fetch " dup dbit.fetch @ .hex
+	cr ."  store " dup dbit.store @ .hex
+	drop
+;
+[THEN]
 ext-wordlist set-current
 
 : bit 
@@ -256,6 +285,11 @@ ext-wordlist set-current
   dup c" @" +tmp_name temp_name count bit-fetch
   temp_name dup c@ 1- swap c!
   dup c" !" +tmp_name temp_name count bit-store
+  temp_name dup c@ 1- swap c!
+
+[ DEBUG_REGS ] [IF]
+  dup temp_name count bit-dump
+[THEN]
 
   bit_offset +!
 ;
