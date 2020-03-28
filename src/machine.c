@@ -513,7 +513,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			break;
 		case opFILE_POSITION:		
 			{
-				unsigned long int length;
+				unsigned long long int length;
 				ior_t ior = ioPosition( (int)datastack[ DP-1 ], &length );
 				if ( ior != IOR_OK ) length = 0;
 				DP+=2;
@@ -525,7 +525,7 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			break;
 		case opFILE_SIZE:	
 			{
-				unsigned long int length;
+				unsigned long long int length;
 				ior_t ior = ioSize( (int)datastack[ DP-1 ], &length );
 				if ( ior != IOR_OK ) length = 0;
 				DP+=2;

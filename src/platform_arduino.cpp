@@ -82,11 +82,11 @@ ior_t digital_write( FileReference_t* priv, void* buffer, unsigned int length ) 
 	return IOR_OK;
 }
 
-static ior_t digital_position( FileReference_t* priv, unsigned long int* position ) {
+static ior_t digital_position( FileReference_t* priv, unsigned long long int* position ) {
 	return IOR_UNKNOWN;
 }
 
-static ior_t digital_size( FileReference_t* priv, unsigned long int* size ) {
+static ior_t digital_size( FileReference_t* priv, unsigned long long int* size ) {
 	size[0] = 3;
 	return IOR_OK;
 }
@@ -160,7 +160,7 @@ ior_t wire_write( FileReference_t* priv, void* buffer, unsigned int length ) {
 	return (ior_t)Wire.write( p, length );
 }
 
-static ior_t wire_position( FileReference_t* priv, unsigned long int* position ) {
+static ior_t wire_position( FileReference_t* priv, unsigned long long int* position ) {
 	return IOR_UNKNOWN;
 }
 
@@ -168,7 +168,7 @@ static ior_t wire_position( FileReference_t* priv, unsigned long int* position )
  *	fileSize returns availble Rx bytes
  *
  */
-static ior_t wire_size( FileReference_t* priv, unsigned long int* size ) {
+static ior_t wire_size( FileReference_t* priv, unsigned long long int* size ) {
 	size[0] = Wire.available();
 	return IOR_OK;
 }

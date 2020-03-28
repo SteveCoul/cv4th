@@ -151,11 +151,11 @@ ior_t ioWrite( int fd, void* buffer, unsigned int length ) {
 	return myfiles[fd].io->write( &(myfiles[fd].ref), buffer, length );
 }
 
-ior_t ioPosition( int fd, unsigned long int* position ) {
+ior_t ioPosition( int fd, unsigned long long int* position ) {
 	return myfiles[fd].io->position( &(myfiles[fd].ref), position );
 }
 
-ior_t ioSize( int fd, unsigned long int* size ) {
+ior_t ioSize( int fd, unsigned long long int* size ) {
 	return myfiles[fd].io->size( &(myfiles[fd].ref), size );
 }
 

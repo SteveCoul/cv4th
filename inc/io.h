@@ -30,8 +30,8 @@ typedef struct {
 	ior_t (*close)( FileReference_t* private_data );
 	ior_t (*read)( FileReference_t* private_data, void* buffer, unsigned int length );
 	ior_t (*write)( FileReference_t* private_data, void* buffer, unsigned int length );
-	ior_t (*position)( FileReference_t* private_data, unsigned long int* position );
-	ior_t (*size)( FileReference_t* private_data, unsigned long int* size );
+	ior_t (*position)( FileReference_t* private_data, unsigned long long int* position );
+	ior_t (*size)( FileReference_t* private_data, unsigned long long int* size );
 	ior_t (*seek)( FileReference_t* private_data, unsigned long int position );
 } ioSubsystem;
 
@@ -41,8 +41,8 @@ extern ior_t ioCreate( const char* name, size_t namelen, unsigned int mode, int*
 extern ior_t ioClose( int fd );
 extern ior_t ioRead( int fd, void* buffer, unsigned int length );
 extern ior_t ioWrite( int fd, void* buffer, unsigned int length );
-extern ior_t ioPosition( int fd, unsigned long int* position );
-extern ior_t ioSize( int fd, unsigned long int* size );
+extern ior_t ioPosition( int fd, unsigned long long int* position );
+extern ior_t ioSize( int fd, unsigned long long int* size );
 extern ior_t ioSeek( int fd, unsigned long int position );
 
 #endif

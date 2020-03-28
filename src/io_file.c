@@ -44,12 +44,12 @@ ior_t f_write( FileReference_t* priv, void* buffer, unsigned int length ) {
 	return IOR_OK;
 }
 
-static ior_t f_position( FileReference_t* priv, unsigned long int* position ) {
+static ior_t f_position( FileReference_t* priv, unsigned long long int* position ) {
 	position[0] = lseek( priv->integer, 0, SEEK_CUR );
 	return IOR_OK;
 }
 
-static ior_t f_size( FileReference_t* priv, unsigned long int* size ) {
+static ior_t f_size( FileReference_t* priv, unsigned long long int* size ) {
 	unsigned position = lseek( priv->integer, 0, SEEK_CUR );
 	size[0] = lseek( priv->integer, 0, SEEK_END );
 	position = lseek( priv->integer, position, SEEK_SET );
