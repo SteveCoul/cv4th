@@ -40,7 +40,7 @@ ifeq ($(TARGET),samd51bare)
 DICTIONARY_SIZE=128
 FORTH_PLATFORM=platform/atsamd51/atsamd51j20a_bare.fth
 BARE_METAL_TARGET=src/platform_samd51.c
-GCC_PREFIX=/Users/harry/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
+GCC_PREFIX=/Users/stevencoul/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
 CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++
 CC_CFLAGS=$(CFLAGS)
 CC_CFLAGS+=-mcpu=cortex-m4 
@@ -63,7 +63,7 @@ CC_LFLAGS+=-Wl,--gc-sections
 CC_LFLAGS+=-Wl,--unresolved-symbols=report-all 
 CC_LFLAGS+=-Wl,--warn-common 
 CC_LFLAGS+=-Wl,--warn-section-align  
-UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem1421 --offset 0x4000 -e -w -v -R 
+UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
 else
 fail-target:
 	@echo no TARGET set

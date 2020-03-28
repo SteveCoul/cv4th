@@ -16,6 +16,7 @@ require platform/atsamd51/irqs.fth
 require platform/atsamd51/peripherals.fth
 require platform/atsamd51/vector_table.fth
 require platform/atsamd51/interrupts.fth
+require platform/cortexm4/sercom.fth
 require platform/atsamd51/startup.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
