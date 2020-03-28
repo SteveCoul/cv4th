@@ -2,6 +2,7 @@
 ext-wordlist forth-wordlist internals 3 set-order 
 definitions
 
+\ TODO - use the new OSC32K register banks!
 hex 
 40001400 		constant OSC32KCTRL   
 OSC32KCTRL 10 + constant OSC32KCTRL_RTCCTRL

@@ -9,6 +9,7 @@ require platform/cortexm4/eic.fth
 require platform/cortexm4/nvic.fth
 require platform/cortexm4/gclk.fth
 require platform/cortexm4/mclk.fth
+require platform/cortexm4/osc32k.fth
 require platform/atsamd51/flash.fth
 require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
@@ -27,10 +28,10 @@ require extra/toys.fth
 require extra/thread.fth
 
 
-\ PIN_D5 env-constant I2C_SDA_PIN
-\ PIN_D6 env-constant I2C_SCL_PIN
-\ require extra/Wire_bitbang.fth
-require platform/arduino/Wire.fth
+PIN_D5 env-constant I2C_SDA_PIN
+PIN_D6 env-constant I2C_SCL_PIN
+require extra/Wire_bitbang.fth
+\ require platform/arduino/Wire.fth
 
 ext-wordlist get-order 1+ set-order
 87 env-constant AT24C32_ADDRESS
@@ -46,6 +47,8 @@ require extra/i2c_ssd1306_lcd.fth
 
 3 env-constant AS3935_ADDRESS
 require extra/i2c_as3935_lightning_detector.fth
+
+require platform/atsamd51/consoleio.fth
 
 require platform/done.fth
 

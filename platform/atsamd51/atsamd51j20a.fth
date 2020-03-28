@@ -9,6 +9,7 @@ require platform/cortexm4/eic.fth
 require platform/cortexm4/nvic.fth
 require platform/cortexm4/gclk.fth
 require platform/cortexm4/mclk.fth
+require platform/cortexm4/osc32k.fth
 require platform/atsamd51/flash.fth
 require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
