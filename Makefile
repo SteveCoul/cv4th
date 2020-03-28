@@ -5,7 +5,7 @@
 
 ifeq ($(TARGET),host)
 # need to stay under 64k for 16 bit builds
-DICTIONARY_SIZE=60
+DICTIONARY_SIZE=128
 FORTH_PLATFORM=platform/nix.fth
 HOST_PLATFORM=y
 else 
