@@ -131,11 +131,11 @@ ext-wordlist set-current
 		1 bit	lenen
 		7 skip-bit
 	end-register
-	5 skip-byte
+	4 skip-byte
 	32bit register DATA
 		32 bit	data
 	end-register
-	5 skip-byte
+	4 skip-byte
 	8bit register DBGCTRL
 		1 bit	dbgstop
 		7 skip-bit
