@@ -33,8 +33,9 @@ variable i2c_delay 				0 i2c_delay !
 
 : reset  	
   sdaIN sclOUT
-  begin sda@ 0= while sclHI sclLO repeat
-  sdaOUT sclOUT sclHI sdaHI i2c_wait ;
+\  begin sda@ 0= while sclHI sclLO repeat
+  sdaOUT sclOUT sclHI sdaHI i2c_wait 
+;
 
 : start 	reset i2c_wait sdaLO i2c_wait sclLO ;
 : end 		sdaLO i2c_wait sclHI i2c_wait sdaHI ;    
