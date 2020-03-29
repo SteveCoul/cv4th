@@ -1432,6 +1432,10 @@ internals set-current
 : [2literal] postpone 2literal ;
 forth-wordlist set-current
 
+internals set-current
+defer interpreter-hook
+:noname 2drop false ; is interpreter-hook
+
 \ some folks call this 'interpret' :-)
 internals set-current
 : (evaluate)																	
@@ -1446,19 +1450,24 @@ internals set-current
 			state @ if compile, else execute then
 		then
 	else
-		over c@ dup	[char] - = if drop -1 >r 1 /string else [char] + = if 1 /string then 1 >r then
-
-		0 0 2swap >number ?dup 0= if
-			drop
-			if -24 throw then
-			r> * state @ if [literal] then
+		2dup interpreter-hook if
+			2drop
 		else
-			S" ." compare if
-				2drop
-				-13 throw
+			over c@ dup	[char] - = if drop -1 >r 1 /string else [char] + = if 1 /string then 1 >r then
+
+			0 0 2swap >number ?dup 0= if
+				drop
+				if -24 throw then
+				r> * state @ if [literal] then
+			else
+				S" ." compare 0= if
+					r> -1 = if dnegate then
+					state @ if [2literal] then
+				else
+					r> drop
+					-13 throw
+				then
 			then
-			r> -1 = if dnegate then
-			state @ if [2literal] then
 		then
 	then
   repeat
