@@ -5,6 +5,8 @@ internals ext-wordlist forth-wordlist 3 set-order
 
 internals set-current
 
+4 constant EIC_GCLK_ID
+
 SENSE_RISE constant RISING
 
 : noop ;
@@ -70,7 +72,11 @@ onboot: interrupts
 		dup nvicClearPending
 			nvicEnableIRQ
 	loop
-	eic-gclk
+
+	\ enable clock for EIC
+	2 EIC_GCLK_ID GCLK.PCHCTRLn.gen!
+	1 EIC_GCLK_ID GCLK.PCHCTRLn.chen!
+
 	eicEnable
 
 onboot;

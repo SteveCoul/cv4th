@@ -10,6 +10,69 @@ ext-wordlist get-order 1+ set-order
   1 osc32kctrl.xosc32k.xtalen!
   1 osc32kctrl.xosc32k.enable! 
   begin osc32kctrl.status.xosc32krdy@ schedule until
+
+  \ reset GCLK
+  1 GCLK.CTRLA.swrst!
+10 ms \  begin GCLK.SYNCBUSY.swrst@ 0= until
+
+  \ XOSC32K is source of generic clock generator 3
+  5 3 GCLK.GENCTRLn.src!
+  1 3 GCLK.GENCTRLn.genen!
+  begin GCLK.SYNCBUSY.genctrl3@ 0= until
+
+  \ OSCULP32K is source of gcg 0
+  4 0 GCLK.GENCTRLn.src!
+  1 0 GCLK.GENCTRLn.genen!
+  begin GCLK.SYNCBUSY.genctrl0@ 0= until
+
+  \ DFLL 48Mhz
+  0 OSCCTRL.DFLLCTRLA.enable!
+  0 OSCCTRL.DFLLCTRLA.runstdby!
+  0 OSCCTRL.DFLLCTRLA.ondemand!
+
+  1 OSCCTRL.DFLLMUL.cstep!
+  1 OSCCTRL.DFLLMUL.fstep!
+  0 OSCCTRL.DFLLMUL.mul!
+
+  begin OSCCTRL.DFLLSYNC.dfllmul@ 0= until
+ 
+  0 OSCCTRL.DFLLCTRLB.mode!
+  0 OSCCTRL.DFLLCTRLB.stable!
+  0 OSCCTRL.DFLLCTRLB.llaw!
+  0 OSCCTRL.DFLLCTRLB.usbcrm!
+  0 OSCCTRL.DFLLCTRLB.ccdis!
+  0 OSCCTRL.DFLLCTRLB.qldis!
+  0 OSCCTRL.DFLLCTRLB.bplckc!
+  0 OSCCTRL.DFLLCTRLB.waitlock!
+  
+  begin OSCCTRL.DFLLSYNC.dfllctrlb@ 0= until
+
+  1 OSCCTRL.DFLLCTRLA.enable!
+  
+  begin OSCCTRL.DFLLSYNC.enable@ 0= until
+
+  OSCCTRL.DFLLVAL.diff@ OSCCTRL.DFLLVAL.diff!
+  OSCCTRL.DFLLVAL.coarse@ OSCCTRL.DFLLVAL.coarse!
+  OSCCTRL.DFLLVAL.fine@ OSCCTRL.DFLLVAL.fine!
+
+  begin OSCCTRL.DFLLSYNC.dfllval@ 0= until
+ 
+  1 OSCCTRL.DFLLCTRLB.waitlock!
+  0 OSCCTRL.DFLLCTRLB.bplckc!
+  0 OSCCTRL.DFLLCTRLB.qldis!
+  1 OSCCTRL.DFLLCTRLB.ccdis!
+  1 OSCCTRL.DFLLCTRLB.usbcrm!
+  0 OSCCTRL.DFLLCTRLB.llaw!
+  0 OSCCTRL.DFLLCTRLB.stable!
+  0 OSCCTRL.DFLLCTRLB.mode!
+ 
+  begin OSCCTRL.DFLLSYNC.dfllctrlb@ 0= until
+
+  6 5 GCLK.GENCTRLn.src!
+  48 5 GCLK.GENCTRLn.div!
+  1 5 GCLK.GENCTRLn.genen!
+  begin GCLK.SYNCBUSY.genctrl5@ 0= until
+  
 ;
 
 \ These should be elsewhere
@@ -69,6 +132,7 @@ ext-wordlist get-order 1+ set-order
 10 buffer: fred
 
 onboot: consoleIO
+	1 0x41006000 0x08 + 0 d32!		\ enable cache
 	sysinit
 	1 fred c!
 	[char] 0 fred 1+ c!

@@ -4,7 +4,7 @@ require extra/register.fth
 ext-wordlist get-order 1+ set-order
 ext-wordlist set-current
 
-0x40001400 register-bank OSCCTRL
+0x40001000 register-bank OSCCTRL
 	8bit register EVCTRL
 		1 bit cfdeo0
 		1 bit cfdeo1
@@ -102,7 +102,7 @@ ext-wordlist set-current
 		1 bit dpll1ldrto
 		4 skip-bit
 	end-register
-	32bit regsiter XOSCCTRL0
+	32bit register XOSCCTRL0
 		1 skip-bit
 		1 bit enable
 		1 bit xtalen
@@ -119,7 +119,7 @@ ext-wordlist set-current
 		4 bit startup
 		4 bit cfdpresc
 	end-register
-	32bit regsiter XOSCCTRL1
+	32bit register XOSCCTRL1
 		1 skip-bit
 		1 bit enable
 		1 bit xtalen

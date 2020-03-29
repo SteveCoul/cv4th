@@ -12,7 +12,18 @@ ext-wordlist set-current
 	32bit register SYNCBUSY
 		1 bit swrst
 		1 skip-bit
-		12 bit genctrl
+		1 bit genctrl0
+		1 bit genctrl1
+		1 bit genctrl2
+		1 bit genctrl3
+		1 bit genctrl4
+		1 bit genctrl5
+		1 bit genctrl6
+		1 bit genctrl7
+		1 bit genctrl8
+		1 bit genctrl9
+		1 bit genctrl10
+		1 bit genctrl11
 	end-register
 	24 skip-byte
 	12 element 32bit register-array GENCTRLn
@@ -37,14 +48,4 @@ ext-wordlist set-current
 end-register-bank
 
 
-\ FIXME - use the registerAPI
-hex
-40001C00 constant GCLK
-80 constant PCHCTRL0
- 4 constant EIC_GCLK_ID
-decimal
-
-: eic-gclk
-  [ hex ] 42 [ decimal ] GCLK PCHCTRL0 + EIC_GCLK_ID cells + s>d d32!
-;
 
