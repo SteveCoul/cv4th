@@ -209,6 +209,10 @@ ifneq ($(ARDUINO_PLATFORM),)
 ARDUINO_CLI=$(shell which arduino-cli)
 ARDUINO_PORT=$(shell $(ARDUINO_CLI) board list | grep $(ARDUINO_PLATFORM) | cut -d ' ' -f 1)
 
+ifeq ($(ARDUINO_PORT),)
+ARDUINO_PORT=$(shell scripts/find-board-port.sh $(ARDUINO_PLATFORM) )
+endif
+
 arduino_build_tree: forth_platform.img.c
 	rm -rf arduino
 	mkdir arduino
