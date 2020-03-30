@@ -13,9 +13,9 @@ variable current-array-size
 variable byte-offset
 variable bit-offset
 
- 8 constant 8bit
-16 constant 16bit
-32 constant 32bit
+0 constant 8bit
+1 constant 16bit
+2 constant 32bit
 
 begin-structure bank
 	1 cells +field	b.magic
@@ -26,12 +26,42 @@ begin-structure reg
 	1 cells +field	r.wid
 end-structure
 
+(
+	encoded info field
+	|10|98765|43210|9876|5432109876543210
+    |33|22222|22222|1111|111111
+	|--|-----|-----|----|----------------
+	|  |	 |	   |	|array size
+	|  |     |     |unused
+	|  |     |position
+	|  |	 |	   |
+	|  |size of field 
+	|  |0 means32
+	regsize
+	00 8bit
+	01 16bit
+	10 32bit
+	11 unused
+)
+
+: encode		( regsize fieldsize fieldposition arraysize -- v )
+  0xFFFF and >r				
+  0x1F and 16 lshift r> or  
+  rot 3 and 30 lshift or	
+  swap dup 32 = if drop 0 then 
+  0x1F and 25 lshift or
+;
+
+: decode		( v -- regsize fieldsize fieldposition arraysize )
+  dup 30 lshift 3 and swap
+  dup 25 lshift 0x1F and dup 0 = if drop 32 then swap
+  dup 20 lshift 0x1F and swap
+  0xFFFF and
+;
+
 begin-structure bt
 	1 cells +field	bt.address
-	1 cells +field	bt.size
-	1 cells +field	bt.bitpos
-	1 cells +field	bt.regsize
-	1 cells +field	bt.arraysize
+	1 cells +field	bt.data
 end-structure
 
 : register-bank
@@ -82,23 +112,16 @@ end-structure
   get-current >r current-register @ r.wid @ set-current
   create
 	r> set-current
-	here dup >r bt allot
-		r@ bt.size !
-		byte-offset r@ bt.address !
-		bit-offset r@ bt.bitpos !
-		current-register-size r@ bt.regsize !
-		current-array-size r@ bt.arraysize !
-	r> drop
+	here >r bt allot	
+	current-register-size @	
+	over					
+	bit-offset @				
+	current-array-size @		
+	encode
+	r@ bt.data !
+	byte-offset @ r> bt.address !
 	bit-offset +!
   does>
-	cr ." Register [def=]" dup . ." ]"
-	cr ."   " dup bt.size @ . ." bit field, "
-	." at position " dup bt.bitpos @ .
-    ." . Memory base " dup bt.address @ .
-    ." , register size " dup bt.regsize @ .
-	dup bt.arraysize @ ?dup if
-		cr ." . Access element in an array of size " .
-	then
     drop
 ;
 
