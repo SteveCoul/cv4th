@@ -118,7 +118,7 @@ ext-wordlist get-order 1+ set-order
   0x1FFF and swap
   7 and 13 lshift or
   
-  sercom0.baud.baud!				\ 115200 baudrate I hope
+  sercom0.baud.reg!					\ 115200 baudrate I hope
 
   0 sercom0.ctrlb.chsize!			\ 8 bit data
   0 sercom0.ctrlb.sbmode!			\ 1 stop bit
@@ -149,7 +149,7 @@ onboot: consoleIO
 		then
 		fred 1+ c!
 
-		fred 1+ c@ sercom0.data.data!
+		fred 1+ c@ sercom0.data.reg!
     again
 onboot;
 

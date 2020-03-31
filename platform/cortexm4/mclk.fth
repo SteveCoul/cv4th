@@ -16,6 +16,10 @@ ext-wordlist set-current
 	8bit register INTFLAG
 		1 bit chkrdy
 	end-register
+	8bit register HSDIV
+	end-register
+	8bit register CPUDIV
+	end-register
 	10 skip-byte
 	32bit register AHBMASK
 		1 bit hpbn0

@@ -1,11 +1,11 @@
 
+require extra/register.fth
+
 \ 0x40003400 register-bank SERCOM1
 \ 0x41012000 register-bank SERCOM2
 \ 0x41014000 register-bank SERCOM3
 \ 0x43000000 register-bank SERCOM4
 \ 0x43000400 register-bank SERCOM5
-
-require extra/register.fth
 
 ext-wordlist get-order 1+ set-order
 ext-wordlist set-current
@@ -64,10 +64,8 @@ ext-wordlist set-current
 		6 skip-bit
 	end-register
 	16bit register BAUD
-		16 bit 	baud
 	end-register
 	8bit register RXPL
-		8 bit	rxpl
 	end-register
 	5 skip-byte
 	8bit register ITENCLR
@@ -133,7 +131,6 @@ ext-wordlist set-current
 	end-register
 	4 skip-byte
 	32bit register DATA
-		32 bit	data
 	end-register
 	4 skip-byte
 	8bit register DBGCTRL
@@ -196,10 +193,8 @@ end-register-bank
 		6 skip-bit
 	end-register
 	16bit register BAUD
-		16 bit 	baud
 	end-register
 	8bit register RXPL
-		8 bit	rxpl
 	end-register
 	5 skip-byte
 	8bit register ITENCLR
@@ -265,7 +260,6 @@ end-register-bank
 	end-register
 	4 skip-byte
 	32bit register DATA
-		32 bit	data
 	end-register
 	4 skip-byte
 	8bit register DBGCTRL
