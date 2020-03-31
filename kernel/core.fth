@@ -1450,7 +1450,15 @@ internals set-current
 			state @ if compile, else execute then
 		then
 	else
-		2dup interpreter-hook if
+		2dup 
+		\ I need to be sure that when I call interpreter-hook there
+		\ is nothing on the stack from evaluate so the word I may invoke
+		\ access the stack correctly. So stash the above 2dup on return stack	
+		2>r
+		interpreter-hook 
+		2r> rot
+
+		if
 			2drop
 		else
 			over c@ dup	[char] - = if drop -1 >r 1 /string else [char] + = if 1 /string then 1 >r then
