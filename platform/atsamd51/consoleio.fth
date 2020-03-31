@@ -1,34 +1,62 @@
 
+require platform/atsamd51/gpio.fth 
 require platform/cortexm4/sercom.fth
 
 ext-wordlist get-order 1+ set-order
 
+\ These should be elsewhere
+7 constant SERCOM0_GCLK_ID_CORE       
+3 constant SERCOM0_GCLK_ID_SLOW         
+
+: hacf
+	LED_BUILTIN OUTPUT pinMode
+	PIN_D5 OUTPUT pinMode
+begin
+	1000 0 ?do i drop loop
+	LED_BUILTIN HIGH writeDigital
+	PIN_D5 HIGH writeDigital
+	1000 0 ?do i drop loop
+	LED_BUILTIN LOW writeDigital
+	PIN_D5 LOW writeDigital
+again
+;
+
 : sysinit
   \ enable XOSC32K clock (external)
+  -1 osc32kctrl.ITENCLR.reg!		\ no interrupts
+  -1 osc32kctrl.INTFLAG.reg!		\ clear any pending
   1 osc32kctrl.xosc32k.en32k!
   1 osc32kctrl.xosc32k.cgm! 		\ standard mode 
   1 osc32kctrl.xosc32k.xtalen!
   1 osc32kctrl.xosc32k.enable! 
-  begin osc32kctrl.status.xosc32krdy@ schedule until
+  begin osc32kctrl.status.xosc32krdy@ until
 
   \ reset GCLK
   1 GCLK.CTRLA.swrst!
-10 ms \  begin GCLK.SYNCBUSY.swrst@ 0= until
+  begin GCLK.SYNCBUSY.swrst@ 0= until
 
   \ XOSC32K is source of generic clock generator 3
   5 3 GCLK.GENCTRLn.src!
   1 3 GCLK.GENCTRLn.genen!
   begin GCLK.SYNCBUSY.genctrl3@ 0= until
 
+\ HACK - 'fast' clock for USB
+  \ XOSC32K is source of generic clock generator 3
+  5 7 GCLK.GENCTRLn.src!
+  1 7 GCLK.GENCTRLn.genen!
+  begin GCLK.SYNCBUSY.genctrl7@ 0= until
+
+exit
+
+(
   \ OSCULP32K is source of gcg 0
   4 0 GCLK.GENCTRLn.src!
   1 0 GCLK.GENCTRLn.genen!
   begin GCLK.SYNCBUSY.genctrl0@ 0= until
+)
 
   \ DFLL 48Mhz
-  0 OSCCTRL.DFLLCTRLA.enable!
-  0 OSCCTRL.DFLLCTRLA.runstdby!
-  0 OSCCTRL.DFLLCTRLA.ondemand!
+  0 OSCCTRL.DFLLCTRLA.reg!
 
   1 OSCCTRL.DFLLMUL.cstep!
   1 OSCCTRL.DFLLMUL.fstep!
@@ -74,10 +102,6 @@ ext-wordlist get-order 1+ set-order
   begin GCLK.SYNCBUSY.genctrl5@ 0= until
   
 ;
-
-\ These should be elsewhere
-7 constant SERCOM0_GCLK_ID_CORE       
-3 constant SERCOM0_GCLK_ID_SLOW         
 
 : resetUART
   1 sercom0.ctrla.swrst!
@@ -136,7 +160,8 @@ onboot: consoleIO
 	sysinit
 	1 fred c!
 	[char] 0 fred 1+ c!
-	lcd-init lcd-clear lcd-update
+	lcd-init 
+\	lcd-clear 0 0 lcd-at-xy S" sysinit" lcd-type lcd-update
 	lcd-clear 0 0 lcd-at-xy S" initUART" lcd-type lcd-update
 	initUART
 	lcd-clear 0 0 lcd-at-xy S" Enable" lcd-type lcd-update

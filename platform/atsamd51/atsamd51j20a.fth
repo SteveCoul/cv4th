@@ -8,7 +8,7 @@ ext-wordlist get-order 1+ set-order
 require platform/cortexm4/eic.fth
 require platform/cortexm4/nvic.fth
 require platform/atsamd51/flash.fth
-require platform/atsamd51/clock.fth
+\ require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
 require platform/atsamd51/irqs.fth
 require platform/atsamd51/peripherals.fth
@@ -43,5 +43,6 @@ require extra/i2c_ssd1306_lcd.fth
 3 env-constant AS3935_ADDRESS
 require extra/i2c_as3935_lightning_detector.fth
 
+include platform/cortexm4/gclk.fth
 require platform/done.fth
 
