@@ -12,10 +12,10 @@ ext-wordlist get-order 1+ set-order
 	LED_BUILTIN OUTPUT pinMode
 	PIN_D5 OUTPUT pinMode
 begin
-	1000 0 ?do i drop loop
+	words
 	LED_BUILTIN HIGH writeDigital
 	PIN_D5 HIGH writeDigital
-	1000 0 ?do i drop loop
+	words
 	LED_BUILTIN LOW writeDigital
 	PIN_D5 LOW writeDigital
 again
@@ -152,29 +152,4 @@ exit
   1 sercom0.ctrlb.txen!				\ enable transmitter
   1 sercom0.ctrlb.rxen!				\ enable receiver
 ;
-
-10 buffer: fred
-
-onboot: consoleIO
-	1 0x41006000 0x08 + 0 d32!		\ enable cache
-	sysinit
-	1 fred c!
-	[char] 0 fred 1+ c!
-	lcd-init 
-\	lcd-clear 0 0 lcd-at-xy S" sysinit" lcd-type lcd-update
-	lcd-clear 0 0 lcd-at-xy S" initUART" lcd-type lcd-update
-	initUART
-	lcd-clear 0 0 lcd-at-xy S" Enable" lcd-type lcd-update
-	enableUART
-	lcd-clear 0 0 lcd-at-xy S" Ready" lcd-type lcd-update
-	begin 
-	    lcd-clear 1 1 lcd-at-xy fred count lcd-type lcd-update
-		fred 1+ c@ 1+ dup [char] 9 > if
-			drop [char] 0 
-		then
-		fred 1+ c!
-
-		fred 1+ c@ sercom0.data.reg!
-    again
-onboot;
 

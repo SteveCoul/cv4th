@@ -49,6 +49,10 @@ CC_CFLAGS+=-ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib
 CC_CFLAGS+=--param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD 
 CC_CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 
 CC_CFLAGS+=-fpermissive
+
+CC_CFLAGS+=-I/Users/stevencoul/Library/Arduino15/packages/arduino/tools//CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include
+CC_CFLAGS+=-D__SAMD51J20A__
+CC_CFLAGS+=-I/Users/stevencoul/Library/Arduino15//packages/arduino/tools/CMSIS/4.5.0/CMSIS/Include
 CC_LFLAGS=
 CC_LFLAGS+=-Wl,--gc-sections 
 CC_LFLAGS+=-save-temps
