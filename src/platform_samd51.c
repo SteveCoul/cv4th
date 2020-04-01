@@ -483,8 +483,6 @@ int platform_read_term( void ) {
 
 	if ( !pollUSB() ) return -1;
 
-	LEDtoggle();
-
 	c = readUSB();
 	if ( c >= 0 ) {
 		if ( ( c == 10 ) && ( ignore_next_10 ) ) {
