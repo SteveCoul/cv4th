@@ -23,13 +23,14 @@ require platform/atsamd51/startup.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
 require kernel/structure.fth
+require kernel/dis.fth
 require extra/ringbuffer.fth
 require extra/vi.fth
 require extra/toys.fth
 require extra/thread.fth
 
-\ PIN_D5 env-constant I2C_SDA_PIN
-\ PIN_D6 env-constant I2C_SCL_PIN
+\ PIN_SDA env-constant I2C_SDA_PIN
+\ PIN_SCL env-constant I2C_SCL_PIN
 \ require extra/Wire_bitbang.fth
 
 \ require platform/arduino/Wire.fth

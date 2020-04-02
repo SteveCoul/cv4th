@@ -1,6 +1,8 @@
 
 #CFLAGS=-Wall -Wpedantic -Werror -Os
 
+WHOAMI=$(shell whoami)
+
 # #############################
 
 ifeq ($(TARGET),host)
@@ -37,10 +39,11 @@ PAD_IMAGE=n
 FORTH_PLATFORM=platform/atsamd21/atsamd21g18.fth
 else
 ifeq ($(TARGET),samd51bare)
+# TODO move to stand alone tools and CMSIS download instead of arduino?
 DICTIONARY_SIZE=150
 FORTH_PLATFORM=platform/atsamd51/atsamd51j20a_bare.fth
 BARE_METAL_TARGET=src/platform_samd51.c
-GCC_PREFIX=/Users/stevencoul/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
+GCC_PREFIX=/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
 CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++
 CC_CFLAGS=$(CFLAGS)
 CC_CFLAGS+=-mcpu=cortex-m4 
@@ -50,9 +53,9 @@ CC_CFLAGS+=--param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD
 CC_CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 
 CC_CFLAGS+=-fpermissive
 
-CC_CFLAGS+=-I/Users/stevencoul/Library/Arduino15/packages/arduino/tools//CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include
+CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools//CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include
 CC_CFLAGS+=-D__SAMD51J20A__
-CC_CFLAGS+=-I/Users/stevencoul/Library/Arduino15//packages/arduino/tools/CMSIS/4.5.0/CMSIS/Include
+CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15//packages/arduino/tools/CMSIS/4.5.0/CMSIS/Include
 CC_LFLAGS=
 CC_LFLAGS+=-Wl,--gc-sections 
 CC_LFLAGS+=-save-temps
@@ -67,7 +70,7 @@ CC_LFLAGS+=-Wl,--gc-sections
 CC_LFLAGS+=-Wl,--unresolved-symbols=report-all 
 CC_LFLAGS+=-Wl,--warn-common 
 CC_LFLAGS+=-Wl,--warn-section-align  
-UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
+UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem1411 --offset 0x4000 -e -w -v -R 
 else
 fail-target:
 	@echo no TARGET set

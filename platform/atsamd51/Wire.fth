@@ -65,7 +65,7 @@ definitions
 	SERCOM3_I2CM.INTFLAG.sb@ 0=
   while
   	SERCOM3_I2CM.INTFLAG.mb@ if
-		3 SERCOM3_CTRLB.cmd! \ send stop if slave nacks
+		3 SERCOM3_I2CM.CTRLB.cmd! \ send stop if slave nacks
 		false exit
   	then
   repeat

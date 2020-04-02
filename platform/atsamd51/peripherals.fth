@@ -1,4 +1,6 @@
 
+ext-wordlist set-current
+
 ( Peripheral values for PORT multiplexing configuration via PORT_PMUXn )
 
  0 constant PIO_EXTINT		\ Peripheral A
@@ -16,4 +18,5 @@
 12 constant PIO_AC_CLK		\ Peripheral M
 13 constant PIO_CCL			\ Peripheral N
 
+only forth definitions
 

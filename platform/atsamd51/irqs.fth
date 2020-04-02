@@ -1,4 +1,5 @@
 
+ext-wordlist set-current
 
 12 constant EIC_0_IRQn
 13 constant EIC_1_IRQn
@@ -16,4 +17,6 @@
 25 constant EIC_13_IRQn
 26 constant EIC_14_IRQn
 27 constant EIC_15_IRQn
+
+only forth definitions
 
