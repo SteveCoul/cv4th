@@ -19,7 +19,6 @@ require platform/atsamd51/irqs.fth
 require platform/atsamd51/peripherals.fth
 require platform/atsamd51/vector_table.fth
 require platform/atsamd51/interrupts.fth
-require platform/cortexm4/sercom.fth
 require platform/atsamd51/startup.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
@@ -51,8 +50,6 @@ require extra/i2c_ssd1306_lcd.fth
 
 3 env-constant AS3935_ADDRESS
 require extra/i2c_as3935_lightning_detector.fth
-
-require platform/atsamd51/consoleio.fth
 
 require platform/done.fth
 
