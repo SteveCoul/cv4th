@@ -1,53 +1,23 @@
 
-ext-wordlist forth-wordlist internals 3 set-order 
-definitions
+require platform/cortexm4/osc32k.fth
+require platform/cortexm4/rtc.fth
 
-\ TODO - use the new OSC32K register banks!
-hex 
-40001400 		constant OSC32KCTRL   
-OSC32KCTRL 10 + constant OSC32KCTRL_RTCCTRL
-00				constant OSC32KCTRL_RTCCTRL_ULP1K
-01				constant OSC32KCTRL_RTCCTRL_ULP32K
-04				constant OSC32KCTRL_RTCCTRL_XOSC1K
-05				constant OSC32KCTRL_RTCCTRL_XOSC32K
+forth-wordlist ext-wordlist 2 set-order 
 
-40002400 constant RTC
-RTC 00 + constant RTC_CTRLA
-0002	 constant RTC_CTRLA_ENABLE_MASK
-0002	 constant RTC_CTRLA_ENABLE
-0F00	 constant RTC_CTRLA_PRESCALER_MASK
-0000	 constant RTC_CTRLA_PRESCALER_OFF
-0100	 constant RTC_CTRLA_PRESCALER_1
-0200	 constant RTC_CTRLA_PRESCALER_2
-( ... etc ... up to B which is 1024 )
-0B00	 constant RTC_CTRLA_PRESCALER_1024
-00C0	 constant RTC_CTRLA_MODE_MASK
-0000	 constant RTC_CTRLA_MODE_COUNT32
-0040	 constant RTC_CTRLA_MODE_COUNT16
-0080   	 constant RTC_CTRLA_MODE_CLOCK
-8000	 constant RTC_CTRLA_COUNT_SYNC_MASK
-8000	 constant RTC_CTRLA_COUNT_SYNC
-( 00C0 reserved )
-RTC 18 + constant RTC_COUNT
-decimal
+ext-wordlist set-current
 
-onboot: clock
-  OSC32KCTRL_RTCCTRL_XOSC32K OSC32KCTRL_RTCCTRL s>d d8!
-  RTC_CTRLA s>d d16@
-  	RTC_CTRLA_ENABLE_MASK 
-	RTC_CTRLA_PRESCALER_MASK and 
-	RTC_CTRLA_MODE_MASK and 
-	RTC_CTRLA_COUNT_SYNC_MASK and
-  invert and
-    RTC_CTRLA_ENABLE or
-    RTC_CTRLA_PRESCALER_1 or
-    RTC_CTRLA_MODE_COUNT32 or
-    RTC_CTRLA_COUNT_SYNC or
-  RTC_CTRLA s>d d16!
+\ FIXME - cannot use external osc - which should be running in native boot?
+onboot: clock 
+  1 OSC32KCTRL.RTCCTRL.rtcsel!		( 0= 1.024Khz int, 1= 32.768Khz int, 4= 1.024Khz extosc, 5= 32.768Khz extosc )
+  1 RTCmode0.CTRLA.swrst!
+  begin RTCmode0.SYNCBUSY.swrst@ 0= until
+  1 RTCmode0.CTRLA.countsync!
+  1 RTCmode0.CTRLA.enable!
+  begin RTCmode0.SYNCBUSY.enable@ 0= until
 onboot;
 
 : rtc@
-  RTC_COUNT s>d d32@
+  RTCmode0.COUNT.reg@
 ;
 
 32768 constant rtcTicksPerSecond
@@ -61,11 +31,12 @@ onboot;
   then
 ;
 
+get-order internals swap 1+ set-order
 forth-wordlist set-current
 
 : ms			( ms -- )
   rtcTicksPerSecond * 1000 / 
-  rtc@ + begin at-idle dup rtc@ < until drop
+  rtc@ + begin at-idle dup rtc@ < until drop	 ( not schedule because we may not have thread.fth )
 ;
 
 only forth definitions
