@@ -368,10 +368,10 @@ void initUSB( void ) {
 
 	initPINS( PIN_PA24H_USB_DM, MUX_PA24H_USB_DM, PIN_PA25H_USB_DP, MUX_PA25H_USB_DP );
 
-    GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+    GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
     MCLK->AHBMASK.bit.USB_ = true;
     MCLK->APBBMASK.bit.USB_ = true;
-    while(GCLK->SYNCBUSY.bit.GENCTRL0)
+    while(GCLK->SYNCBUSY.bit.GENCTRL1)
 		;
 
     USB->HOST.CTRLA.bit.SWRST = 1;
@@ -420,7 +420,7 @@ void configureDFLL( void ) {
 
     OSCCTRL->DFLLMUL.reg = OSCCTRL_DFLLMUL_CSTEP( 0x1 ) |
                            OSCCTRL_DFLLMUL_FSTEP( 0x1 ) |
-                           OSCCTRL_DFLLMUL_MUL( 0xBB80 );
+                           OSCCTRL_DFLLMUL_MUL( 0 );
 
     while (OSCCTRL->DFLLSYNC.bit.DFLLMUL) 
 		;
@@ -444,14 +444,49 @@ void configureDFLL( void ) {
 		;
 }
 
-void genericClockToDFLL( void ) {
+void genericClock( uint32_t which ) {
     GCLK->GENCTRL[0].reg =
-        GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL) |
+        GCLK_GENCTRL_SRC(which) |
                          GCLK_GENCTRL_IDC |
                          GCLK_GENCTRL_OE |
                          GCLK_GENCTRL_GENEN;
 
     while (GCLK->SYNCBUSY.bit.GENCTRL0) 
+		;
+}
+
+void clock1_48Mhz( void ) {
+	GCLK->GENCTRL[1].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL_Val) | GCLK_GENCTRL_GENEN;
+
+    while (GCLK->SYNCBUSY.bit.GENCTRL1) 
+		;
+}
+
+void clock5_1Mhz( void ) {
+	GCLK->GENCTRL[5].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL_Val) | GCLK_GENCTRL_GENEN | GCLK_GENCTRL_DIV(48u);
+  	while ( GCLK->SYNCBUSY.bit.GENCTRL5 )
+		;
+}
+
+void pll0_120Mhz( void ) {
+	GCLK->PCHCTRL[OSCCTRL_GCLK_ID_FDPLL0].reg = (1 << GCLK_PCHCTRL_CHEN_Pos) | GCLK_PCHCTRL_GEN(GCLK_PCHCTRL_GEN_GCLK5_Val);
+	OSCCTRL->Dpll[0].DPLLRATIO.reg = OSCCTRL_DPLLRATIO_LDRFRAC(0x00) | OSCCTRL_DPLLRATIO_LDR(119); //120 Mhz
+	while(OSCCTRL->Dpll[0].DPLLSYNCBUSY.bit.DPLLRATIO)
+		;
+	OSCCTRL->Dpll[0].DPLLCTRLB.reg = OSCCTRL_DPLLCTRLB_REFCLK_GCLK | OSCCTRL_DPLLCTRLB_LBYPASS;
+	OSCCTRL->Dpll[0].DPLLCTRLA.reg = OSCCTRL_DPLLCTRLA_ENABLE;
+	while( OSCCTRL->Dpll[0].DPLLSTATUS.bit.CLKRDY == 0 || OSCCTRL->Dpll[0].DPLLSTATUS.bit.LOCK == 0 )
+		;
+}
+
+void pll1_100Mhz( void ) {
+	GCLK->PCHCTRL[OSCCTRL_GCLK_ID_FDPLL1].reg = (1 << GCLK_PCHCTRL_CHEN_Pos) | GCLK_PCHCTRL_GEN(GCLK_PCHCTRL_GEN_GCLK5_Val);
+	OSCCTRL->Dpll[1].DPLLRATIO.reg = OSCCTRL_DPLLRATIO_LDRFRAC(0x00) | OSCCTRL_DPLLRATIO_LDR(99); 
+	while(OSCCTRL->Dpll[1].DPLLSYNCBUSY.bit.DPLLRATIO)
+		;
+	OSCCTRL->Dpll[1].DPLLCTRLB.reg = OSCCTRL_DPLLCTRLB_REFCLK_GCLK | OSCCTRL_DPLLCTRLB_LBYPASS;
+	OSCCTRL->Dpll[1].DPLLCTRLA.reg = OSCCTRL_DPLLCTRLA_ENABLE;
+	while( OSCCTRL->Dpll[1].DPLLSTATUS.bit.CLKRDY == 0 || OSCCTRL->Dpll[1].DPLLSTATUS.bit.LOCK == 0 )
 		;
 }
 
@@ -466,9 +501,20 @@ int platform_init( void ) {
 	gclkReset();
 	internalOscForCPUClock();
 	configureDFLL();
-	genericClockToDFLL();
+	clock5_1Mhz();
+	clock1_48Mhz();
+	pll0_120Mhz();
+	pll1_100Mhz();
+	genericClock( GCLK_GENCTRL_SRC_DPLL0 );
 
     MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV1;
+
+	SUPC->VREG.bit.SEL = 0; 	// LDO reg
+
+	// CACHE
+	__disable_irq();
+	CMCC->CTRL.reg = 1;
+	__enable_irq();
 
 	initUSB();
 	return 0;

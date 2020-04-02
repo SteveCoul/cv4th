@@ -6,7 +6,7 @@ forth-wordlist ext-wordlist 2 set-order
 
 ext-wordlist set-current
 
-\ FIXME - cannot use external osc - which should be running in native boot?
+\ FIXME - Need to configure/enable external oscillator before I can use it
 onboot: clock 
   1 OSC32KCTRL.RTCCTRL.rtcsel!		( 0= 1.024Khz int, 1= 32.768Khz int, 4= 1.024Khz extosc, 5= 32.768Khz extosc )
   1 RTCmode0.CTRLA.swrst!
