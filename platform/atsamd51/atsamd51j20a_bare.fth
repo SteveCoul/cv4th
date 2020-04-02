@@ -29,11 +29,13 @@ require extra/vi.fth
 require extra/toys.fth
 require extra/thread.fth
 
+\ PIN_D5 env-constant I2C_SDA_PIN
+\ PIN_D6 env-constant I2C_SCL_PIN
+\ require extra/Wire_bitbang.fth
 
-PIN_D5 env-constant I2C_SDA_PIN
-PIN_D6 env-constant I2C_SCL_PIN
-require extra/Wire_bitbang.fth
 \ require platform/arduino/Wire.fth
+
+require platform/atsamd51/Wire.fth
 
 ext-wordlist get-order 1+ set-order
 87 env-constant AT24C32_ADDRESS
