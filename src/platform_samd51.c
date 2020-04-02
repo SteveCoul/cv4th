@@ -498,6 +498,8 @@ int platform_init( void ) {
 	/* Flash: 1 wait state */
     NVMCTRL->CTRLA.reg |= NVMCTRL_CTRLA_RWS(0);
 
+	// TODO enable externals OSC at 32Khz, set it as source for GCLK 3 ( which will be slow clock for I2C )
+
 	gclkReset();
 	internalOscForCPUClock();
 	configureDFLL();
