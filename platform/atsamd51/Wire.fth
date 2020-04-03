@@ -12,6 +12,7 @@ definitions
 private-namespace
 
 32 constant #txbuffer #txbuffer RingBuffer: txbuffer
+32 constant #rxbuffer #rxbuffer RingBuffer: rxbuffer
 
 variable i2caddress
 
@@ -164,15 +165,35 @@ ext-wordlist set-current
 ;
 
 : Wire.requestFrom			( i2c-address count doend? -- num )
-	1 abort" rf not implemented"
+  rxbuffer RingBuffer.empty
+  over if
+	rot startRead 0= if
+		cr ." TODO - error starting read"
+	    3 SERCOM3_I2CM.CTRLB.cmd! \ send stop
+	    2drop
+    else
+	  swap 0 do
+		read rxBuffer RingBuffer.push drop	\ FIXME handle buffer overflow
+	    ack 
+		2 cmd \ READ continuation
+	  loop
+	  nack \ done 
+	  if 
+		3 cmd \ stop bit
+      then
+    then
+  else
+    drop 2drop
+  then
+  rxbuffer RingBuffer.available
 ;
  
 : Wire.read					( -- u )
-	1 abort" r not implemented"
+  rxbuffer RingBuffer.pop
 ;
 
 : Wire.available			( -- n )
-	1 abort" a not implemented"
+  rxbuffer RingBuffer.available
 ;
 
 only forth definitions
