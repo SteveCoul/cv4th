@@ -40,8 +40,8 @@ FORTH_PLATFORM=platform/arduino/sparkfun_samd21.fth
 else
 ifeq ($(TARGET),samd51bare)
 # TODO move to stand alone tools and CMSIS download instead of arduino?
-DICTIONARY_SIZE=150
-FORTH_PLATFORM=platform/atsamd51/atsamd51j20a_bare.fth
+DICTIONARY_SIZE=200
+FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
 BARE_METAL_TARGET=src/platform_samd51.c
 GCC_PREFIX=/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
 CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++

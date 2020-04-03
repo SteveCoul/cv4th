@@ -1,10 +1,10 @@
 
 require extra/ringbuffer.fth
-require platform/cortexm4/gclk.fth
-require platform/cortexm4/mclk.fth
+require platform/atsamd51/gclk.fth
+require platform/atsamd51/mclk.fth
 require platform/atsamd51/peripherals.fth
 require platform/atsamd51/gpio.fth
-require platform/cortexm4/sercom3_i2cm.fth
+require platform/atsamd51/sercom3_i2cm.fth
 
 internals ext-wordlist forth-wordlist 3 set-order 
 definitions

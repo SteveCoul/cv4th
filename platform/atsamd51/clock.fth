@@ -1,6 +1,6 @@
 
-require platform/cortexm4/osc32k.fth
-require platform/cortexm4/rtc.fth
+require platform/atsamd51/osc32k.fth
+require platform/atsamd51/rtc.fth
 
 forth-wordlist ext-wordlist 2 set-order 
 

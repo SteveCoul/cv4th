@@ -5,28 +5,37 @@ ext-wordlist get-order 1+ set-order
 1024 16 * env-constant /FLASH_SIZE
 512 env-constant /FLASH_PAGE_SIZE
 
-require platform/cortexm4/eic.fth
-require platform/cortexm4/nvic.fth
+require platform/atsamd51/eic.fth
+require platform/atsamd51/nvic.fth
+require platform/atsamd51/gclk.fth
+require platform/atsamd51/mclk.fth
+require platform/atsamd51/osc32k.fth
+require platform/atsamd51/oscctrl.fth
+require platform/atsamd51/rtc.fth
 require platform/atsamd51/flash.fth
-\ require platform/atsamd51/clock.fth
+require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
 require platform/atsamd51/irqs.fth
 require platform/atsamd51/peripherals.fth
 require platform/atsamd51/vector_table.fth
 require platform/atsamd51/interrupts.fth
+require platform/atsamd51/startup.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
 require kernel/structure.fth
+require kernel/dis.fth
 require extra/ringbuffer.fth
 require extra/vi.fth
 require extra/toys.fth
 require extra/thread.fth
 
-
-\ PIN_D5 env-constant I2C_SDA_PIN
-\ PIN_D6 env-constant I2C_SCL_PIN
+\ PIN_SDA env-constant I2C_SDA_PIN
+\ PIN_SCL env-constant I2C_SCL_PIN
 \ require extra/Wire_bitbang.fth
-require platform/arduino/Wire.fth
+
+\ require platform/arduino/Wire.fth
+
+require platform/atsamd51/Wire.fth
 
 ext-wordlist get-order 1+ set-order
 87 env-constant AT24C32_ADDRESS
@@ -43,6 +52,5 @@ require extra/i2c_ssd1306_lcd.fth
 3 env-constant AS3935_ADDRESS
 require extra/i2c_as3935_lightning_detector.fth
 
-include platform/cortexm4/gclk.fth
 require platform/done.fth
 

@@ -2,7 +2,7 @@
 ( Definitions for EIC - External Interrupt Controller )
 
 require kernel/structure.fth
-require platform/cortexm4/mclk.fth
+require platform/atsamd51/mclk.fth
 
 internals ext-wordlist forth-wordlist 3 set-order
 

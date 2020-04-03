@@ -1,6 +1,6 @@
 
 require kernel/locals.fth
-require platform/cortexm4/gclk.fth
+require platform/atsamd51/gclk.fth
 
 internals ext-wordlist forth-wordlist 3 set-order 
 

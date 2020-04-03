@@ -1,5 +1,5 @@
 
-require platform/cortexm4/port.fth
+require platform/atsamd51/port.fth
 
 ext-wordlist forth-wordlist internals 3 set-order 
 
