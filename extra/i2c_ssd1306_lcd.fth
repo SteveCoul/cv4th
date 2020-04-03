@@ -122,10 +122,6 @@ lcd_width lcd_height * 8 / buffer: display_memory
   64 Wire.write drop
 ;
 
-: senddata
-  Wire.write drop
-;
-
 : enddata
   true Wire.endTransmission
 ;
@@ -195,7 +191,7 @@ ext-wordlist set-current
   lcd_width lcd_height * 8 / 0 do
      begindata
 	 16 0 do
-		 dup c@ senddata 1+
+		 dup c@ Wire.write drop 1+
 	 loop
    	 enddata
   16 +loop

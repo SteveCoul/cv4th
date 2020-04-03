@@ -17,7 +17,6 @@ private-namespace
 variable i2caddress
 
 48000000 constant WIRE_CLOCK_SPEED	\ speed of clock1
-400000 constant CLOCK
 
 22 constant PIN_WIRE_SDA
 23 constant PIN_WIRE_SCL
@@ -60,7 +59,6 @@ variable i2caddress
 
 	5 SERCOM3_I2CM.CTRLA.mode!
 
-	CLOCK
 	2 * 1 - WIRE_CLOCK_SPEED swap /
 
 	SERCOM3_I2CM.BAUD.baud!
@@ -120,6 +118,10 @@ variable i2caddress
 
 ext-wordlist set-current
 
+: Wire.clock				( n -- )
+  disable init enable
+;
+
 : Wire.delay				( n -- )
   drop \ ignore for now
 ;
@@ -129,7 +131,8 @@ ext-wordlist set-current
 ;
 
 : Wire.begin				(  -- )
-  init enable
+  100000 init 
+  enable
 ;
 
 : Wire.beginTransmission	( i2c-address -- )
