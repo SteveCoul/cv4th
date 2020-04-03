@@ -371,8 +371,6 @@ void initUSB( void ) {
     GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
     MCLK->AHBMASK.bit.USB_ = true;
     MCLK->APBBMASK.bit.USB_ = true;
-    while(GCLK->SYNCBUSY.bit.GENCTRL1)
-		;
 
     USB->HOST.CTRLA.bit.SWRST = 1;
     while (USB->HOST.SYNCBUSY.bit.SWRST) 

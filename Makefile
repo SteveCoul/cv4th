@@ -70,7 +70,7 @@ CC_LFLAGS+=-Wl,--gc-sections
 CC_LFLAGS+=-Wl,--unresolved-symbols=report-all 
 CC_LFLAGS+=-Wl,--warn-common 
 CC_LFLAGS+=-Wl,--warn-section-align  
-UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem1411 --offset 0x4000 -e -w -v -R 
+UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
 else
 fail-target:
 	@echo no TARGET set

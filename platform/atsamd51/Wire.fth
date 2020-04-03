@@ -1,18 +1,35 @@
 
+require extra/ringbuffer.fth
 require platform/cortexm4/gclk.fth
+require platform/cortexm4/mclk.fth
+require platform/atsamd51/peripherals.fth
+require platform/atsamd51/gpio.fth
 require platform/cortexm4/sercom3_i2cm.fth
 
 internals ext-wordlist forth-wordlist 3 set-order 
 definitions
 
-\ private-namespace
+private-namespace
+
+32 constant #txbuffer #txbuffer RingBuffer: txbuffer
+
+variable i2caddress
 
 48000000 constant WIRE_CLOCK_SPEED	\ speed of clock1
+400000 constant CLOCK
 
-20 constant PIN_WIRE_SDA
-21 constant PIN_WIRE_SCL
+22 constant PIN_WIRE_SDA
+23 constant PIN_WIRE_SCL
+
+: pins
+  PIN_WIRE_SDA PIO_SERCOM setMux
+  PIN_WIRE_SDA enableMux
+  PIN_WIRE_SCL PIO_SERCOM setMux
+  PIN_WIRE_SCL enableMux
+;
 
 : clocks
+  1 MCLK.APBBMASK.sercom3!
   1 24 GCLK.PCHCTRLn.gen!	\ clock for ID_CORE is 1 
   1 24 GCLK.PCHCTRLn.chen!
   5 3  GCLK.PCHCTRLn.gen!   \ clock for ID_SLOW is 5
@@ -36,12 +53,17 @@ definitions
   begin SERCOM3_I2CM.SYNCBUSY.enable@ 0= until
 ;
 
-: init			( clock -- )
+: init		
+	clocks
 	reset
+
 	5 SERCOM3_I2CM.CTRLA.mode!
 
+	CLOCK
 	2 * 1 - WIRE_CLOCK_SPEED swap /
+
 	SERCOM3_I2CM.BAUD.baud!
+	pins
 ;
 
 : nack 1 SERCOM3_I2CM.CTRLB.ackact!  ;
@@ -98,39 +120,59 @@ definitions
 ext-wordlist set-current
 
 : Wire.delay				( n -- )
-	1 abort" not implemented"
+  drop \ ignore for now
 ;
 
 : Wire.reset				( -- )
-	1 abort" not implemented"
+  disable enable
 ;
 
 : Wire.begin				(  -- )
-	1 abort" not implemented"
+  init enable
 ;
 
 : Wire.beginTransmission	( i2c-address -- )
-	1 abort" not implemented"
+  txbuffer RingBuffer.empty
+  i2caddress !
 ;
 
 : Wire.write				( u -- 0|1 )
-	1 abort" not implemented"
+  txbuffer RingBuffer.push
 ;
 
 : Wire.endTransmission		( flag -- )
-	1 abort" not implemented"
+  i2caddress @ startWrite 0= if
+	3 SERCOM3_I2CM.CTRLB.cmd! \ send stop
+	cr ." TODO - error on endtransmission?"
+    drop
+  then
+
+  begin
+    txbuffer RingBuffer.available
+  while
+	txbuffer RingBuffer.pop 
+	sendData 0= if
+	  3 SERCOM3_I2CM.CTRLB.cmd! \ send stop
+	  cr ." TODO - error on endtransmission? (db)"
+      drop
+	  exit
+    then
+  repeat
+  if 
+    3 SERCOM3_I2CM.CTRLB.cmd! \ send stop
+  then
 ;
 
 : Wire.requestFrom			( i2c-address count doend? -- num )
-	1 abort" not implemented"
+	1 abort" rf not implemented"
 ;
  
 : Wire.read					( -- u )
-	1 abort" not implemented"
+	1 abort" r not implemented"
 ;
 
 : Wire.available			( -- n )
-	1 abort" not implemented"
+	1 abort" a not implemented"
 ;
 
 only forth definitions
