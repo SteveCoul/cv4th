@@ -18,7 +18,7 @@ DICTIONARY_SIZE=40
 ALIGNMENT_FLAGS=-a
 ENDIAN_FLAGS=
 PAD_IMAGE=y
-FORTH_PLATFORM=platform/esp8266/mini.fth
+FORTH_PLATFORM=platform/arduino/wemos_mini_d1.fth
 else 
 ifeq ($(TARGET),samd51)
 ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
@@ -36,7 +36,7 @@ DICTIONARY_SIZE=24
 ALIGNMENT_FLAGS=-a
 ENDIAN_FLAGS=
 PAD_IMAGE=n
-FORTH_PLATFORM=platform/atsamd21/atsamd21g18.fth
+FORTH_PLATFORM=platform/arduino/sparkfun_samd21.fth
 else
 ifeq ($(TARGET),samd51bare)
 # TODO move to stand alone tools and CMSIS download instead of arduino?

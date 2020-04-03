@@ -1,4 +1,12 @@
 
+include kernel/locals.fth
+include kernel/dis.fth
+include kernel/verbose_exceptions.fth
+include kernel/structure.fth
+
+include extra/toys.fth
+include extra/thread.fth
+
 ext-wordlist get-order 1+ set-order
 ext-wordlist set-current
 
@@ -23,3 +31,10 @@ PIN_D7 constant PIN_MOSI
 PIN_D8 constant PIN_CS
 
 forth-wordlist set-current
+
+include platform/arduino/digital.fth
+
+include platform/arduino/Wire.fth
+
+include platform/done.fth
+
