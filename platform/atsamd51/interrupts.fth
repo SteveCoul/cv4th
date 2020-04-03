@@ -75,7 +75,7 @@ onboot: interrupts
 	loop
 
 	\ enable clock for EIC
-	2 EIC_GCLK_ID GCLK.PCHCTRLn.gen!
+	0 EIC_GCLK_ID GCLK.PCHCTRLn.gen!
 	1 EIC_GCLK_ID GCLK.PCHCTRLn.chen!
 
 	eicEnable

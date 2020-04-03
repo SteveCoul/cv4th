@@ -2,6 +2,7 @@
 ( Definitions for EIC - External Interrupt Controller )
 
 require kernel/structure.fth
+require platform/cortexm4/mclk.fth
 
 internals ext-wordlist forth-wordlist 3 set-order
 
@@ -43,6 +44,8 @@ decimal
 ;
 
 : eicEnable 
+  1 MCLK.APBAMASK.eic!
+
   EIC CTRLA s>d 2dup d8@ 2 or rot rot d8!
   eicWait
 ;
