@@ -27,7 +27,7 @@ DICTIONARY_SIZE=150
 ALIGNMENT_FLAGS=-a
 ENDIAN_FLAGS=
 PAD_IMAGE=n
-FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
+FORTH_PLATFORM=platform/arduino/sparkfun_samd51_thingsplus.fth
 else 
 ifeq ($(TARGET),samd21)
 ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
