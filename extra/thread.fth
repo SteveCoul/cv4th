@@ -13,7 +13,8 @@
 require kernel/structure.fth
 
 forth-wordlist ext-wordlist internals 3 set-order
-internals set-current
+
+private-namespace
 
 ( The system context is defined in the virtual machine and is
   swapped with the opCONTEXT opcode between two threads.
@@ -82,7 +83,7 @@ ext-wordlist set-current
   repeat
 ;
 
-internals set-current
+private-namespace
 
 : (schedule)				\ next prev --
   dup if
@@ -116,7 +117,7 @@ ext-wordlist set-current
   again
 ;
 
-internals set-current
+private-namespace
 
 : (thread:)		( xt exceptbuffer ds rs -- )
   create
@@ -151,7 +152,7 @@ ext-wordlist set-current
 
 0 ^except @ A_DATASTACK @ A_RETURNSTACK @ (thread:) main-thread
 
-internals set-current
+private-namespace
 
 : boot
   \ Get the QUIT vector out of main thread that we stored during boot setup
@@ -163,8 +164,6 @@ internals set-current
   main-thread 0 (schedule)								\ and off we go
   cr cr ." How did we get here?" cr cr
 ;
-
-internals ext-wordlist forth-wordlist 3 set-order 
 
 onboot: thread
   A_QUIT @ main-thread tc.entrypoint !
