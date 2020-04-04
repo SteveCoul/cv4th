@@ -1,4 +1,4 @@
-\ 15499
+\ 15747
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -452,7 +452,7 @@ forth-wordlist set-current
 
 : blk [fake-variable] ;															\ \ BLOCK
 
-: exit end-locals opRET c, ; immediate											\ \ CORE
+: exit end-locals opEXIT c, ; immediate											\ \ CORE
 
 : also																			\ \ SEARCH-ORDER
   get-order over swap 1+ set-order
@@ -1075,13 +1075,13 @@ forth-wordlist set-current
 	postpone if
 	
 	opDOLIT c,					\ get the resolv address at runtime N bytes on from here
-	here cell+ 10 + ,			\ depends on instruction count below! ( and 1 byte fr the opDOLIT in do )
+	here cell+ 9 + ,			\ depends on instruction count below! ( and 1 byte fr the opDOLIT in do )
 
 	opFETCH c,
 	opDUP c, opTOR c,		\ push 3 numbers to return stack for unloop
 	opSWAP c, opTOR c,
 	opSWAP c, opTOR c,	
-    opTOR c, opRET c,		\ >r-ret == jump direct
+    opJUMP c,
 	
 	postpone then
     postpone do
@@ -1142,6 +1142,7 @@ forth-wordlist set-current
   swap >r
 ;
 
+\ TODO make (leave) and compile ref to save space
 : leave																			\ \ CORE
 	postpone r>
 	postpone r>
@@ -1150,7 +1151,7 @@ forth-wordlist set-current
 	postpone >r
 	postpone swap
 	postpone >r
-	opTOR c, opRET c,	\ IE jump
+    opJUMP c,
 ; immediate
 
 : case																			\ \ CORE-EXT

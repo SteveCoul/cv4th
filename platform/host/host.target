@@ -1,4 +1,4 @@
 # host NIX platform, OSX, Linux etc.
-DICTIONARY_SIZE=128
+DICTIONARY_SIZE=512
 FORTH_PLATFORM=platform/host/nix.fth
 HOST_PLATFORM=y

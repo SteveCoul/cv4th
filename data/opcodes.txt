@@ -116,6 +116,8 @@
 70 WSTORE
 71 XOR
 72	ZEROEQ
+73 JUMP
+74 EXIT
 
 # Immediate is always 255 (last)
 FF 		IMMEDIATE

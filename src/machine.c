@@ -605,6 +605,14 @@ void machine_execute( machine_t* machine, cell_t a_throw, int run_mode ) {
 			RP++;
 			IP = GET_CELL( machine, IP );
 			break;
+		case opJUMP:
+			DP--;
+			IP=datastack[DP];
+			break;
+		/* exit and ret are the same thing, it just helps the disassembler to 
+		   know the difference between return from inside a word and at the
+		   end of a word */
+		case opEXIT:
 		case opRET:
 			if ( RP == 0 ) {
 				if ( run_mode == 0 )
