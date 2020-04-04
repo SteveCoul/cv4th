@@ -446,9 +446,6 @@ int main( int argc, char** argv ) {
 	opword( opBYE, "bye" );
 
 	internals_definitions();
-	/* required by kernel/core.fth */
-	opconstant( opJUMP );
-	opconstant( opEXIT );
 	/* required by kernel/locals.fth */
 	opconstant( opDOLIT );
 	opconstant( opLPFETCH );
