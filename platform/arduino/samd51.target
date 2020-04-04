@@ -1,0 +1,8 @@
+# samd51 Sparkfun samd51 things plus board, Arduino build
+ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
+ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
+DICTIONARY_SIZE=150
+ALIGNMENT_FLAGS=-a
+ENDIAN_FLAGS=
+PAD_IMAGE=n
+FORTH_PLATFORM=platform/arduino/sparkfun_samd51_thingsplus.fth

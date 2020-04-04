@@ -5,79 +5,17 @@ WHOAMI=$(shell whoami)
 
 # #############################
 
-ifeq ($(TARGET),host)
-# need to stay under 64k for 16 bit builds
-DICTIONARY_SIZE=128
-FORTH_PLATFORM=platform/nix.fth
-HOST_PLATFORM=y
-else 
-ifeq ($(TARGET),mini)
-ARDUINO_PLATFORM?="esp8266:esp8266:d1"
-ARDUINO_FLAGS?="-DXIP"
-DICTIONARY_SIZE=40
-ALIGNMENT_FLAGS=-a
-ENDIAN_FLAGS=
-PAD_IMAGE=y
-FORTH_PLATFORM=platform/arduino/wemos_mini_d1.fth
-else 
-ifeq ($(TARGET),samd51)
-ARDUINO_PLATFORM?="SparkFun:samd:samd51_thing_plus"
-ARDUINO_KERNEL_IMAGE=atsamd51j20a_kernel.img.c
-DICTIONARY_SIZE=150
-ALIGNMENT_FLAGS=-a
-ENDIAN_FLAGS=
-PAD_IMAGE=n
-FORTH_PLATFORM=platform/arduino/sparkfun_samd51_thingsplus.fth
-else 
-ifeq ($(TARGET),samd21)
-ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
-ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
-DICTIONARY_SIZE=24
-ALIGNMENT_FLAGS=-a
-ENDIAN_FLAGS=
-PAD_IMAGE=n
-FORTH_PLATFORM=platform/arduino/sparkfun_samd21.fth
-else
-ifeq ($(TARGET),samd51bare)
-# TODO move to stand alone tools and CMSIS download instead of arduino?
-DICTIONARY_SIZE=200
-FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
-BARE_METAL_TARGET=src/platform_samd51.c
-GCC_PREFIX=/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
-CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++
-CC_CFLAGS=$(CFLAGS)
-CC_CFLAGS+=-mcpu=cortex-m4 
-CC_CFLAGS+=-mthumb 
-CC_CFLAGS+=-ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib 
-CC_CFLAGS+=--param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD 
-CC_CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 
-CC_CFLAGS+=-fpermissive
+ifeq ($(TARGET),)
+fail1:
+	@echo TARGET not set
+endif
 
-CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools//CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include
-CC_CFLAGS+=-D__SAMD51J20A__
-CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15//packages/arduino/tools/CMSIS/4.5.0/CMSIS/Include
-CC_LFLAGS=
-CC_LFLAGS+=-Wl,--gc-sections 
-CC_LFLAGS+=-save-temps
-CC_LFLAGS+=-Tscripts/samd51j20_flash_16kbootloader.ld
-CC_LFLAGS+=--specs=nano.specs --specs=nosys.specs 
-CC_LFLAGS+=-mcpu=cortex-m4 
-CC_LFLAGS+=-mthumb  
-CC_LFLAGS+=-mfloat-abi=hard 
-CC_LFLAGS+=-mfpu=fpv4-sp-d16  
-CC_LFLAGS+=-Wl,--check-sections
-CC_LFLAGS+=-Wl,--gc-sections 
-CC_LFLAGS+=-Wl,--unresolved-symbols=report-all 
-CC_LFLAGS+=-Wl,--warn-common 
-CC_LFLAGS+=-Wl,--warn-section-align  
-UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
-else
-fail-target:
-	@echo no TARGET set
-endif
-endif
-endif 
-endif
+include $(shell find . -name $(TARGET).target)
+
+ifeq ($(FORTH_PLATFORM),)
+fail2:
+	@echo Invalid setting for TARGET, try :
+	@./scripts/show_targets.sh
 endif
 
 # #############################

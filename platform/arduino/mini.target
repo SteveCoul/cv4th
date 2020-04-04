@@ -1,0 +1,9 @@
+# mini Wemos D1 R1 ( ESP8266 ) Arduino Build
+ARDUINO_PLATFORM?="esp8266:esp8266:d1"
+ARDUINO_FLAGS?="-DXIP"
+DICTIONARY_SIZE=40
+ALIGNMENT_FLAGS=-a
+ENDIAN_FLAGS=
+PAD_IMAGE=y
+FORTH_PLATFORM=platform/arduino/wemos_mini_d1.fth
+

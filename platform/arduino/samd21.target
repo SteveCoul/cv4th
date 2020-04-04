@@ -1,0 +1,8 @@
+# samd21 Sparkfun Samd21 breakout board, Arduino build
+ARDUINO_PLATFORM?="SparkFun:samd:samd21_dev"
+ARDUINO_KERNEL_IMAGE=atsamd21g18_kernel.img.c
+DICTIONARY_SIZE=24
+ALIGNMENT_FLAGS=-a
+ENDIAN_FLAGS=
+PAD_IMAGE=n
+FORTH_PLATFORM=platform/arduino/sparkfun_samd21.fth

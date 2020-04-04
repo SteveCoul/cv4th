@@ -1,0 +1,33 @@
+# samd51bare Bare metal samd51j20 target 
+DICTIONARY_SIZE=200
+FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
+BARE_METAL_TARGET=src/platform_samd51.c
+GCC_PREFIX=/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
+CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++
+CC_CFLAGS=$(CFLAGS)
+CC_CFLAGS+=-mcpu=cortex-m4 
+CC_CFLAGS+=-mthumb 
+CC_CFLAGS+=-ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib 
+CC_CFLAGS+=--param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD 
+CC_CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 
+CC_CFLAGS+=-fpermissive
+
+CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools//CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include
+CC_CFLAGS+=-D__SAMD51J20A__
+CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15//packages/arduino/tools/CMSIS/4.5.0/CMSIS/Include
+CC_LFLAGS=
+CC_LFLAGS+=-Wl,--gc-sections 
+CC_LFLAGS+=-save-temps
+CC_LFLAGS+=-Tscripts/samd51j20_flash_16kbootloader.ld
+CC_LFLAGS+=--specs=nano.specs --specs=nosys.specs 
+CC_LFLAGS+=-mcpu=cortex-m4 
+CC_LFLAGS+=-mthumb  
+CC_LFLAGS+=-mfloat-abi=hard 
+CC_LFLAGS+=-mfpu=fpv4-sp-d16  
+CC_LFLAGS+=-Wl,--check-sections
+CC_LFLAGS+=-Wl,--gc-sections 
+CC_LFLAGS+=-Wl,--unresolved-symbols=report-all 
+CC_LFLAGS+=-Wl,--warn-common 
+CC_LFLAGS+=-Wl,--warn-section-align  
+UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
+
