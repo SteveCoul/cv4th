@@ -15,19 +15,19 @@ fail:
 else
 rebuild:
 	@echo TARGET not set, building 'current' target $(CURRENT)
-	@make -s TARGET=$(CURRENT)
+	@make TARGET=$(CURRENT)
 endif
 endif
 
 ifneq ($(TARGET),)
 ifeq ($(CURRENT),$(TARGET))
 rebuild2:
-	@make -s TARGET=$(TARGET) all
+	@make TARGET=$(TARGET) all
 else
 newtarget:
 	@echo TARGET changed from previous setting $(CURRENT), cleaning	
-	@make -s clean
-	make -s TARGET=$(TARGET) all
+	@make clean
+	make TARGET=$(TARGET) all
 endif
 endif
 
@@ -108,7 +108,7 @@ BOOTSTRAP_SOURCES+=generated/opcodes.c
 BOOTSTRAP_SOURCES+=src/io.c
 BOOTSTRAP_SOURCES+=src/io_file.c
 BOOTSTRAP_SOURCES+=src/platform.c
-BOOTSTRAP_SOURCES+=src/platform_nix.c
+BOOTSTRAP_SOURCES+=platform/host/platform_nix.c
 BOOTSTRAP_SOURCES+=src/machine.c
 BOOTSTRAP_SOURCES+=src/common.c
 
@@ -144,7 +144,7 @@ FORTH_CORE_SOURCES=src/runner.c
 FORTH_CORE_SOURCES+=src/io.c
 FORTH_CORE_SOURCES+=src/io_file.c
 FORTH_CORE_SOURCES+=src/platform.c
-FORTH_CORE_SOURCES+=src/platform_nix.c
+FORTH_CORE_SOURCES+=platform/host/platform_nix.c
 FORTH_CORE_SOURCES+=src/machine.c
 FORTH_CORE_SOURCES+=src/common.c
 FORTH_CORE_OBJECTS=$(FORTH_CORE_SOURCES:src/%.c=host_%.o)
@@ -198,7 +198,7 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../src/io_file.c arduino/io_file.cpp
 	ln -s ../inc/platform.h arduino/platform.h
 	ln -s ../generated/opcodes.h arduino/opcodes.h
-	ln -s ../src/platform_arduino.cpp arduino/platform_arduino.cpp
+	ln -s ../platform/arduino/platform.cpp arduino/platform_arduino.cpp
 	ln -s ../src/platform.c arduino/platform.cpp
 	echo "all:" >> arduino/Makefile
 	echo "\t$(ARDUINO_CLI) compile -v --build-path=\"$$PWD/arduino/build\" -b $(ARDUINO_PLATFORM) --build-properties \"compiler.cpp.extra_flags=$(ARDUINO_FLAGS) -I. \"" >> arduino/Makefile
@@ -231,17 +231,19 @@ BARE_METAL_HEADERS=$(BOOTSTRAP_HEADERS)
 BARE_METAL_SOURCES=src/runner.c
 BARE_METAL_SOURCES+=src/io.c
 BARE_METAL_SOURCES+=src/io_file.c
-BARE_METAL_SOURCES+=$(BARE_METAL_TARGET)
 BARE_METAL_SOURCES+=src/platform.c
 BARE_METAL_SOURCES+=src/machine.c
 BARE_METAL_SOURCES+=src/common.c
 BARE_METAL_OBJECTS=$(BARE_METAL_SOURCES:src/%.c=%.o)
 
+platform_$(TARGET).o: $(BARE_METAL_TARGET)
+	$(CC_GCC) $(CC_CFLAGS) -Iinc -Igenerated -c -o $@ $^
+
 %.o:src/%.c
 	$(CC_GCC) $(CC_CFLAGS) -Iinc -Igenerated -c -o $@ $^
 
-forth.elf:	$(BARE_METAL_OBJECTS) forth_platform.img.c
-	$(CC_GCC) $(CC_LFLAGS) -Iinc -o $@ $(BARE_METAL_OBJECTS) forth_platform.img.c
+forth.elf: platform_$(TARGET).o	$(BARE_METAL_OBJECTS) forth_platform.img.c
+	$(CC_GCC) $(CC_LFLAGS) -Iinc -o $@ $(BARE_METAL_OBJECTS) platform_$(TARGET).o forth_platform.img.c
 
 forth.bin: forth.elf
 	$(GCC_PREFIX)/bin/arm-none-eabi-objcopy -O binary $^ $@

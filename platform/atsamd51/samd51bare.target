@@ -1,7 +1,7 @@
 # samd51bare Bare metal samd51j20 target 
 DICTIONARY_SIZE=200
 FORTH_PLATFORM=platform/atsamd51/atsamd51j20a.fth
-BARE_METAL_TARGET=src/platform_samd51.c
+BARE_METAL_TARGET=platform/atsamd51/platform.c
 GCC_PREFIX=/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
 CC_GCC=$(GCC_PREFIX)/bin/arm-none-eabi-g++
 CC_CFLAGS=$(CFLAGS)
