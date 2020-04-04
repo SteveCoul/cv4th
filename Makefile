@@ -5,15 +5,37 @@ WHOAMI=$(shell whoami)
 
 # #############################
 
+CURRENT=$(shell cat current 2>/dev/null)
+
 ifeq ($(TARGET),)
-fail1:
-	@echo TARGET not set
+ifeq ($(CURRENT),)
+fail:
+	@echo TARGET not set, no current setting, try :
+	@./scripts/show_targets.sh
+else
+rebuild:
+	@echo TARGET not set, building 'current' target $(CURRENT)
+	@make -s TARGET=$(CURRENT)
+endif
+endif
+
+ifneq ($(TARGET),)
+ifeq ($(CURRENT),$(TARGET))
+rebuild2:
+	@make -s TARGET=$(TARGET) all
+else
+newtarget:
+	@echo TARGET changed from previous setting $(CURRENT), cleaning	
+	@make -s clean
+	make -s TARGET=$(TARGET) all
+endif
 endif
 
 include $(shell find . -name $(TARGET).target)
 
 ifeq ($(FORTH_PLATFORM),)
 fail2:
+	@rm current
 	@echo Invalid setting for TARGET, try :
 	@./scripts/show_targets.sh
 endif
@@ -24,8 +46,11 @@ ALL_FORTH=platform/*.fth extra/*.fth kernel/*.fth platform/*/*.fth
 # #############################
 
 all::
+	@echo $(TARGET) > current
 
 clean:
+	rm -f tmp
+	rm -f current
 	rm -f *.log
 	rm -rf arduino
 	rm -f *.o
