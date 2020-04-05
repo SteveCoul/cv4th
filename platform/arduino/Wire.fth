@@ -1,5 +1,7 @@
 
-ext-wordlist forth-wordlist internals 3 set-order definitions             
+ext-wordlist forth-wordlist 2 set-order definitions             
+
+private-namespace
 
 -1 value wire_fd
 0 variable wire_tmp
