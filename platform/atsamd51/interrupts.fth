@@ -2,15 +2,20 @@
 require kernel/locals.fth
 require platform/atsamd51/gclk.fth
 
-internals ext-wordlist forth-wordlist 3 set-order 
+ext-wordlist forth-wordlist 2 set-order 
 
-internals set-current
+open-namespace platform/atsamd51/gpio.fth
+
+private-namespace
 
 4 constant EIC_GCLK_ID
 
+: noop ;
+
+ext-wordlist set-current
+
 SENSE_RISE constant RISING
 
-: noop ;
 
 : detachInterrupt	( pin -- )
   digitalPinToInterrupt 

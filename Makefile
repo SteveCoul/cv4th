@@ -246,7 +246,7 @@ forth.elf: platform_$(TARGET).o	$(BARE_METAL_OBJECTS) forth_platform.img.c
 	$(CC_GCC) $(CC_LFLAGS) -Iinc -o $@ $(BARE_METAL_OBJECTS) platform_$(TARGET).o forth_platform.img.c
 
 forth.bin: forth.elf
-	$(GCC_PREFIX)/bin/arm-none-eabi-objcopy -O binary $^ $@
+	$(GCC_PREFIX)arm-none-eabi-objcopy -O binary $^ $@
 
 all:: forth.bin
 ifeq ($(NO_UPLOAD),)

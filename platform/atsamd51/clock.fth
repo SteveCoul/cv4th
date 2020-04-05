@@ -31,7 +31,7 @@ onboot;
   then
 ;
 
-get-order internals swap 1+ set-order
+open-namespace core
 forth-wordlist set-current
 
 : ms			( ms -- )

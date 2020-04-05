@@ -3,9 +3,9 @@
 
 require extra/thread.fth
 
-internals ext-wordlist forth-wordlist 3 set-order 
-
-internals set-current
+ext-wordlist forth-wordlist 2 set-order 
+open-namespace core
+private-namespace
 
 hex
 E000ED08 constant SCB-VTOR
@@ -157,6 +157,8 @@ defer EXTINT13	:noname cr ." EXTINT13 invoked " ; is EXTINT13
 defer EXTINT14	:noname cr ." EXTINT14 invoked " ; is EXTINT14
 defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
 
+private-namespace
+
 : (poll-interrupts)
   isr_events @ ?dup if
    dup 1 and if EXTINT0 then
@@ -180,9 +182,13 @@ defer EXTINT15	:noname cr ." EXTINT15 invoked " ; is EXTINT15
   schedule
 ;
 
+ext-wordlist set-current
+
 : interrupt-count	( n --  v )
   cells isr_counts + @
 ;
+
+private-namespace 
 
 : poll-interrupts
   begin ['] (poll-interrupts) catch >except .except again

@@ -1,9 +1,9 @@
 
 require platform/atsamd51/port.fth
 
-ext-wordlist forth-wordlist internals 3 set-order 
+ext-wordlist forth-wordlist 2 set-order 
 
-internals set-current
+private-namespace
 
 : pinToMaskAndPort	( n -- mask port )
   dup 32 < if 1 swap lshift PORT_A else 32 - 1 swap lshift PORT_B then

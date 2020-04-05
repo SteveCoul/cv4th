@@ -1,10 +1,14 @@
 
-ext-wordlist forth-wordlist internals 3 set-order definitions
+ext-wordlist forth-wordlist 2 set-order
+
+ext-wordlist set-current
 
 1 cells 4 = 0= [IF] cr .( Driver assumes 32bit build ) abort [THEN]
 S" /FLASH_BASE" environment? 0= [IF]  cr .( /FLASH_BASE not in environment ) abort [THEN] constant FLASH_BASE
 S" /FLASH_SIZE" environment? 0= [IF]  cr .( /FLASH_SIZE not in environment ) abort [THEN] constant FLASH_SIZE
 S" /FLASH_PAGE_SIZE" environment? 0= [IF]  cr .( /FLASH_PAGE_SIZE not in environment ) abort [THEN] constant FLASH_PAGE_SIZE
+
+private-namespace
 
 \ This chip can only erase 16 pages at a time
 FLASH_PAGE_SIZE 16 * constant FLASH_BLOCK_SIZE
@@ -31,6 +35,8 @@ hex
 41004014 constant NVMCTRL_ADDR
 decimal
 
+ext-wordlist set-current
+
 : flash_read		( dest flash-address len -- errorflag )
   rot >r
   begin
@@ -46,6 +52,8 @@ decimal
   drop
   0
 ;
+
+private-namespace
 
 : waitReady	
   begin
@@ -129,6 +137,8 @@ decimal
 	2drop
   then
 ;
+
+ext-wordlist set-current
 
 : flash_write		( flash-address source len -- errorflag )
   begin

@@ -6,9 +6,10 @@ require platform/atsamd51/peripherals.fth
 require platform/atsamd51/gpio.fth
 require platform/atsamd51/sercom3_i2cm.fth
 
-internals ext-wordlist forth-wordlist 3 set-order 
+ext-wordlist forth-wordlist 2 set-order 
 definitions
 
+open-namespace platform/atsamd51/gpio.fth
 private-namespace
 
 32 constant #txbuffer #txbuffer RingBuffer: txbuffer

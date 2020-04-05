@@ -2,6 +2,7 @@
 require extra/register.fth
 
 ext-wordlist get-order 1+ set-order
+
 ext-wordlist set-current
 
 0x41014000 register-bank SERCOM3_I2CM

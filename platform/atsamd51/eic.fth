@@ -4,9 +4,9 @@
 require kernel/structure.fth
 require platform/atsamd51/mclk.fth
 
-internals ext-wordlist forth-wordlist 3 set-order
+ext-wordlist forth-wordlist 2 set-order
 
-internals set-current
+ext-wordlist set-current
 
 hex
 
