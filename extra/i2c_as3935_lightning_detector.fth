@@ -2,6 +2,8 @@
 only forth definitions
 forth-wordlist ext-wordlist internals 3 set-order definitions
 
+private-namespace
+
 S" AS3935_ADDRESS" environment? 0= [IF]
 	cr .( AS3935_ADDRESS not in environment ) abort [THEN]
 constant AS3935_ADDRESS

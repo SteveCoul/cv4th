@@ -11,7 +11,7 @@ constant SSD1306_ADDRESS
 	cr .( No Wire implementation found ) abort
 [THEN]
 
-internals set-current
+private-namespace
 
 here 
 hex
@@ -111,7 +111,7 @@ constant font
 ext-wordlist set-current
 128 constant lcd_width
 64 constant lcd_height
-internals set-current
+private-namespace
 
 lcd_width lcd_height * 8 / buffer: display_memory
 0 value lcdx
