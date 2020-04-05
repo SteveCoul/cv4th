@@ -1,4 +1,4 @@
-\ 15747
+\ 15815
 \ ---------------------------------------------------------------------------------------------
 
 \ These words are defined in the native wrapper 
@@ -1865,6 +1865,10 @@ S" core" internals +file
 
 ext-wordlist set-current
 
+: open-namespace
+  parse-name wid-files search-wordlist if execute then
+;
+
 : private-namespace
   file$ @ ?dup if 
 	name>xt execute
@@ -2030,7 +2034,14 @@ forth-wordlist set-current
   ['] (words) get-current traverse-wordlist 
 ;  
 
+internals
+: (included-files) name>string cr type true ;
+
 ext-wordlist set-current
+
+: included-files
+  ['] (included-files) wid-files traverse-wordlist
+;
 
 : aschar 
   dup bl < if drop [char] . else
