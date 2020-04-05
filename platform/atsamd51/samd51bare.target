@@ -12,9 +12,9 @@ CC_CFLAGS+=--param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD
 CC_CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 
 CC_CFLAGS+=-fpermissive
 
-CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15/packages/arduino/tools//CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/samd51/include
+CC_CFLAGS+=-I$(PWD)/arm-tools/ArduinoModule-CMSIS-Atmel/CMSIS-Atmel/CMSIS/Device/ATMEL/samd51/include
 CC_CFLAGS+=-D__SAMD51J20A__
-CC_CFLAGS+=-I/Users/$(WHOAMI)/Library/Arduino15//packages/arduino/tools/CMSIS/4.5.0/CMSIS/Include
+CC_CFLAGS+=-I$(PWD)/arm-tools/CMSIS_5/CMSIS/Core/Include
 CC_LFLAGS=
 CC_LFLAGS+=-Wl,--gc-sections 
 CC_LFLAGS+=-save-temps
@@ -29,5 +29,5 @@ CC_LFLAGS+=-Wl,--gc-sections
 CC_LFLAGS+=-Wl,--unresolved-symbols=report-all 
 CC_LFLAGS+=-Wl,--warn-common 
 CC_LFLAGS+=-Wl,--warn-section-align  
-UPLOAD=~/Library/Arduino15/packages/arduino/tools/bossac/1.8.0-48-gb176eee/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
+UPLOAD=$(PWD)/arm-tools/bossac -p /dev/cu.usbmodem201 --offset 0x4000 -e -w -v -R 
 
