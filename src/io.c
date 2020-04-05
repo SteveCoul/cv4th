@@ -14,7 +14,7 @@ static ioSubsystem*	list = NULL;
 
 static
 int freeslot( void ) {
-	int i;
+	unsigned int i;
 	for ( i = 0; i < sizeof(myfiles)/sizeof(myfiles[0]); i++ )
 		if ( myfiles[i].io == NULL )
 			return i;
@@ -54,7 +54,7 @@ ior_t parse( const char* name, size_t name_len, char** p_type, char** p_path ) {
 	static char _type_buffer[NUM_BUFFERS][ SIZE_TYPE_BUFFER+1 ];
 	char* path_buffer;
 	char* type_buffer;
-	int i;
+	unsigned int i;
 
 	path_buffer = _path_buffer[ which ];
 	type_buffer = _type_buffer[ which ];

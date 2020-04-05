@@ -1,5 +1,5 @@
 
-#CFLAGS=-Wall -Wpedantic -Werror -Os
+CFLAGS=-Wall -Werror -Os
 
 WHOAMI=$(shell whoami)
 

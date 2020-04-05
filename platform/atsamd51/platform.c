@@ -1,4 +1,4 @@
-
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -9,7 +9,7 @@
  *
  * ************************************************************************** */
 
-#define ALIGNED __attribute__((aligned(4)));
+#define ALIGNED __attribute__((aligned(4)))
 #define MIN( a, b ) ( (a) < (b) ) ? (a) : (b)
 
 /* ************************************************************************** *
@@ -30,12 +30,14 @@ static void LEDoff( void ) {
   PORT->Group[0].OUTCLR.reg |= ( 1 << 15 );
 }
 
+/*
 static void LEDtoggle( void ) {
   PORT->Group[0].DIRSET.reg |= ( 1 << 17 );
   PORT->Group[0].OUTTGL.reg |= ( 1 << 17 );
   PORT->Group[0].DIRSET.reg |= ( 1 << 15 );
   PORT->Group[0].OUTTGL.reg |= ( 1 << 15 );
 }
+*/
 
 static void wait( int l ) { for ( int i = 0; i < (l*500000); i++ ) i = i; }
 static void dot( void ) { LEDoff(); wait(1); LEDon(); wait(1); LEDoff(); wait(1); }
@@ -567,7 +569,7 @@ extern uint32_t __bss_start__;
 extern uint32_t __bss_end__;
 extern uint32_t __StackTop;
 
-extern "C" int main( int argc, char** argv );
+extern int main( int argc, char** argv );
 
 void Reset_Handler(void) {
 	uint32_t *pSrc, *pDest;
