@@ -66,15 +66,23 @@ int main( int argc, char** argv ) {
 
 	if ( machine.memory ) {
 #ifndef XIP
-		if ( DEBUG ) platform_println_term( "Copy data" );
+/*	Appears broken on my samd21 board, don't really need to do it anyhow. Let it lie for a bit
+		if ( DEBUG ) platform_println_term( "Erase Dest Area" );
 		memset( machine.memory, 0, size );
+*/
+		if ( DEBUG ) platform_println_term( "Copy data" );
 		memmove( machine.memory, image_data, image_data_len );
 #endif
+		if ( DEBUG ) platform_println_term( "Set Size" );
 		WRITE_CELL( &machine, A_DICTIONARY_SIZE, size );
 	}
 
+	if ( DEBUG ) platform_println_term( "Get Stacks" );
 	machine.datastack = machine.memory + ( GET_CELL( &machine, A_DATASTACK ) / CELL_SIZE );
 	machine.returnstack = machine.memory + ( GET_CELL( &machine, A_RETURNSTACK ) / CELL_SIZE );
+	if ( DEBUG ) { 	platform_print_term( "Stacks " ); platform_printHEX_term( (uint64_t)machine.datastack );
+					platform_print_term( " " ); platform_printHEX_term( (uint64_t)machine.returnstack );
+					platform_println_term(""); }
 
 	if ( setup ) {
 		machine.IP = setup;

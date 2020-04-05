@@ -120,12 +120,12 @@ static cell_t getCell_Swap_NoAlignment( machine_t* machine, cell_t r_address ) {
 }
 
 void machine_init( machine_t* machine ) {
+	(void)platform_init();
 	ioInit();
 	ioRegister( &io_file );
 	machine->DP = 0;
 	machine->RP = 0;
 	machine->LP = 0;	
-	(void)platform_init();
 	atexit( platform_term );
 }
 
