@@ -5,6 +5,13 @@ ext-wordlist get-order 1+ set-order
 1024 16 * env-constant /FLASH_SIZE
 512 env-constant /FLASH_PAGE_SIZE
 
+\ First onboot - do chip specific startup
+private-namespace
+defer (chipstartup) :noname ; is (chipstartup)
+onboot: chipstartup	
+	(chipstartup)
+onboot;
+
 require platform/atsamd51/eic.fth
 require platform/atsamd51/nvic.fth
 require platform/atsamd51/gclk.fth
