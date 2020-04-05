@@ -3,7 +3,7 @@
 
 require extra/ringbuffer.fth
 
-ext-wordlist forth-wordlist internals 3 set-order 
+ext-wordlist forth-wordlist 2 set-order 
 
 private-namespace
 

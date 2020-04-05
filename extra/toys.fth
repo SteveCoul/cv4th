@@ -1,9 +1,9 @@
 
 ( Just random stuff )
 
-only forth definitions
-internals ext-wordlist get-order 2 + set-order
+ext-wordlist get-order 1 + set-order
 
+open-namespace core
 private-namespace
 
 variable last-word 

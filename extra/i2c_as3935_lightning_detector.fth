@@ -1,6 +1,6 @@
 
 only forth definitions
-forth-wordlist ext-wordlist internals 3 set-order definitions
+forth-wordlist ext-wordlist 2 set-order definitions
 
 private-namespace
 

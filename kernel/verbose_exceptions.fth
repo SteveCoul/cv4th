@@ -1,5 +1,6 @@
 
-internals dup set-current get-order 1+ set-order
+ext-wordlist get-order 1+ set-order
+open-namespace core
 
 :noname
 	dup . space [char] " emit
@@ -87,4 +88,6 @@ internals dup set-current get-order 1+ set-order
 	endcase
 	[char] " emit
 ; is .exception
+
+only forth definitions
 

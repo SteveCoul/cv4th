@@ -1,11 +1,9 @@
 
 ( Start of an implementation of VI for editing blocks in flash )
 
-get-order internals swap 1 + set-order definitions
+ext-wordlist get-order 1+ set-order
+private-namespace
 wordlist constant widEditor
-get-order widEditor swap 1 + set-order definitions
-wordlist constant widEditorInternals
-get-order widEditorInternals swap 1+ set-order definitions
 
 64 constant	width
 16 constant height

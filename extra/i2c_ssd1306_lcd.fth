@@ -1,5 +1,5 @@
 
-internals ext-wordlist forth-wordlist 3 set-order 
+ext-wordlist forth-wordlist 2 set-order 
 
 ext-wordlist set-current
 

@@ -1,7 +1,8 @@
 
 require generated/opcodes.fth
 
-ext-wordlist forth-wordlist internals 3 set-order definitions
+ext-wordlist forth-wordlist 2 set-order definitions
+open-namespace core
 wid-opcodes get-order 1+ set-order
 
 : opcodename 		\ value -- caddr u | -- 0

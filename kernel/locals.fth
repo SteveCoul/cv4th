@@ -1,5 +1,7 @@
 
-ext-wordlist forth-wordlist internals 3 set-order definitions
+ext-wordlist forth-wordlist 2 set-order definitions
+
+open-namespace core
 
 : locals-count [fake-variable] ;
 : locals-here  [fake-variable] ;

@@ -233,6 +233,7 @@ int main( int argc, char** argv ) {
 	cell_t				dstack_size = 128;
 	cell_t				rstack_size = 128;
 	cell_t				temp;
+	uint32_t			unhook_internals;
 
 	for ( i = 1; i < argc; i++ ) {
 		if ( ( strcmp( argv[i], "-h" ) == 0 ) || ( strcmp( argv[i], "-help" ) == 0 ) ) {
@@ -305,9 +306,14 @@ int main( int argc, char** argv ) {
 	WRITE_CELL( machine, A_ORDER+CELL_SIZE, A_EXT_WORDLIST );
 	WRITE_CELL( machine, A_ORDER +CELL_SIZE+CELL_SIZE, A_FORTH_WORDLIST );
 
+	// Must be first
 	constant( "INTERNALS", A_INTERNALS_WORDLIST );		
+	// Must be second - because I use this information at the end to 
+	// unhook - and hide 'internals' since it'll be available under
+	// the 'core' namespace after the bootstrap
 	constant( "ext-wordlist", A_EXT_WORDLIST );
-	constant( "forth-wordlist", A_FORTH_WORDLIST );		// this one is actually a forth word
+	unhook_internals = GET_CELL( machine, GET_CELL( machine, A_CURRENT ) );
+	constant( "forth-wordlist", A_FORTH_WORDLIST );	
 
 	internals_definitions();
 	variable( A_LIST_OF_WORDLISTS, "A_LIST_OF_WORDLISTS" );
@@ -496,6 +502,7 @@ int main( int argc, char** argv ) {
 		int next_word_is_colon_name;
 aborted:
 		if ( ! refill() ) {
+			WRITE_CELL( machine, unhook_internals, 0 );
 			if ( post_action ) {
 				int i;
 				WRITE_CELL( machine, A_HASH_TIB, 0 );

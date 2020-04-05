@@ -1,9 +1,8 @@
 require kernel/locals.fth
 require kernel/structure.fth
 
-internals ext-wordlist forth-wordlist 3 set-order 
-definitions
-
+ext-wordlist forth-wordlist 2 set-order 
+open-namespace core
 private-namespace
 
 0x1234DEAD constant MAGIC

@@ -12,8 +12,8 @@
 
 require kernel/structure.fth
 
-forth-wordlist ext-wordlist internals 3 set-order
-
+forth-wordlist ext-wordlist 2 set-order
+open-namespace core
 private-namespace
 
 ( The system context is defined in the virtual machine and is

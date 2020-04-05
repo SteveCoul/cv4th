@@ -14,7 +14,7 @@ echo " " >> $2
 echo "enum {" >> $2
 
 echo "\\ machine generated" > $3
-echo "internals set-current" >> $3
+echo "ext-wordlist get-order 1+ set-order open-namespace core" >> $3
 echo "wordlist dup constant wid-opcodes set-current" >> $3
 echo "hex" >> $3
 

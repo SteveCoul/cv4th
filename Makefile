@@ -122,7 +122,7 @@ all:: bootstrap
 # #############################
 
 core.img: kernel/core.fth bootstrap
-	./bootstrap $(ALIGNMENT_FLAGS) $(ENDIAN_FLAGS) -ds $(DICTIONARY_SIZE) -f kernel/core.fth -p "internals ext-wordlist get-order 2 + set-order  ' bye ' save only forth definitions execute core.img execute"
+	./bootstrap $(ALIGNMENT_FLAGS) $(ENDIAN_FLAGS) -ds $(DICTIONARY_SIZE) -f kernel/core.fth -p "ext-wordlist get-order 1 + set-order  ' bye ' save only forth definitions execute core.img execute"
 
 all:: core.img	
 
