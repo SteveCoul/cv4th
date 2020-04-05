@@ -1,5 +1,5 @@
 
-CFLAGS=-Wall -Werror
+CFLAGS=-Wall -Werror 
 
 # For some reason -Os on my samd51bare makes the linker script throw away my vector table!
 # -Os
@@ -243,7 +243,7 @@ platform_$(TARGET).o: $(BARE_METAL_TARGET)
 	$(CC_GCC) $(CC_CFLAGS) -Iinc -Igenerated -c -o $@ $^
 
 %.o:src/%.c
-	$(CC_GCC) $(CC_CFLAGS) -Iinc -Igenerated -c -o $@ $^
+	$(CC_GCC) -O2 $(CC_CFLAGS) -Iinc -Igenerated -c -o $@ $^
 
 forth.elf: platform_$(TARGET).o	$(BARE_METAL_OBJECTS) forth_platform.img.c
 	$(CC_GCC) $(CC_LFLAGS) -Iinc -o $@ $(BARE_METAL_OBJECTS) platform_$(TARGET).o forth_platform.img.c
