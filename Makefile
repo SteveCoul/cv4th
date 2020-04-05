@@ -1,5 +1,8 @@
 
-CFLAGS=-Wall -Werror -Os
+CFLAGS=-Wall -Werror
+
+# For some reason -Os on my samd51bare makes the linker script throw away my vector table!
+# -Os
 
 WHOAMI=$(shell whoami)
 
