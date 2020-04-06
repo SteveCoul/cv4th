@@ -494,31 +494,12 @@ void pll1_100Mhz( void ) {
  *
  * ************************************************************************** */
 
+static bool terminal_ready;
+
 int platform_init( void ) {
-	/* Flash: 1 wait state */
-    NVMCTRL->CTRLA.reg |= NVMCTRL_CTRLA_RWS(0);
 
-	// TODO enable externals OSC at 32Khz, set it as source for GCLK 3 ( which will be slow clock for I2C )
+	terminal_ready = false;
 
-	gclkReset();
-	internalOscForCPUClock();
-	configureDFLL();
-	clock5_1Mhz();
-	clock1_48Mhz();
-	pll0_120Mhz();
-	pll1_100Mhz();
-	genericClock( GCLK_GENCTRL_SRC_DPLL0 );
-
-    MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV1;
-
-	SUPC->VREG.bit.SEL = 0; 	// LDO reg
-
-	// CACHE
-	__disable_irq();
-	CMCC->CTRL.reg = 1;
-	__enable_irq();
-
-	initUSB();
 	return 0;
 }
 
@@ -528,6 +509,35 @@ void platform_term( void ) {
 int platform_read_term( void ) {
 	int c;
 	static int ignore_next_10 = 0;
+
+	if ( !terminal_ready ) {
+		/* Flash: 1 wait state */
+		NVMCTRL->CTRLA.reg |= NVMCTRL_CTRLA_RWS(0);
+
+		// TODO enable externals OSC at 32Khz, set it as source for GCLK 3 ( which will be slow clock for I2C )
+
+		gclkReset();
+		internalOscForCPUClock();
+		configureDFLL();
+		clock5_1Mhz();
+		clock1_48Mhz();
+		pll0_120Mhz();
+		pll1_100Mhz();
+		genericClock( GCLK_GENCTRL_SRC_DPLL0 );
+
+		MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV1;
+
+		SUPC->VREG.bit.SEL = 0; 	// LDO reg
+
+		// CACHE
+		__disable_irq();
+		CMCC->CTRL.reg = 1;
+		__enable_irq();
+
+
+		initUSB();
+		terminal_ready = true;
+	}
 
 	if ( !pollUSB() ) return -1;
 
@@ -548,6 +558,8 @@ int platform_read_term( void ) {
 }
 
 void platform_write_term( char c ) {
+	if ( !terminal_ready ) return;
+
 	if ( pollUSB() ) {
 		if ( c == '\n' ) {
 			c = 13;
