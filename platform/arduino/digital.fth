@@ -1,5 +1,5 @@
 
-ext-wordlist internals forth-wordlist 3 set-order
+ext-wordlist forth-wordlist 2 set-order
 ext-wordlist set-current
 
  0 constant INPUT
