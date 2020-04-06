@@ -109,19 +109,6 @@ PB13 constant PIN_SCK
 PIN_D13 constant LED_BUILTIN
 
 : digitalPinToInterrupt		( p -- i | -1 )
-  case
-  PA6  of  6 swap endof
-  PA7  of -1 swap endof
-  PA12 of 12 swap endof
-  PA13 of 13 swap endof
-  PA15 of  2 swap endof
-  PA16 of  0 swap endof
-  PA18 of  2 swap endof
-  PA19 of  3 swap endof
-  PA20 of  4 swap endof
-  PA17 of  1 swap endof
-  -1 swap 
-  endcase
 ;
 
  \ These defines match the digital arduino driver

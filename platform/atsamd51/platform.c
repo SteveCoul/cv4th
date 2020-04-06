@@ -593,175 +593,21 @@ void Reset_Handler(void) {
  *
  * ************************************************************************** */
 
-static void isr_NMI( void ) { }
-static void isr_HardFault( void ) { }
-static void isr_MemManage( void ) { }
-static void isr_BusFault( void ) { }
-static void isr_UsageFault( void ) { }
-static void isr_SVC( void ) { }
-static void isr_DebugMon( void ) { }
-static void isr_PendSV( void ) { }
-static void isr_SysTick( void ) { }
-static void isr_PM( void ) { }
-static void isr_MCLK( void ) { }
-static void isr_OSCCTRL_0( void ) { }
-static void isr_OSCCTRL_1( void ) { }
-static void isr_OSCCTRL_2( void ) { }
-static void isr_OSCCTRL_3( void ) { }
-static void isr_OSCCTRL_4( void ) { }
-static void isr_OSC32KCTRL( void ) { }
-static void isr_SUPC_0( void ) { }
-static void isr_SUPC_1( void ) { }
-static void isr_WDT( void ) { }
-static void isr_RTC( void ) { }
-static void isr_EIC_0( void ) { }
-static void isr_EIC_1( void ) { }
-static void isr_EIC_2( void ) { }
-static void isr_EIC_3( void ) { }
-static void isr_EIC_4( void ) { }
-static void isr_EIC_5( void ) { }
-static void isr_EIC_6( void ) { }
-static void isr_EIC_7( void ) { }
-static void isr_EIC_8( void ) { }
-static void isr_EIC_9( void ) { }
-static void isr_EIC_10( void ) { }
-static void isr_EIC_11( void ) { }
-static void isr_EIC_12( void ) { }
-static void isr_EIC_13( void ) { }
-static void isr_EIC_14( void ) { }
-static void isr_EIC_15( void ) { }
-static void isr_FREQM( void ) { }
-static void isr_NVMCTRL_0( void ) { }
-static void isr_NVMCTRL_1( void ) { }
-static void isr_DMAC_0( void ) { }
-static void isr_DMAC_1( void ) { }
-static void isr_DMAC_2( void ) { }
-static void isr_DMAC_3( void ) { }
-static void isr_DMAC_4( void ) { }
-static void isr_EVSYS_0( void ) { }
-static void isr_EVSYS_1( void ) { }
-static void isr_EVSYS_2( void ) { }
-static void isr_EVSYS_3( void ) { }
-static void isr_EVSYS_4( void ) { }
-static void isr_PAC( void ) { }
-static void isr_TAL_0( void ) { }
-static void isr_TAL_1( void ) { }
-static void isr_RAMECC( void ) { }
-static void isr_SERCOM0_0( void ) { }
-static void isr_SERCOM0_1( void ) { }
-static void isr_SERCOM0_2( void ) { }
-static void isr_SERCOM0_3( void ) { }
-static void isr_SERCOM1_0( void ) { }
-static void isr_SERCOM1_1( void ) { }
-static void isr_SERCOM1_2( void ) { }
-static void isr_SERCOM1_3( void ) { }
-static void isr_SERCOM2_0( void ) { }
-static void isr_SERCOM2_1( void ) { }
-static void isr_SERCOM2_2( void ) { }
-static void isr_SERCOM2_3( void ) { }
-static void isr_SERCOM3_0( void ) { }
-static void isr_SERCOM3_1( void ) { }
-static void isr_SERCOM3_2( void ) { }
-static void isr_SERCOM3_3( void ) { }
-static void isr_SERCOM4_0( void ) { }
-static void isr_SERCOM4_1( void ) { }
-static void isr_SERCOM4_2( void ) { }
-static void isr_SERCOM4_3( void ) { }
-static void isr_SERCOM5_0( void ) { }
-static void isr_SERCOM5_1( void ) { }
-static void isr_SERCOM5_2( void ) { }
-static void isr_SERCOM5_3( void ) { }
-static void isr_SERCOM6_0( void ) { }
-static void isr_SERCOM6_1( void ) { }
-static void isr_SERCOM6_2( void ) { }
-static void isr_SERCOM6_3( void ) { }
-static void isr_SERCOM7_0( void ) { }
-static void isr_SERCOM7_1( void ) { }
-static void isr_SERCOM7_2( void ) { }
-static void isr_SERCOM7_3( void ) { }
-static void isr_USB_0( void ) { }
-static void isr_USB_1( void ) { }
-static void isr_USB_2( void ) { }
-static void isr_USB_3( void ) { }
-static void isr_TCC0_0( void ) { }
-static void isr_TCC0_1( void ) { }
-static void isr_TCC0_2( void ) { }
-static void isr_TCC0_3( void ) { }
-static void isr_TCC0_4( void ) { }
-static void isr_TCC0_5( void ) { }
-static void isr_TCC0_6( void ) { }
-static void isr_TCC1_0( void ) { }
-static void isr_TCC1_1( void ) { }
-static void isr_TCC1_2( void ) { }
-static void isr_TCC1_3( void ) { }
-static void isr_TCC1_4( void ) { }
-static void isr_TCC2_0( void ) { }
-static void isr_TCC2_1( void ) { }
-static void isr_TCC2_2( void ) { }
-static void isr_TCC2_3( void ) { }
-static void isr_TCC3_0( void ) { }
-static void isr_TCC3_1( void ) { }
-static void isr_TCC3_2( void ) { }
-static void isr_TCC4_0( void )  { }
-static void isr_TCC4_1( void )  { }
-static void isr_TCC4_2( void )  { }
-static void isr_TC0( void )  { }
-static void isr_TC1( void )  { }
-static void isr_TC2( void )  { }
-static void isr_TC3( void )  { }
-static void isr_TC4( void )  { }
-static void isr_TC5( void )  { }
-static void isr_TC6( void )  { }
-static void isr_TC7( void )  { }
-static void isr_PDEC_0( void )  { }
-static void isr_PDEC_1( void )  { }
-static void isr_PDEC_2( void )  { }
-static void isr_ADC0_0( void )  { }
-static void isr_ADC0_1( void )  { }
-static void isr_ADC1_0( void )  { }
-static void isr_ADC1_1( void )  { }
-static void isr_AC( void )  { }
-static void isr_DAC_0( void )  { }
-static void isr_DAC_1( void )  { }
-static void isr_DAC_2( void )  { }
-static void isr_DAC_3( void )  { }
-static void isr_DAC_4( void )  { }
-static void isr_I2S( void )  { }
-static void isr_PCC( void )  { }
-static void isr_AES( void )  { }
-static void isr_TRNG( void )  { }
-static void isr_ICM( void )  { }
-static void isr_PUKCC( void )  { }
-static void isr_QSPI( void )  { }
-static void isr_SDHC0( void )  { }
-static void isr_SDHC1( void )  { }
-
 typedef void(*vfunc)(void);
 
 __attribute__ ((section(".isr_vector"))) vfunc const exception_table[]  = {
-	(vfunc)(&__StackTop), Reset_Handler, isr_NMI, isr_HardFault, isr_MemManage, isr_BusFault,
-	isr_UsageFault, NULL, NULL, NULL, NULL, isr_SVC, isr_DebugMon, NULL, isr_PendSV,
-	isr_SysTick, isr_PM, isr_MCLK, isr_OSCCTRL_0, isr_OSCCTRL_1, isr_OSCCTRL_2, 
-	isr_OSCCTRL_3, isr_OSCCTRL_4, isr_OSC32KCTRL, isr_SUPC_0, isr_SUPC_1, isr_WDT,
-	isr_RTC, isr_EIC_0, isr_EIC_1, isr_EIC_2, isr_EIC_3, isr_EIC_4, isr_EIC_5,
-	isr_EIC_6, isr_EIC_7, isr_EIC_8, isr_EIC_9, isr_EIC_10, isr_EIC_11, isr_EIC_12,
-	isr_EIC_13, isr_EIC_14, isr_EIC_15, isr_FREQM, isr_NVMCTRL_0, isr_NVMCTRL_1, 
-	isr_DMAC_0, isr_DMAC_1, isr_DMAC_2, isr_DMAC_3, isr_DMAC_4, isr_EVSYS_0,
-	isr_EVSYS_1, isr_EVSYS_2, isr_EVSYS_3, isr_EVSYS_4, isr_PAC, isr_TAL_0, isr_TAL_1,
-	NULL, isr_RAMECC, isr_SERCOM0_0, isr_SERCOM0_1, isr_SERCOM0_2, isr_SERCOM0_3,
-	isr_SERCOM1_0, isr_SERCOM1_1, isr_SERCOM1_2, isr_SERCOM1_3, isr_SERCOM2_0,
-	isr_SERCOM2_1, isr_SERCOM2_2, isr_SERCOM2_3, isr_SERCOM3_0, isr_SERCOM3_1,
-	isr_SERCOM3_2, isr_SERCOM3_3, isr_SERCOM4_0, isr_SERCOM4_1, isr_SERCOM4_2,
-	isr_SERCOM4_3, isr_SERCOM5_0, isr_SERCOM5_1, isr_SERCOM5_2, isr_SERCOM5_3,
-	isr_SERCOM6_0, isr_SERCOM6_1, isr_SERCOM6_2, isr_SERCOM6_3, isr_SERCOM7_0,
-	isr_SERCOM7_1, isr_SERCOM7_2, isr_SERCOM7_3, NULL, NULL, isr_USB_0, isr_USB_1,
-	isr_USB_2, isr_USB_3, NULL, isr_TCC0_0, isr_TCC0_1, isr_TCC0_2, isr_TCC0_3,
-	isr_TCC0_4, isr_TCC0_5, isr_TCC0_6, isr_TCC1_0, isr_TCC1_1, isr_TCC1_2, 
-	isr_TCC1_3, isr_TCC1_4, isr_TCC2_0, isr_TCC2_1, isr_TCC2_2, isr_TCC2_3,
-	isr_TCC3_0, isr_TCC3_1, isr_TCC3_2, isr_TCC4_0, isr_TCC4_1, isr_TCC4_2, isr_TC0,
-	isr_TC1, isr_TC2, isr_TC3, isr_TC4, isr_TC5, isr_TC6, isr_TC7, isr_PDEC_0, 
-	isr_PDEC_1, isr_PDEC_2, isr_ADC0_0, isr_ADC0_1, isr_ADC1_0, isr_ADC1_1,
-	isr_AC, isr_DAC_0, isr_DAC_1, isr_DAC_2, isr_DAC_3, isr_DAC_4, isr_I2S,
-	isr_PCC, isr_AES, isr_TRNG, isr_ICM, isr_PUKCC, isr_QSPI, isr_SDHC0, isr_SDHC1 };
-
+	(vfunc)(&__StackTop), Reset_Handler, hacf, hacf, hacf, hacf,
+	hacf, NULL, NULL, NULL, NULL, hacf, hacf, NULL, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, NULL, hacf, hacf, hacf, hacf, hacf,
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, NULL, NULL, hacf, hacf, hacf, hacf, NULL, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf,
+	hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, hacf, 
+	hacf, hacf, hacf };
 
