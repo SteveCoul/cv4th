@@ -1,4 +1,6 @@
 
+require platform/atsamd51/nvmctrl.fth
+
 ext-wordlist forth-wordlist 2 set-order
 
 ext-wordlist set-current
@@ -13,27 +15,6 @@ private-namespace
 \ This chip can only erase 16 pages at a time
 FLASH_PAGE_SIZE 16 * constant FLASH_BLOCK_SIZE
 FLASH_BLOCK_SIZE buffer: flash_block
-
-hex
-41004000 constant NVMCTRL			\ Warning samd51j20a actually.
-
-41004000 constant NVMCTRL_CTRLA
-
-41004004 constant NVMCTRL_CTRLB
-00000001 constant NVMCTRL_CTRLB_CMD_EB
-00000015 constant NVMCTRL_CTRLB_CMD_PBC
-0000A500 constant NVMCTRL_CTRLB_CMDEX_KEY
-
-41004008 constant NVMCTRL_PARAM
-
-41004010 constant NVMCTRL_INTFLAG
-00000001 constant NVMCTRL_INTFLAG_DONE
-
-41004012 constant NVMCTRL_STATUS
-00000001 constant NVMCTRL_STATUS_READY
-
-41004014 constant NVMCTRL_ADDR
-decimal
 
 ext-wordlist set-current
 
@@ -55,29 +36,16 @@ ext-wordlist set-current
 
 private-namespace
 
-: waitReady	
-  begin
-    NVMCTRL_STATUS s>d d32@ NVMCTRL_STATUS_READY and 
-  until
-;
+: waitReady	begin NVMCTRL.STATUS.ready@ until ;
 
-: waitDone
-  begin
-    NVMCTRL_INTFLAG s>d d32@ NVMCTRL_INTFLAG_DONE and
-  until
-;
+: waitDone begin NVMCTRL.INTFLAG.done@ until ;
 
-: clearDone
-  NVMCTRL_INTFLAG s>d d32@ NVMCTRL_INTFLAG_DONE or NVMCTRL_INTFLAG s>d d32!
-;
+: clearDone 0 NVMCTRL.INTFLAG.done!  ;
 
-: setCommand		( cmd -- )
-  NVMCTRL_CTRLB_CMDEX_KEY or
-  NVMCTRL_CTRLB s>d d32!
-;
+: setCommand		( cmd -- ) NVMCTRL_CTRLB_CMDEX_KEY or NVMCTRL.CTRLB.reg!  ;
 
 : erase_block		( block-addr -- )
-  NVMCTRL_ADDR s>d d32!
+  NVMCTRL.ADDR.addr!
   waitReady
   clearDone
   NVMCTRL_CTRLB_CMD_EB setCommand
@@ -85,8 +53,7 @@ private-namespace
 ;
 
 : flash_page		( source flash -- )
-\ automatic page write
-  NVMCTRL_CTRLA s>d d32@ 48 or NVMCTRL_CTRLA s>d d32!	
+  3 NVMCTRL.CTRLA.wmode!	\ automatic page write
   waitReady
   clearDone
   NVMCTRL_CTRLB_CMD_PBC setCommand
