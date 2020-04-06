@@ -1,5 +1,6 @@
 
 require platform/atsamd51/port.fth
+require platform/atsamd51/eic.fth
 
 ext-wordlist forth-wordlist 2 set-order 
 

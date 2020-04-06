@@ -242,3 +242,9 @@ ext-wordlist set-current
 end-register-bank
 
 
+0 constant OSCCTRL_GCLK_ID_DFLL48             \ Index of Generic Clock for DFLL48
+1 constant OSCCTRL_GCLK_ID_FDPLL0             \ Index of Generic Clock for DPLL0
+2 constant OSCCTRL_GCLK_ID_FDPLL1             \ Index of Generic Clock for DPLL1
+3 constant OSCCTRL_GCLK_ID_FDPLL032K          \ Index of Generic Clock for DPLL0 32K
+3 constant OSCCTRL_GCLK_ID_FDPLL132K          \ Index of Generic Clock for DPLL1 32K
+

@@ -47,5 +47,8 @@ ext-wordlist set-current
 	end-register-array
 end-register-bank
 
-
+4 constant GCLK_GENCTRL_SRC_OSCULP32K
+6 constant GCLK_GENCTRL_SRC_DFLL
+7 constant GCLK_GENCTRL_SRC_DPLL0
+8 constant GCLK_GENCTRL_SRC_DPLL1
 

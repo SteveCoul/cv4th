@@ -119,4 +119,5 @@ ext-wordlist set-current
 	end-register
 end-register-bank
 
+1 constant MCLK_CPUDIV_DIV_DIV1
 

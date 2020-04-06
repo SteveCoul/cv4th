@@ -39,7 +39,10 @@ static void LEDtoggle( void ) {
 }
 */
 
-static void wait( int l ) { for ( int i = 0; i < (l*500000); i++ ) i = i; }
+//#define WAIT 500000
+#define WAIT 100000
+
+static void wait( int l ) { for ( int i = 0; i < (l*WAIT); i++ ) i = i; }
 static void dot( void ) { LEDoff(); wait(1); LEDon(); wait(1); LEDoff(); wait(1); }
 static void dash( void ) { LEDoff(); wait(1); LEDon(); wait(3); LEDoff(); wait(1); }
 static void hacf( void ) { for(;;) { wait(6); dot(); dot(); dot(); dash(); dash(); dash(); dot(); dot(); dot(); } }
@@ -400,6 +403,7 @@ void initUSB( void ) {
 /* ************************************************************************** *
  *
  * ************************************************************************** */
+#ifdef NATIVE_CLOCK_INIT
 
 void gclkReset( void ) {
    GCLK->CTRLA.bit.SWRST = 1;
@@ -408,9 +412,11 @@ void gclkReset( void ) {
 }
 
 void internalOscForCPUClock( void ) {
+
     GCLK->GENCTRL[0].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_OSCULP32K) |
                            GCLK_GENCTRL_OE |
                            GCLK_GENCTRL_GENEN;
+
     while (GCLK->SYNCBUSY.bit.GENCTRL0) 
 		;
 }
@@ -490,6 +496,7 @@ void pll1_100Mhz( void ) {
 		;
 }
 
+#endif
 /* ************************************************************************** *
  *
  * ************************************************************************** */
@@ -499,6 +506,24 @@ static bool terminal_ready;
 int platform_init( void ) {
 
 	terminal_ready = false;
+#ifdef NATIVE_CLOCK_INIT
+	gclkReset();
+	internalOscForCPUClock();
+	configureDFLL();
+	clock5_1Mhz();
+	clock1_48Mhz();
+	pll0_120Mhz();
+	pll1_100Mhz();
+	genericClock( GCLK_GENCTRL_SRC_DPLL0 );
+	MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV1;
+
+	SUPC->VREG.bit.SEL = 0; 	// LDO reg
+
+	// CACHE
+	__disable_irq();
+	CMCC->CTRL.reg = 1;
+	__enable_irq();
+#endif
 
 	return 0;
 }
@@ -506,37 +531,41 @@ int platform_init( void ) {
 void platform_term( void ) {
 }
 
+static char preboot_io[1024];
+static int pbi = 0;
+
+void platform_write_term( char c ) {
+	if ( !terminal_ready ) {
+		preboot_io[pbi++] = c;
+		return;
+	}
+
+	if ( pollUSB() ) {
+		if ( c == '\n' ) {
+			c = 13;
+			writeUSB( &c, 1, USB_EP_IN );
+			c = 10;
+		}
+		writeUSB( &c, 1, USB_EP_IN );
+	}
+}
+
 int platform_read_term( void ) {
 	int c;
 	static int ignore_next_10 = 0;
 
 	if ( !terminal_ready ) {
-		/* Flash: 1 wait state */
-		NVMCTRL->CTRLA.reg |= NVMCTRL_CTRLA_RWS(0);
-
-		// TODO enable externals OSC at 32Khz, set it as source for GCLK 3 ( which will be slow clock for I2C )
-
-		gclkReset();
-		internalOscForCPUClock();
-		configureDFLL();
-		clock5_1Mhz();
-		clock1_48Mhz();
-		pll0_120Mhz();
-		pll1_100Mhz();
-		genericClock( GCLK_GENCTRL_SRC_DPLL0 );
-
-		MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV1;
-
-		SUPC->VREG.bit.SEL = 0; 	// LDO reg
-
-		// CACHE
-		__disable_irq();
-		CMCC->CTRL.reg = 1;
-		__enable_irq();
-
 
 		initUSB();
 		terminal_ready = true;
+
+		LEDon();
+reloop:
+		int crap = platform_read_term();
+		if ( crap < 0 ) goto reloop;
+
+		for ( int i = 0; i < pbi; i++ ) platform_write_term( preboot_io[i] );
+		return crap;
 	}
 
 	if ( !pollUSB() ) return -1;
@@ -555,19 +584,6 @@ int platform_read_term( void ) {
 	}
 
 	return c;
-}
-
-void platform_write_term( char c ) {
-	if ( !terminal_ready ) return;
-
-	if ( pollUSB() ) {
-		if ( c == '\n' ) {
-			c = 13;
-			writeUSB( &c, 1, USB_EP_IN );
-			c = 10;
-		}
-		writeUSB( &c, 1, USB_EP_IN );
-	}
 }
 
 /* ************************************************************************** *

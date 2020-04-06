@@ -1,6 +1,7 @@
 
 require kernel/locals.fth
 require platform/atsamd51/gclk.fth
+require platform/atsamd51/nvic.fth
 
 ext-wordlist forth-wordlist 2 set-order 
 
