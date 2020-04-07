@@ -2034,7 +2034,7 @@ forth-wordlist set-current
   ['] (words) get-current traverse-wordlist 
 ;  
 
-internals
+internals set-current
 : (included-files) name>string cr type true ;
 
 ext-wordlist set-current
