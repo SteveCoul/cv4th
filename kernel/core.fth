@@ -45,7 +45,6 @@
 \ c!																			\ \ CORE
 \ c@																			\ \ CORE
 \ drop																			\ \ CORE
-\ emit																			\ \ CORE
 \ *																				\ \ CORE
 \ m*																			\ \ CORE
 \ um*																			\ \ CORE
@@ -273,7 +272,6 @@ forth-wordlist set-current
 : false 0 ;																		\ \ CORE-EXT
 
 : bl 32 ;																		\ \ CORE
-: cr 10 emit ;																	\ \ CORE
 
 : 0< 0 < ;																		\ \ CORE
 
@@ -480,6 +478,13 @@ forth-wordlist set-current
 : previous																		\ \ SEARCH-ORDER
   get-order nip 1- set-order
 ;
+
+internals set-current
+: (emit) [fake-defer] ;	here opEMIT c, opRET c, get-current @ link>xt defer!
+forth-wordlist set-current
+
+: emit (emit) ;																	\ \ CORE
+: cr 10 emit ;																	\ \ CORE
 
 : type																			\ \ CORE
   begin 
@@ -1517,9 +1522,14 @@ defer at-idle
 :noname ; is at-idle
 forth-wordlist set-current
 
+internals set-current
+defer (ekey)
+:noname [ opEKEY c, ] ; ' (ekey) defer!
+forth-wordlist set-current
+
 : ekey																			\ \ FACILITY-EXT
   begin
-	[ opEKEY c, ]	
+	(ekey)
     dup 0< 
   while
     drop

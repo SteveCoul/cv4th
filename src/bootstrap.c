@@ -405,7 +405,6 @@ int main( int argc, char** argv ) {
 	opword( opCOMPARE, "compare" );
 	opword( opCFETCH, "c@" );
 	opword( opDROP, "drop" );
-	opword( opEMIT, "emit" );
 	opword( opMULT, "*" );
 	opword( opMULT2, "m*" );
 	opword( opUMULT2, "um*" );
