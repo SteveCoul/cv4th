@@ -105,8 +105,6 @@ private-namespace
 	( todo disable irqs )
   1 CMCC.CTRL.cen!
 	( todo enable irqs )
-
-  key drop			\ Hack first KEY boots USB console
 ;
 
 open-namespace platform/atsamd51/atsamd51j20a.fth
