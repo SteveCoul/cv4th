@@ -52,3 +52,5 @@ end-register-bank
 7 constant GCLK_GENCTRL_SRC_DPLL0
 8 constant GCLK_GENCTRL_SRC_DPLL1
 
+10 constant USB_GCLK_ID
+
