@@ -445,9 +445,9 @@ int main( int argc, char** argv ) {
 	opword( opRSPSTORE, "rsp!" );
 	opword( opSPFETCH, "sp@" );
 	opword( opSPSTORE, "sp!" );
+	ext_definitions();
 	opword( opWFETCH, "w@" );
 	opword( opWSTORE, "w!" );
-	ext_definitions();
 	opword( opBYE, "bye" );
 
 	internals_definitions();
