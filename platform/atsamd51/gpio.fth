@@ -54,6 +54,8 @@ private-namespace
   2dup d8@ 4 invert and rot rot d8!
 ;
 
+ext-wordlist set-current
+
 : enableMux		( n -- )
   pinToIndexAndPort swap PORT_PINCFGn + s>d	( ad-addr -- )
   2dup d8@ 1 or rot rot d8!
@@ -78,8 +80,6 @@ private-namespace
   then
   swap s>d d8!
 ;
-
-ext-wordlist set-current
 
 \ Arduino Names
 
