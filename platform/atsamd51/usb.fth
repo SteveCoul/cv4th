@@ -7,16 +7,12 @@ require platform/atsamd51/gpio.fth
 
 forth-wordlist ext-wordlist 2 set-order
 
-: lcd lcd-clear 0 0 lcd-at-xy lcd-type lcd-update ;
-: lcd2 0 1 lcd-at-xy lcd-type lcd-update ;
-: lcd3 0 1 lcd-at-xy lcd-type lcd-update ;
-: lcd4 0 1 lcd-at-xy lcd-type lcd-update ;
 : wait  1000 * 0 do i drop loop ;
 : ledon LED_BUILTIN OUTPUT pinMode LED_BUILTIN HIGH writeDigital ;
 : ledoff LED_BUILTIN OUTPUT pinMode LED_BUILTIN LOW writeDigital ;
 : dash 1 wait ledon 3 wait ledoff ;
 : dot  1 wait ledon 1 wait ledoff ;
-: HACF S" Burn baby Burn" lcd begin dot dot dot dash dash dash dot dot dot 6 wait again ;
+: HACF S" Burn baby Burn" lcd-type begin dot dot dot dash dash dash dot dot dot 6 wait again ;
 
 0x41000000 register-bank UsbHost
 	8bit register CTRLA
@@ -740,7 +736,7 @@ defer pollUSB		( -- flag )
 [THEN]
 
 : (pollRST)
-  S" (pollRST)" lcd
+  cr ." (pollRST) " depth .
   8 UsbDevice.INTFLAG.reg! 		\ 1 UsbDevice.INTFLAG.eorst!
   0x80 UsbDevice.DADD.reg!		\ 0 UsbDevice.DADD.dadd!
   								\ 1 UsbDevice.DADD.adden!
@@ -759,11 +755,11 @@ defer pollUSB		( -- flag )
 
   64 UsbDevice_DeviceEndPoint0.EPSTATUSCLR.reg!	\ 1 UsbDevice_DeviceEndPoint0.EPSTATUSCLR.bk0rdy!
   0 usb_active_config !
-  S" finished" lcd2
 ;
 
 : (pollMSG)				{: | request request_value idx dir request_length -- :}
-  S" (pollMSG)" lcd
+
+  cr ." (pollMSG)"
   1 UsbDevice_DeviceEndPoint0.EPINTFLAG.rxstp!
 
   controlpacket w@ to request
@@ -773,8 +769,6 @@ defer pollUSB		( -- flag )
   controlpacket 6 + w@ to request_length
 
   1 UsbDevice_DeviceEndPoint0.EPSTATUSCLR.bk0rdy!
-
-  request 0 base @ >r hex <# #S #> r> base ! lcd2
 
   request case
     USB_REQUEST_GET_STATUS_ZERO of
@@ -810,15 +804,15 @@ defer pollUSB		( -- flag )
   ledon
   UsbDevice.INTFLAG.eorst@ if 
     (pollRST) 
-ledoff
     0 
   else
-\    UsbDevice_DeviceEndPoint0.EPINTFLAG.rxstp@ if
-\      (pollMSG) 
-\    then
+    UsbDevice_DeviceEndPoint0.EPINTFLAG.rxstp@ if
+      (pollMSG) 
+    then
     usb_active_config @ 0= 0=
   then
   ledoff
+  cr ." donepoll"
 ;
 
 
@@ -921,6 +915,7 @@ ledoff
 	inputbuffer c@
     -1 num_chars +!
 	inputbuffer 1 + inputbuffer num_chars @ cmove
+	cr ." rd. " dup .
   else
 	wait_for_input @ 0= if
 		endpoints UsbDeviceDescriptor 2 * + DeviceDescBank0
@@ -931,14 +926,17 @@ ledoff
 		
 		1 wait_for_input !
 		-1
+		cr ." rd. req"
 	else
 		USBDevice_DeviceEndPoint2.EPINTFLAG.trcpt0@ if
 		  endpoints UsbDeviceDescriptor 2 * + DeviceDescBank0 uddb.PCKSIZE @ num_chars !
 		  1  USBDevice_DeviceEndPoint2.EPINTFLAG.trcpt0!
 		  0 wait_for_input !
 		  -1
+		  cr ." rd. got " num_chars @ .
 		else
 		  -1
+		  cr ." rd. nothing"
         then
 	then
   then
@@ -957,7 +955,6 @@ ledoff
 variable emit-buffer
 
 : usb-emit			\ char --
-drop exit
   pollUSB 0= if drop else
     dup 10 = if
 	  13 emit-buffer c!
@@ -974,9 +971,11 @@ open-namespace core
 
 onboot: UsbConsole
 	ledon
-	Wire.begin lcd-init S" Boot" lcd-type lcd-update
+    lcd-init lcd-consolemode
 	initUSB
-    ['] usb-emit ['] (emit) defer!
+    ['] lcd-emit ['] (emit) defer!
+    ['] lcd-type ['] (type) defer!
 	['] usb-ekey ['] (ekey) defer!
+	cr ." Boot"
 onboot;
 
