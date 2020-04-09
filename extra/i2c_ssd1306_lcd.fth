@@ -111,9 +111,13 @@ constant font
 ext-wordlist set-current
 128 constant lcd_width
 64 constant lcd_height
+
+lcd_width lcd_height * 8 / constant #memory
 private-namespace
 
-lcd_width lcd_height * 8 / buffer: display_memory
+false value consolemode
+
+#memory buffer: display_memory
 0 value lcdx
 0 value lcdy
 
@@ -178,6 +182,13 @@ decimal
   128 + swap 8 + swap 8 cmove>
 ;
 
+: scrollup		( howmuch -- )
+  \ hacky
+  lcd_width * 8 / >r
+  display_memory r@ + display_memory #memory r@ - cmove
+  display_memory #memory + r@ - r> 0 fill
+;
+
 ext-wordlist set-current
 \ 32 is the minimum arduino i2c buffer size and
 \ is also the size used by the bigbang forth version
@@ -188,7 +199,7 @@ ext-wordlist set-current
   \ should probably reset page address or whatever so we always start
   \ from beginning
   display_memory
-  lcd_width lcd_height * 8 / 0 do
+  #memory 0 do
      begindata
 	 16 0 do
 		 dup c@ Wire.write drop 1+
@@ -203,7 +214,26 @@ ext-wordlist set-current
   to lcdx
 ;
 
-: lcd-emit 
+\ TODO hide
+: (lcd-emit)
+  consolemode if
+    lcdy 3 <> if 0 3 lcd-at-xy then
+    dup 10 = if
+	  drop
+	  16 scrollup
+	  0 3 lcd-at-xy
+    else
+	  dup 32 > if
+		lcdx lcdy rot drawchar
+	  else 
+		drop lcdx lcdy bl drawchar
+	  then
+      1 lcdx + to lcdx
+	  lcdx 16 = if
+	    10 recurse
+      then
+    then
+  else
 	dup 10 = if
 		drop
 		1 lcdy + to lcdy
@@ -216,13 +246,19 @@ ext-wordlist set-current
 	  then
       1 lcdx + to lcdx
     then
+  then
 ;
 
-: lcd-type begin ?dup while over c@ lcd-emit 1 /string repeat drop ;
+: lcd-emit
+  (lcd-emit)
+  consolemode if lcd-update then
+;
+
+: lcd-type begin ?dup while over c@ (lcd-emit) 1 /string repeat drop lcd-update ;
 
 : lcd-cr 10 lcd-emit ;
 
-: lcd-clear display_memory 1024 0 fill ;
+: lcd-clear display_memory #memory 0 fill 0 0 lcd-at-xy ;
 
 : lcd-setpixel		( x y -- )
   dup 8 / 128 *			( x y row-offset -- )
@@ -239,4 +275,11 @@ ext-wordlist set-current
   lcd-clear
   lcd-update
 ;
+
+: lcd-consolemode true to consolemode ;
+
+: .lcd"
+  postpone s"
+  postpone lcd-type
+; immediate
 

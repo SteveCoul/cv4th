@@ -480,21 +480,22 @@ forth-wordlist set-current
 ;
 
 internals set-current
+\ Way too much trickery - need 'is' and ':noname'
 : (emit) [fake-defer] ;	here opEMIT c, opRET c, get-current @ link>xt defer!
+: (type) [fake-defer] ; here ]
+  begin 
+	dup 0>
+  while
+    swap dup c@ (emit)
+	1+ swap 1-
+  repeat
+  2drop [ opRET c,
+get-current @ link>xt defer!
 forth-wordlist set-current
 
 : emit (emit) ;																	\ \ CORE
 : cr 10 emit ;																	\ \ CORE
-
-: type																			\ \ CORE
-  begin 
-	dup 0>
-  while
-    swap dup c@ emit
-	1+ swap 1-
-  repeat
-  2drop
-;
+: type (type) ;																	\ \ CORE
 
 : count dup 1+ swap c@ ;														\ \ CORE
 
