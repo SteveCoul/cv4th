@@ -202,6 +202,31 @@ ext-wordlist set-current
 
 private-namespace
 
+0 [IF]
+: dofetch				( address size -- v )
+  dup 8bit = if
+    drop c@
+  else
+	dup 16bit = if
+		drop w@
+	else
+		drop @
+	then
+ then
+;
+
+: dostore				( data address size -- )
+  dup 8bit = if
+    drop c!
+  else
+	dup 16bit = if
+		drop w!
+	else
+		drop !
+	then
+ then
+;
+[ELSE]
 : dofetch				( address size -- v )
   dup 8bit = if
     drop 0 d8@
@@ -225,6 +250,7 @@ private-namespace
 	then
  then
 ;
+[THEN]
 
 \ TODO make these compiling words that make the masks etc and laydown literals and code.
 \ then just execute them from the interpreter hook
@@ -258,6 +284,13 @@ private-namespace
     regsize size>bytes *
 	address + to address
   then
+
+(
+  fieldsize regsize size>bits = fieldposition 0= and if
+	address regsize dostore exit
+  then
+)
+
   ( v -- )
   fieldsize nbits and 
   fieldposition lshift
