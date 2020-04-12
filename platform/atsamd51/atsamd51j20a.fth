@@ -29,6 +29,7 @@ require extra/ringbuffer.fth
 require extra/vi.fth
 require extra/toys.fth
 require extra/thread.fth
+require extra/dmesg.fth
 
 require platform/atsamd51/Wire.fth
 

@@ -7,6 +7,7 @@
 #include "common.h"
 #include "io.h"
 #include "io_file.h"
+#include "io_dmesg.h"
 #include "platform.h"
 #include "machine.h"
 #include "opcodes.h"
@@ -123,6 +124,7 @@ void machine_init( machine_t* machine ) {
 	(void)platform_init();
 	ioInit();
 	ioRegister( &io_file );
+	ioRegister( &io_dmesg );
 	machine->DP = 0;
 	machine->RP = 0;
 	machine->LP = 0;	

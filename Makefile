@@ -97,6 +97,7 @@ BOOTSTRAP_HEADERS=
 BOOTSTRAP_HEADERS+=
 BOOTSTRAP_HEADERS+=inc/io.h
 BOOTSTRAP_HEADERS+=inc/io_file.h
+BOOTSTRAP_HEADERS+=inc/io_dmesg.h
 BOOTSTRAP_HEADERS+=inc/platform.h
 BOOTSTRAP_HEADERS+=inc/machine.h
 BOOTSTRAP_HEADERS+=generated/opcodes.h
@@ -107,6 +108,7 @@ BOOTSTRAP_SOURCES+=src/bootstrap.c
 BOOTSTRAP_SOURCES+=generated/opcodes.c
 BOOTSTRAP_SOURCES+=src/io.c
 BOOTSTRAP_SOURCES+=src/io_file.c
+BOOTSTRAP_SOURCES+=src/io_dmesg.c
 BOOTSTRAP_SOURCES+=src/platform.c
 BOOTSTRAP_SOURCES+=platform/host/platform_nix.c
 BOOTSTRAP_SOURCES+=src/machine.c
@@ -143,6 +145,7 @@ FORTH_CORE_HEADERS=$(BOOTSTRAP_HEADERS)
 FORTH_CORE_SOURCES=src/runner.c
 FORTH_CORE_SOURCES+=src/io.c
 FORTH_CORE_SOURCES+=src/io_file.c
+FORTH_CORE_SOURCES+=src/io_dmesg.c
 FORTH_CORE_SOURCES+=src/platform.c
 FORTH_CORE_SOURCES+=platform/host/platform_nix.c
 FORTH_CORE_SOURCES+=src/machine.c
@@ -195,7 +198,9 @@ arduino_build_tree: forth_platform.img.c
 	ln -s ../inc/io.h arduino/io.h
 	ln -s ../src/io.c arduino/io.cpp
 	ln -s ../inc/io_file.h arduino/io_file.h
+	ln -s ../inc/io_dmesg.h arduino/io_dmesg.h
 	ln -s ../src/io_file.c arduino/io_file.cpp
+	ln -s ../src/io_dmesg.c arduino/io_dmesg.cpp
 	ln -s ../inc/platform.h arduino/platform.h
 	ln -s ../generated/opcodes.h arduino/opcodes.h
 	ln -s ../platform/arduino/platform.cpp arduino/platform_arduino.cpp
@@ -231,6 +236,7 @@ BARE_METAL_HEADERS=$(BOOTSTRAP_HEADERS)
 BARE_METAL_SOURCES=src/runner.c
 BARE_METAL_SOURCES+=src/io.c
 BARE_METAL_SOURCES+=src/io_file.c
+BARE_METAL_SOURCES+=src/io_dmesg.c
 BARE_METAL_SOURCES+=src/platform.c
 BARE_METAL_SOURCES+=src/machine.c
 BARE_METAL_SOURCES+=src/common.c
