@@ -508,8 +508,6 @@ end-structure
 
 \ -------------------------------------------------------------------------
 
-0 value usbhack
-
 0x1B4F constant USB_VID
 0x0D23 constant USB_PID
 64 constant SIZE_PACKET 
@@ -934,13 +932,7 @@ defer pollUSB		( -- flag )
 	}
 [THEN]
 
-\ ' (pollUSB) is pollUSB
-
-: hack
-	usbhack file-size 2drop
-;
-
-' hack is pollUSB
+' (pollUSB) is pollUSB
 
 \ I Known USB_EP_OUT is 2
 : readUSB		( -- char | -1 )
@@ -948,6 +940,7 @@ defer pollUSB		( -- flag )
 	inputbuffer c@
     -1 num_chars +!
 	inputbuffer 1 + inputbuffer num_chars @ cmove
+	cr ." rd. " dup .
   else
 	wait_for_input @ 0= if
 		endpoints UsbDeviceDescriptor 2 * + DeviceDescBank0
@@ -958,14 +951,17 @@ defer pollUSB		( -- flag )
 		
 		1 wait_for_input !
 		-1
+		cr ." rd. req"
 	else
 		USBDevice_DeviceEndPoint2.EPINTFLAG.trcpt0@ if
 		  endpoints UsbDeviceDescriptor 2 * + DeviceDescBank0 uddb.PCKSIZE @ num_chars !
 		  1  USBDevice_DeviceEndPoint2.EPINTFLAG.trcpt0!
 		  0 wait_for_input !
 		  -1
+		  cr ." rd. got " num_chars @ .
 		else
 		  -1
+		  cr ." rd. nothing"
         then
 	then
   then
@@ -1001,15 +997,9 @@ open-namespace core
 onboot: UsbConsole
 	ledon
     lcd-init lcd-consolemode
-	S" usbhack://" r/w bin open-file drop to usbhack
-	endpoints rel>abs usbhack reposition-file drop
-	outputbuffer rel>abs usbhack reposition-file drop
-	inputbuffer rel>abs usbhack reposition-file drop
-	controlpacket rel>abs usbhack reposition-file drop
 	initUSB
-\    ['] lcd-emit ['] (emit) defer!
-\    ['] lcd-type ['] (type) defer!
-	['] usb-emit ['] (emit) defer!
+    ['] lcd-emit ['] (emit) defer!
+    ['] lcd-type ['] (type) defer!
 	['] usb-ekey ['] (ekey) defer!
 	cr ." Boot"
 onboot;
