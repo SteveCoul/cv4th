@@ -69,10 +69,6 @@ private-namespace
   ." | iter "
   SERCOM2_UART.STATUS.iter@ .
 ;
-: .dump				( -- )
-  0x41012000 44 device-dump ;
-
-: show 				( -- ) .dump .status .ints ;
 
 : reset				( -- )
   1 SERCOM2_UART.CTRLA.swrst!

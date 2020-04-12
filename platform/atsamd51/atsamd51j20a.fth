@@ -20,6 +20,7 @@ require platform/atsamd51/peripherals.fth
 require platform/atsamd51/vector_table.fth
 require platform/atsamd51/interrupts.fth
 require platform/atsamd51/startup.fth
+require platform/atsamd51/usb.fth
 require kernel/block.fth
 require kernel/verbose_exceptions.fth
 require kernel/structure.fth
@@ -46,7 +47,11 @@ require extra/i2c_ssd1306_lcd.fth
 3 env-constant AS3935_ADDRESS
 require extra/i2c_as3935_lightning_detector.fth
 
+0 [IF]
 require platform/atsamd51/uart_console.fth
+[THEN]
+
+require platform/atsamd51/usb_cdc.fth
 
 require platform/done.fth
 

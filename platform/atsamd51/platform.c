@@ -1,3 +1,5 @@
+#define ENABLE_USB	
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -50,6 +52,7 @@ static void hacf( void ) { for(;;) { wait(6); dot(); dot(); dot(); dash(); dash(
 /* ************************************************************************** *
  *
  * ************************************************************************** */
+#ifdef ENABLE_USB
 
 #define USB_VID 0x1B4F
 #define USB_PID 0x0D23
@@ -400,6 +403,7 @@ void initUSB( void ) {
  	USB->HOST.CTRLA.bit.ENABLE = true;
 }
 
+#endif
 /* ************************************************************************** *
  *
  * ************************************************************************** */
@@ -531,10 +535,13 @@ int platform_init( void ) {
 void platform_term( void ) {
 }
 
+#ifdef ENABLE_USB
 static char preboot_io[1024];
 static int pbi = 0;
+#endif
 
 void platform_write_term( char c ) {
+#ifdef ENABLE_USB
 	if ( !terminal_ready ) {
 		preboot_io[pbi++] = c;
 		return;
@@ -548,9 +555,11 @@ void platform_write_term( char c ) {
 		}
 		writeUSB( &c, 1, USB_EP_IN );
 	}
+#endif
 }
 
 int platform_read_term( void ) {
+#ifdef ENABLE_USB
 	int c;
 	static int ignore_next_10 = 0;
 
@@ -584,6 +593,9 @@ reloop:
 	}
 
 	return c;
+#else
+	return -1;
+#endif
 }
 
 /* ************************************************************************** *
