@@ -80,7 +80,7 @@ static unsigned char* inputbuffer;
 static unsigned char* control_packet;
 static unsigned char* outputbuffer;
 static UsbDeviceDescriptor* endpoint;
-static uint8_t usb_active_config = 0;
+static uint8_t usb_active_config;
 
 static uint8_t line_config[] = { 0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08 };	// 115200 8N1
 
@@ -137,7 +137,7 @@ static uint8_t stringdescriptor3[] = { 0x22, 0x03,
 static bool pollUSB();
 
 static
-uint32_t writeCOMM(const void *pData, uint32_t length ) {
+uint32_t writeUSB(const void *pData, uint32_t length ) {
 
     UsbDeviceDescriptor *d = endpoint;
 
@@ -160,7 +160,6 @@ uint32_t writeCOMM(const void *pData, uint32_t length ) {
 
 static
 bool pollUSB() {
-/*
     if (USB->DEVICE.INTFLAG.reg & USB_DEVICE_INTFLAG_EORST) {
         USB->DEVICE.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST;
         USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | 0;
@@ -175,9 +174,7 @@ bool pollUSB() {
         endpoint[0].DeviceDescBank[1].ADDR.reg = (uint32_t)outputbuffer;
         USB->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
         usb_active_config = 0;
-    } else 
-*/
-    if (USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_RXSTP) {
+    } else if (USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_RXSTP) {
 		unsigned int request;
 		bool direction;
 		unsigned int idx;
@@ -200,12 +197,12 @@ bool pollUSB() {
 		case USB_REQUEST_GET_STATUS_ZERO:
 			outputbuffer[0] = 0;
 			outputbuffer[1] = 0;
-			writeCOMM(outputbuffer, MIN( request_length, 2) );
+			writeUSB(outputbuffer, MIN( request_length, 2) );
 			break;
 		case USB_REQUEST_GET_STATUS_INTERFACE:
 			outputbuffer[0] = 0;
 			outputbuffer[1] = 0;
-			writeCOMM(outputbuffer, MIN( request_length, 2) );
+			writeUSB(outputbuffer, MIN( request_length, 2) );
 			break;
 		case USB_REQUEST_GET_STATUS_ENDPOINT:
 			outputbuffer[0] = 0;
@@ -215,13 +212,13 @@ bool pollUSB() {
 					outputbuffer[0] = (USB->DEVICE.DeviceEndpoint[idx].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ1) ? 1 : 0;
 				else
 					outputbuffer[0] = (USB->DEVICE.DeviceEndpoint[idx].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ0) ? 1 : 0;
-				writeCOMM(outputbuffer, MIN( request_length, 2) );
+				writeUSB(outputbuffer, MIN( request_length, 2) );
 			} else {
 				USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
 			}
 			break;
 		case USB_REQUEST_CLEAR_FEATURE_INTERFACE:
-			writeCOMM(NULL, 0 );
+			writeUSB(NULL, 0 );
 			break;
 		case USB_REQUEST_CLEAR_FEATURE_ENDPOINT:
 			if ((request_value == 0) && idx && (idx < 4 )) {
@@ -242,13 +239,13 @@ bool pollUSB() {
 						}
 					}
 				}
-				writeCOMM(NULL, 0 );
+				writeUSB(NULL, 0 );
 			} else {
 				USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
 			}
 			break;
 		case USB_REQUEST_SET_FEATURE_INTERFACE:
-			writeCOMM(NULL, 0 );
+			writeUSB(NULL, 0 );
 			break;
 		case USB_REQUEST_SET_FEATURE_ENDPOINT:
 			if ((request_value == 0) && idx && (idx < 4)) {
@@ -256,32 +253,32 @@ bool pollUSB() {
 					USB->DEVICE.DeviceEndpoint[idx].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
 				else
 					USB->DEVICE.DeviceEndpoint[idx].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
-				writeCOMM(NULL, 0 );
+				writeUSB(NULL, 0 );
 			} else {
 				USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
 			}
 			break;
 		case USB_REQUEST_SET_ADDRESS:
-			writeCOMM(NULL, 0 );
+			writeUSB(NULL, 0 );
 			USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | request_value;
 			break;
 		case USB_REQUEST_GET_DESCRIPTOR:
 		case USB_REQUEST_GET_DESCRIPTOR1:
-			if (request_value == 0x100) writeCOMM(devDescriptor, MIN(request_length,sizeof(devDescriptor)) );
-			else if (request_value == 0x200) writeCOMM(cfgDescriptor, MIN(request_length,sizeof(cfgDescriptor)) );
-			else if ( request_value == 0x300 ) writeCOMM( stringdescriptor0, MIN(request_length, stringdescriptor0[0] ) );
-			else if ( request_value == 0x301 ) writeCOMM( stringdescriptor1, MIN(request_length, stringdescriptor1[0] ) );
-			else if ( request_value == 0x302 ) writeCOMM( stringdescriptor2, MIN(request_length, stringdescriptor2[0] ) );
-			else if ( request_value == 0x303 ) writeCOMM( stringdescriptor3, MIN(request_length, stringdescriptor3[0] ) );
-			else if ( request_value == 0xF00 ) writeCOMM(bosDescriptor, MIN(request_length,sizeof(bosDescriptor)) );
+			if (request_value == 0x100) writeUSB(devDescriptor, MIN(request_length,sizeof(devDescriptor)) );
+			else if (request_value == 0x200) writeUSB(cfgDescriptor, MIN(request_length,sizeof(cfgDescriptor)) );
+			else if ( request_value == 0x300 ) writeUSB( stringdescriptor0, MIN(request_length, stringdescriptor0[0] ) );
+			else if ( request_value == 0x301 ) writeUSB( stringdescriptor1, MIN(request_length, stringdescriptor1[0] ) );
+			else if ( request_value == 0x302 ) writeUSB( stringdescriptor2, MIN(request_length, stringdescriptor2[0] ) );
+			else if ( request_value == 0x303 ) writeUSB( stringdescriptor3, MIN(request_length, stringdescriptor3[0] ) );
+			else if ( request_value == 0xF00 ) writeUSB(bosDescriptor, MIN(request_length,sizeof(bosDescriptor)) );
 			else USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
 			break;
 		case USB_REQUEST_GET_CONFIGURATION:
-			writeCOMM(&(usb_active_config), MIN( request_length, sizeof(usb_active_config)) );
+			writeUSB(&(usb_active_config), MIN( request_length, sizeof(usb_active_config)) );
 			break;
 		case USB_REQUEST_SET_CONFIGURATION:
 			usb_active_config = (uint8_t)request_value;
-			writeCOMM(NULL, 0 );
+			writeUSB(NULL, 0 );
 
 			USB->DEVICE.DeviceEndpoint[ USB_EP_OUT ].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE0(3);
 			endpoint[ USB_EP_OUT ].DeviceDescBank[0].PCKSIZE.bit.SIZE = 3;
@@ -298,13 +295,13 @@ bool pollUSB() {
 			USB->DEVICE.DeviceEndpoint[USB_EP_COMM].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
 			break;
 		case USB_REQUEST_GET_LINE_CODING:
-			writeCOMM(line_config, MIN(request_length,sizeof(line_config)) );
+			writeUSB(line_config, MIN(request_length,sizeof(line_config)) );
 			break;
 		case USB_REQUEST_SET_LINE_CODING:
-			writeCOMM(NULL, 0 );
+			writeUSB(NULL, 0 );
 			break;
 		case USB_REQUEST_SET_CONTROL_LINE_STATE:
-			writeCOMM(NULL, 0 );
+			writeUSB(NULL, 0 );
 			break;
 		default:
 			USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;

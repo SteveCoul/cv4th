@@ -840,8 +840,7 @@ defer pollUSB		( -- flag )
     0 
   else
     UsbDevice_DeviceEndPoint0.EPINTFLAG.rxstp@ if
-\      (pollMSG) 
-	  usbhack file-size 2drop usb_active_config !
+      (pollMSG) 
     then
     usb_active_config @ 0= 0=
   then
@@ -935,7 +934,13 @@ defer pollUSB		( -- flag )
 	}
 [THEN]
 
-' (pollUSB) is pollUSB
+\ ' (pollUSB) is pollUSB
+
+: hack
+	usbhack file-size 2drop
+;
+
+' hack is pollUSB
 
 \ I Known USB_EP_OUT is 2
 : readUSB		( -- char | -1 )
@@ -991,10 +996,6 @@ variable emit-buffer
   then
 ;
 
-: usb-type			\ addr u -- : FIXME buffersize - check for 10/13 etc.
-  writeUSB_EP_IN
-;
-
 open-namespace core
 
 onboot: UsbConsole
@@ -1009,7 +1010,6 @@ onboot: UsbConsole
 \    ['] lcd-emit ['] (emit) defer!
 \    ['] lcd-type ['] (type) defer!
 	['] usb-emit ['] (emit) defer!
-	['] usb-type ['] (type) defer!
 	['] usb-ekey ['] (ekey) defer!
 	cr ." Boot"
 onboot;
