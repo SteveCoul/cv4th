@@ -121,7 +121,7 @@ forth-wordlist ext-wordlist 2 set-order
 end-register-bank
 
 0x41000000 register-bank UsbDevice
-	8bit register CTRLA					\ 0x00
+	8bit register CTRLA
 		1 bit swrst
 		1 bit enable
 		1 bit runstdby
@@ -129,16 +129,16 @@ end-register-bank
 		1 bit mode
 	end-register
 	1 skip-byte
-	8bit register SYNCBUSY				\ 0x02
+	8bit register SYNCBUSY
 		1 bit swrst
 		1 bit enable
 	end-register
-	8bit register QOSCTRL				\ 0x03
+	8bit register QOSCTRL
 		2 bit cqos
 		2 bit dqos
 	end-register
 	4 skip-byte
-	16bit register CTRLB				\ 0x08
+	16bit register CTRLB
 		1 bit detach
 		1 bit uprsm
 		2 bit spdconf
@@ -147,28 +147,28 @@ end-register-bank
 		1 bit gnak
 		2 bit lpmhdsk
   	end-register
-	8bit register DADD					\ 0x0A
+	8bit register DADD
 		7 bit dadd
 		1 bit adden
 	end-register
 	1 skip-byte
-	8bit register STATUS				\ 0x0C
+	8bit register STATUS
 		2 skip-bit
 		2 bit speed
 		2 skip-bit
 		2 bit linestate
 	end-register
-	8bit register FSMSTATUS				\ 0x0D
+	8bit register FSMSTATUS
 	end-register
 	2 skip-byte
-	16bit register FNUM					\ 0x10
+	16bit register FNUM
 		3 skip-bit
 		11 bit fnum
 		1 skip-bit
 		1 bit fncerr
 	end-register
 	2 skip-byte
-	16bit register INTENCLR				\ 0x14
+	16bit register INTENCLR
 		1 bit suspend
 		1 skip-bit
 		1 bit sof
@@ -181,7 +181,7 @@ end-register-bank
 		1 bit lpmsusp
 	end-register
 	2 skip-byte
-	16bit register INTENSET				\ 0x18
+	16bit register INTENSET
 		1 bit suspend
 		1 skip-bit
 		1 bit sof
@@ -194,7 +194,7 @@ end-register-bank
 		1 bit lpmsusp
 	end-register
 	2 skip-byte
-	16bit register INTFLAG				\ 0x1C
+	16bit register INTFLAG
 		1 bit suspend
 		1 skip-bit
 		1 bit sof
@@ -207,12 +207,12 @@ end-register-bank
 		1 bit lpmsusp
 	end-register
 	2 skip-byte
-	16bit register EPINTSMRY			\ 0x20
+	16bit register EPINTSMRY
 	end-register
 	2 skip-byte
-	32bit register DESCADD				\ 0x24
+	32bit register DESCADD
 	end-register
-	16bit register PADCAL				\ 0x28
+	16bit register PADCAL
 		5 bit transp
 		1 skip-bit
 		5 bit transn
@@ -226,13 +226,12 @@ end-register-bank
 end-register-bank
 
 0x41000100 register-bank USBDevice_DeviceEndPoint0
-	8bit register EPCFG					\ 0x00
-		3 bit eptype0
-		1 skip-bit
-		3 bit eptype1
+	8bit register EPCFG
+		2 bit eptype0
+		2 bit eptype1
 	end-register
 	3 skip-byte
-	8bit register EPSTATUSCLR			\ 0x04
+	8bit register EPSTATUSCLR
 		1 bit dtlgout
 		1 bit dtglin
 		1 bit curbk
@@ -242,7 +241,7 @@ end-register-bank
 		1 bit bk0rdy
 		1 bit bk1rdy
 	end-register
-	8bit register EPSTATUSSET			\ 0x05
+	8bit register EPSTATUSSET
 		1 bit dtlgout
 		1 bit dtglin
 		1 bit curbk
@@ -252,7 +251,7 @@ end-register-bank
 		1 bit bk0rdy
 		1 bit bk1rdy
 	end-register
-	8bit register EPSTATUS				\ 0x06
+	8bit register EPSTATUS
 		1 bit dtlgout
 		1 bit dtglin
 		1 bit curbk
@@ -262,7 +261,7 @@ end-register-bank
 		1 bit bk0rdy
 		1 bit bk1rdy
 	end-register
-	8bit register EPINTFLAG				\ 0x07
+	8bit register EPINTFLAG
 		1 bit trcpt0
 		1 bit trcpt1
 		1 bit trfail0
@@ -271,7 +270,7 @@ end-register-bank
 		1 bit stall0
 		1 bit stall1
 	end-register
-	8bit register EPINTCLR				\ 0x08
+	8bit register EPINTCLR
 		1 bit trcpt0
 		1 bit trcpt1
 		1 bit trfail0
@@ -280,7 +279,7 @@ end-register-bank
 		1 bit stall0
 		1 bit stall1
 	end-register
-	8bit register EPINTSET				\ 0x09
+	8bit register EPINTSET
 		1 bit trcpt0
 		1 bit trcpt1
 		1 bit trfail0
@@ -294,9 +293,8 @@ end-register-bank
 
 0x41000120 register-bank USBDevice_DeviceEndPoint1
 	8bit register EPCFG
-		3 bit eptype0
-		1 skip-bit
-		3 bit eptype1
+		2 bit eptype0
+		2 bit eptype1
 	end-register
 	3 skip-byte
 	8bit register EPSTATUSCLR
@@ -361,9 +359,8 @@ end-register-bank
 
 0x41000140 register-bank USBDevice_DeviceEndPoint2
 	8bit register EPCFG
-		3 bit eptype0
-		1 skip-bit
-		3 bit eptype1
+		2 bit eptype0
+		2 bit eptype1
 	end-register
 	3 skip-byte
 	8bit register EPSTATUSCLR
@@ -428,9 +425,8 @@ end-register-bank
 
 0x41000160 register-bank USBDevice_DeviceEndPoint3
 	8bit register EPCFG
-		3 bit eptype0
-		1 skip-bit
-		3 bit eptype1
+		2 bit eptype0
+		2 bit eptype1
 	end-register
 	3 skip-byte
 	8bit register EPSTATUSCLR
@@ -691,7 +687,7 @@ defer pollUSB		( -- flag )
 
   1 USBDevice_DeviceEndPoint1.EPINTFLAG.trcpt1!
   1 USBDevice_DeviceEndPoint1.EPSTATUSSET.bk1rdy!
- 
+
   begin
     USBDevice_DeviceEndPoint1.EPINTFLAG.trcpt1@
     0=
@@ -711,32 +707,43 @@ defer pollUSB		( -- flag )
   then
   ( len -- )
 
-  cr ." wc "
   endpoints DeviceDescBank1 
   outputbuffer rel>abs drop over uddb.ADDR !
-  ( len ptr -- )
   uddb.PCKSIZE !
 
-  1 USBDevice_DeviceEndPoint0.EPINTFLAG.trcpt1!
-  1 USBDevice_DeviceEndPoint0.EPSTATUSSET.bk1rdy!
+  1 USBDevice_DeviceEndPoint1.EPINTFLAG.trcpt1!
+  1 USBDevice_DeviceEndPoint1.EPSTATUSSET.bk1rdy!
 
-  ledon
   begin
-    \ USBDevice_DeviceEndPoint0.EPINTFLAG.trcpt1@ dup .
-    USBDevice_DeviceEndPoint0.EPINTFLAG.reg@ dup . space
+    USBDevice_DeviceEndPoint1.EPINTFLAG.trcpt1@
   until
-  cr ." donecom"
-  ledoff
 ;	
 
+0 [IF]
+  USB->DEVICE.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST;
+-        USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | 0;
+-        USB->DEVICE.DeviceEndpoint[0].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE0(1) | USB_DEVICE_EPCFG_EPTYPE1(1);
+-        USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK0RDY;
+-        USB->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
+-        endpoints[0].DeviceDescBank[0].PCKSIZE.bit.SIZE = 3;
+-        endpoints[0].DeviceDescBank[0].ADDR.reg = (uint32_t)control_packet;
+-        endpoints[0].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = 8;
+-        endpoints[0].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
+-        endpoints[0].DeviceDescBank[1].PCKSIZE.bit.SIZE = 3;
+-        endpoints[0].DeviceDescBank[1].ADDR.reg = (uint32_t)outputbuffer;
+-        USB->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
+-        usb_active_config = 0;
+[THEN]
+
 : (pollRST)
+  cr ." (pollRST) " depth .
   8 UsbDevice.INTFLAG.reg! 		\ 1 UsbDevice.INTFLAG.eorst!
-  0x80 UsbDevice.DADD.reg!		\ 0 UsbDevice.DADD.dadd!  1 UsbDevice.DADD.adden!
+  0x80 UsbDevice.DADD.reg!		\ 0 UsbDevice.DADD.dadd!
+  								\ 1 UsbDevice.DADD.adden!
 
-  1 UsbDevice_DeviceEndPoint0.EPCFG.eptype0!
-  1 UsbDevice_DeviceEndPoint0.EPCFG.eptype1!
-
-   64 UsbDevice_DeviceEndPoint0.EPSTATUSSET.reg!	\ 1 UsbDevice_DeviceEndPoint0.EPSTATUSSET.bk0rdy!
+  5 UsbDevice_DeviceEndPoint0.EPCFG.reg!	\ 1 UsbDevice_DeviceEndPoint0.EPCFG.eptype0!
+ 											\ 1 UsbDevice_DeviceEndPoint0.EPCFG.eptype1!
+  64 UsbDevice_DeviceEndPoint0.EPSTATUSSET.reg!		\ 1 UsbDevice_DeviceEndPoint0.EPSTATUSSET.bk0rdy!
   128 UsbDevice_DeviceEndPoint0.EPSTATUSCLR.reg!	\ 1 UsbDevice_DeviceEndPoint0.EPSTATUSCLR.bk1rdy!
 
   3 28 lshift 				 endpoints DeviceDescBank0 uddb.PCKSIZE !
@@ -752,7 +759,8 @@ defer pollUSB		( -- flag )
 
 : (pollMSG)				{: | request request_value idx dir request_length -- :}
 
-  16 UsbDevice_DeviceEndPoint0.EPINTFLAG.reg!	\ 1 UsbDevice_DeviceEndPoint0.EPINTFLAG.rxstp!
+  cr ." (pollMSG)"
+  1 UsbDevice_DeviceEndPoint0.EPINTFLAG.rxstp!
 
   controlpacket w@ to request
   controlpacket 2 + w@ to request_value
@@ -764,17 +772,14 @@ defer pollUSB		( -- flag )
 
   request case
     USB_REQUEST_GET_STATUS_ZERO of
-	  cr ." getstat0"
 	  0 outputbuffer !	\ need 2 bytes 
 	  outputbuffer 2 request_length min writeCOMM
 	  endof
     USB_REQUEST_GET_STATUS_INTERFACE of
-	  cr ." getstatI"
 	  0 outputbuffer !	\ need 2 bytes 
 	  outputbuffer 2 request_length min writeCOMM
 	  endof
     USB_REQUEST_GET_STATUS_ENDPOINT of
-	  cr ." getstatE"
 	  0 outputbuffer !	\ need 2 bytes 
 	  idx 4 < if
 	    dir if
@@ -788,51 +793,15 @@ defer pollUSB		( -- flag )
 	  then
 	  endof
     USB_REQUEST_CLEAR_FEATURE_INTERFACE of
-	  cr ." cfI"
 	  0 0 writeCOMM
-	  endof
-    USB_REQUEST_CLEAR_FEATURE_ENDPOINT of
-	  cr ." TODO 1" HACF
-	  endof
-    USB_REQUEST_SET_FEATURE_INTERFACE of
-	  cr ." TODO 2" HACF
-	  endof
-    USB_REQUEST_SET_FEATURE_ENDPOINT of
-	  cr ." TODO 3" HACF
-	  endof
-    USB_REQUEST_SET_ADDRESS of
-	  cr ." set address " request_value .
-	  0 0 writeCOMM
-  	  request_value 0x80 or UsbDevice.DADD.reg!
-	  endof
-    USB_REQUEST_GET_DESCRIPTOR of
-	  cr ." TODO 5" HACF
-	  endof
-    USB_REQUEST_GET_DESCRIPTOR1 of
-	  cr ." TODO 6" HACF
-	  endof
-    USB_REQUEST_GET_CONFIGURATION of
-	  cr ." TODO 7" HACF
-	  endof
-    USB_REQUEST_SET_CONFIGURATION of
-	  cr ." TODO 8" HACF
-	  endof
-    USB_REQUEST_GET_LINE_CODING of
-	  cr ." TODO 9" HACF
-	  endof
-    USB_REQUEST_SET_LINE_CODING of
-	  cr ." TODO 10" HACF
-	  endof
-    USB_REQUEST_SET_CONTROL_LINE_STATE of
-	  cr ." TODO 11" HACF
 	  endof
     \ default
-	cr ." Default"
-  	1 UsbDevice_DeviceEndPoint0.EPSTATUSSET.stallrq1!
+	HACF
   endcase
 ;
 
 : (pollUSB)				( -- flag )
+  ledon
   UsbDevice.INTFLAG.eorst@ if 
     (pollRST) 
     0 
@@ -842,6 +811,8 @@ defer pollUSB		( -- flag )
     then
     usb_active_config @ 0= 0=
   then
+  ledoff
+  cr ." donepoll"
 ;
 
 
@@ -883,6 +854,10 @@ defer pollUSB		( -- flag )
 			} else {
 				USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
 			}
+			break;
+		case USB_REQUEST_SET_ADDRESS:
+			writeCOMM(NULL, 0 );
+			USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | request_value;
 			break;
 		case USB_REQUEST_GET_DESCRIPTOR:
 		case USB_REQUEST_GET_DESCRIPTOR1:
