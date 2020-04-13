@@ -1525,26 +1525,44 @@ forth-wordlist set-current
 internals set-current
 defer (ekey)
 :noname [ opEKEY c, ] ; ' (ekey) defer!
+variable keybuff
 forth-wordlist set-current
 
+: ekey?																			\ \ FACILITY-EXT
+  keybuff @ if
+	true
+  else
+    (ekey) dup 0< if
+	  drop 
+      false
+    else
+	  keybuff !
+	  true
+    then
+  then
+;
+  
 : ekey																			\ \ FACILITY-EXT
-  begin
-	(ekey)
-    dup 0< 
-  while
-    drop
-	at-idle
-  repeat
+  begin ekey? 0= while at-idle repeat
+  keybuff dup @ 0 rot !	
+;
+
+: key?																			\ \ FACILITY
+  ekey? if
+ 	keybuff @ 256 < if
+ 	  true
+ 	else
+ 	  0 keybuff !
+ 	  false
+    then
+  else
+    false
+  then
 ;
 
 : key																			\ \ CORE
-  begin
-    ekey dup 255 > if
-		drop 0
-	else
-		1
-	then
-  until
+  begin key? 0= while at-idle repeat
+  keybuff dup @ 0 rot !
 ;
 
 : accept		\ addr max -- count												\ \ CORE
@@ -2336,6 +2354,7 @@ internals set-current
 forth-wordlist set-current
 
 : quit																			\ \ CORE
+  0 keybuff !
   0 rsp!
   0 to source-id
   0 blk !
