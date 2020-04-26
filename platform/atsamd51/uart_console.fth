@@ -32,10 +32,10 @@ variable ignore_next_if_10
 ext-wordlist get-order 1+ set-order
 open-namespace core
 
-onboot: uart-console
-  0 ignore_next_if_10 !
-  8 true 0 1 115200 start 
-  ['] uart-emit is (emit)
-  ['] uart-ekey is (ekey)
-onboot;
+\ onboot: uart-console
+\  0 ignore_next_if_10 !
+\  8 true 0 1 115200 start 
+\  ['] uart-emit is (emit)
+\  ['] uart-ekey is (ekey)
+\ onboot;
 

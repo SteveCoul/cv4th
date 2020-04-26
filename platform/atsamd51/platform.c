@@ -7,6 +7,8 @@
 #include <sam.h>
 #include "platform.h"
 
+#include "io_dmesg.h"
+
 /* ************************************************************************** *
  *
  * ************************************************************************** */
@@ -195,7 +197,13 @@ uint32_t writeUSB(const void *pData, uint32_t length, uint8_t endpoint ) {
 static
 bool pollUSB() {
     if (USB->DEVICE.INTFLAG.reg & USB_DEVICE_INTFLAG_EORST) {
+		dmesg("\nRESET");
+		dmesg("\nbank0 at 0x%x", (uint32_t)&(endpoints[0].DeviceDescBank[0]) );
+		dmesg("\nbank1 at 0x%x", (uint32_t)&(endpoints[0].DeviceDescBank[1]) );
+		dmesg("\nbank0.PCKSIZE is at 0x%x", (uint32_t)&(endpoints[0].DeviceDescBank[0].PCKSIZE.reg) );
+
         USB->DEVICE.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST;
+
         USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | 0;
         USB->DEVICE.DeviceEndpoint[0].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE0(1) | USB_DEVICE_EPCFG_EPTYPE1(1);
         USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK0RDY;
@@ -204,6 +212,7 @@ bool pollUSB() {
         endpoints[0].DeviceDescBank[0].ADDR.reg = (uint32_t)control_packet;
         endpoints[0].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = 8;
         endpoints[0].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
+		dmesg("\npkcisze 0x%08X", endpoints[0].DeviceDescBank[0].PCKSIZE.reg );
         endpoints[0].DeviceDescBank[1].PCKSIZE.bit.SIZE = 3;
         endpoints[0].DeviceDescBank[1].ADDR.reg = (uint32_t)outputbuffer;
         USB->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
@@ -401,6 +410,7 @@ void initUSB( void ) {
     memset((uint8_t *)(endpoints), 0, sizeof(endpoints));
     usb_active_config = 0;
  	USB->HOST.CTRLA.bit.ENABLE = true;
+	dmesg("\nOff we go - lovely USB in native");
 }
 
 #endif
@@ -559,9 +569,6 @@ void platform_write_term( char c ) {
 }
 
 int platform_read_term( void ) {
-#ifdef ENABLE_USB
-	int c;
-	static int ignore_next_10 = 0;
 
 	if ( !terminal_ready ) {
 
@@ -569,33 +576,9 @@ int platform_read_term( void ) {
 		terminal_ready = true;
 
 		LEDon();
-reloop:
-		int crap = platform_read_term();
-		if ( crap < 0 ) goto reloop;
-
-		for ( int i = 0; i < pbi; i++ ) platform_write_term( preboot_io[i] );
-		return crap;
 	}
-
-	if ( !pollUSB() ) return -1;
-
-	c = readUSB();
-	if ( c >= 0 ) {
-		if ( ( c == 10 ) && ( ignore_next_10 ) ) {
-			ignore_next_10 = 1;
-			return platform_read_term();
-		}
-
-		if ( c == 13 ) {
-			c = 10;
-			ignore_next_10 = 1;
-		}
-	}
-
-	return c;
-#else
-	return -1;
-#endif
+pollUSB();
+return -1;
 }
 
 /* ************************************************************************** *

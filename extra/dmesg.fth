@@ -5,6 +5,8 @@ private-namespace
 
 32 buffer: dmbuff
 
+ext-wordlist set-current
+
 : $dmesg
   S" dmesg://" r/w open-file abort" failed to open dmesg"
   >r 
@@ -14,8 +16,6 @@ private-namespace
   r@ write-file drop
   r> close-file drop
 ;
-
-ext-wordlist set-current
 
 : dmesg"
   state @ if

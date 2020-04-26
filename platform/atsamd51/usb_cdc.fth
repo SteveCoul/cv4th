@@ -1,4 +1,3 @@
-
 require platform/atsamd51/usb.fth
 require platform/atsamd51/gclk.fth
 require platform/atsamd51/mclk.fth
@@ -8,10 +7,22 @@ ext-wordlist forth-wordlist 2 set-order definitions
 0x00800080 constant NVMCTRL_SW0
 NVMCTRL_SW0 4 + constant USB_FUSES_TRANSN_ADDR
 
+0x1B4F constant USB_VID
+0x0D23 constant USB_PID
+
 0 value usbrunning
 UsbDeviceDescriptor 4 * buffer: endpoints
 64 buffer: control_packet
 64 buffer: outputbuffer
+
+create devDescriptor
+	18 c,
+	0x12 c, 0x01 c, 0x00 c, 0x02 c,
+	0xEF c, 0x02 c, 0x01 c, 0x40 c, 
+    USB_VID 0xFF and c, USB_VID 8 rshift 0xFF and c, 
+    USB_PID 0xFF and c, USB_PID 8 rshift 0xFF and c, 
+	0x01 c, 0x42 c, 0x01 c, 0x02 c,
+	0x03 c, 0x01 c,
 
 : nvmctrlGetSoftCalUSB		( -- tn tp pd )
   USB_FUSES_TRANSN_ADDR 0 d32@
@@ -46,9 +57,11 @@ UsbDeviceDescriptor 4 * buffer: endpoints
   cr 
   ." Bank0 @ " endpoint0 DeviceDescBank0 uddb.addr @ .
   ." , byte_count " endpoint0 DeviceDescBank0 uddb.pcksize @ 0x3FFF and .
+  endpoint0 DeviceDescBank0 16 dump
   cr 
   ." Bank1 @ " endpoint0 DeviceDescBank1 uddb.addr @ .
   ." , byte_count " endpoint0 DeviceDescBank1 uddb.pcksize @ 0x3FFF and .
+  endpoint0 DeviceDescBank1 16 dump
 ;
 
 : initUSB
@@ -73,7 +86,7 @@ UsbDeviceDescriptor 4 * buffer: endpoints
   0 UsbHost.CTRLA.mode!
   1 UsbHost.CTRLA.runstdby!
   endpoints rel>abs drop UsbHost.DESCADD.reg!
-  0 UsbDevice.CTRLB.spdconf!
+  1 UsbDevice.CTRLB.spdconf!		\ low speed, ( 0 = hi )
   0 UsbDevice.CTRLB.detach!
 
   endpoints UsbDeviceDescriptor 4 * 0 fill
@@ -100,20 +113,21 @@ UsbDeviceDescriptor 4 * buffer: endpoints
     0 USBDevice.DADD.dadd!
 	1 USBDevice.DADD.adden!
 
-	1 USBDevice_DeviceEndPoint0.EPSTATUSCLR.bk0rdy!
+	1 USBDevice_DeviceEndPoint0.EPCFG.eptype0!	\ bank0 is control setup/out
+	1 USBDevice_DeviceEndPoint0.EPCFG.eptype1!	\ bank1 is control in
+
+	1 USBDevice_DeviceEndPoint0.EPSTATUSSET.bk0rdy!
+	1 USBDevice_DeviceEndPoint0.EPSTATUSCLR.bk1rdy!
+
 	3 endpoint0 DeviceDescBank0 uddb.pcksize setsize
 	8 endpoint0 DeviceDescBank0 uddb.pcksize setmultisize
 	0 endpoint0 DeviceDescBank0 uddb.pcksize setbytecount
 	control_packet rel>abs drop endpoint0 DeviceDescBank0 uddb.addr !
-	1 USBDevice_DeviceEndPoint0.EPSTATUSSET.bk0rdy!
-
-	1 USBDevice_DeviceEndPoint0.EPSTATUSCLR.bk1rdy!
 	outputbuffer rel>abs drop endpoint0 DeviceDescBank1 uddb.addr !
+	1 USBDevice_DeviceEndPoint0.EPSTATUSCLR.bk0rdy!
 
-    usbClearReset 
+	usbClearReset 
 	0 to usbrunning
-
-	.endpoint0
   then
 ;
 
@@ -122,4 +136,91 @@ UsbDeviceDescriptor 4 * buffer: endpoints
 
 : clearEp0Rxspt		( -- )
   1 USBDevice_DeviceEndPoint0.EPINTFLAG.rxstp! ;
+
+0 value cpRequest
+0 value cpRequestValue
+0 value cpRequestIndex
+0 value cpRequestDirection
+0 value cpRequestLength
+
+: readControlPacket	( -- )
+  control_packet w@ to cpRequest
+  control_packet 2 + w@ to cpRequestValue
+  control_packet 4 + w@ 0x7F and to cpRequestIndex
+  control_packet 4 + w@ 0x80 and 0= 0= to cpRequestDirection
+  control_packet 6 + w@ to cpRequestLength
+;
+
+: .hex base @ >r hex 0 <# #S #> type r> base ! ;
+
+: reply			( addr len -- )
+  outputbuffer rel>abs drop endpoint0 DeviceDescBank1 uddb.addr !	\ needed?
+
+  3 endpoint0 DeviceDescBank1 uddb.pcksize setsize
+  0 endpoint0 DeviceDescBank1 uddb.pcksize setmultisize
+  dup endpoint0 DeviceDescBank1 uddb.pcksize setbytecount
+
+  dup if
+    outputbuffer swap move
+  else
+    2drop
+  then
+  
+  1 UsbDevice_DeviceEndPoint0.EPSTATUSSET.bk1rdy!
+  1 UsbDevice_DeviceEndPoint0.EPINTFLAG.trcpt1!
+  .endpoint0 
+  begin 
+    key? abort" aborted"
+    UsbDevice_DeviceEndPoint0.EPINTFLAG.trfail1@ abort" failed"
+    UsbDevice_DeviceEndPoint0.EPINTFLAG.trcpt1@ 
+  until
+;
+
+: zeropacket 0 0 reply ;
+
+: set-address
+  cr ." Set address to " cpRequestValue .hex
+  zeropacket
+  cpRequestValue UsbDevice.DADD.dadd!
+  1 UsbDevice.DADD.adden!
+;
+
+: get-descriptor
+  cpRequestValue case
+    0x0100 of cr ." get device descriptor" devDescriptor swap endof
+\  0x0200 of cfgDescriptor swap endof
+\  0x0300 of stringDescriptor0 swap endof
+\  0x0301 of stringDescriptor1 swap endof
+\  0x0302 of stringDescriptor2 swap endof
+\  0x0303 of stringDescriptor3 swap endof
+\  0x0F00 of bosDescriptor swap endof
+  cr ." unhandled descriptor number " dup .hex
+  0 swap
+  endcase
+  ?dup if
+    count cpRequestLength min reply
+  else
+    \ TODO stall
+  then
+;
+
+: (pollusb)		
+  usbCheckReset
+  ep0Rxspt? if
+	clearEp0Rxspt
+
+	readControlPacket
+	1 USBDevice_DeviceEndPoint0.EPSTATUSCLR.bk0rdy!
+
+	cpRequest case
+	0x0500 of set-address endof
+	0x0680 of get-descriptor endof
+	0x0681 of get-descriptor endof
+	cr ." Unhandled cpRequest value" dup .hex
+	\ todo STALL
+	endcase
+  then
+;
+
+: pollUSB begin key? 0= while (pollusb) repeat ;
 

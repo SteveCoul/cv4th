@@ -76,7 +76,7 @@ private-namespace
 ;
 
 : init				( baud -- )
-  clocks
+\  clocks
 
 
   PIN_D1 PIO_SERCOM setMux
@@ -84,7 +84,8 @@ private-namespace
   PIN_D0 PIO_SERCOM setMux
   PIN_D0 enableMux
 
-  reset
+
+ \ reset
   1 SERCOM2_UART.CTRLA.mode!		\ 1=internal clock, 0=external
   1 SERCOM2_UART.CTRLA.sampr!		\ 16 bit over sampling, fractional
 

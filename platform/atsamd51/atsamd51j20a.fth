@@ -12,6 +12,7 @@ onboot: chipstartup
 	(chipstartup)
 onboot;
 
+require extra/dmesg.fth
 require platform/atsamd51/flash.fth
 require platform/atsamd51/clock.fth
 require platform/atsamd51/gpio.fth
@@ -29,7 +30,6 @@ require extra/ringbuffer.fth
 require extra/vi.fth
 require extra/toys.fth
 require extra/thread.fth
-require extra/dmesg.fth
 
 require platform/atsamd51/Wire.fth
 
@@ -48,7 +48,7 @@ require extra/i2c_ssd1306_lcd.fth
 3 env-constant AS3935_ADDRESS
 require extra/i2c_as3935_lightning_detector.fth
 
-0 [IF]
+1 [IF]
 require platform/atsamd51/uart_console.fth
 [THEN]
 

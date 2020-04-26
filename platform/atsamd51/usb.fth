@@ -217,8 +217,9 @@ end-register-bank
 
 0x41000100 register-bank USBDevice_DeviceEndPoint0
 	8bit register EPCFG
-		2 bit eptype0
-		2 bit eptype1
+		3 bit eptype0
+		1 skip-bit
+		3 bit eptype1
 	end-register
 	3 skip-byte
 	8bit register EPSTATUSCLR
@@ -283,8 +284,9 @@ end-register-bank
 
 0x41000120 register-bank USBDevice_DeviceEndPoint1
 	8bit register EPCFG
-		2 bit eptype0
-		2 bit eptype1
+		3 bit eptype0
+		1 skip-bit
+		3 bit eptype1
 	end-register
 	3 skip-byte
 	8bit register EPSTATUSCLR
@@ -349,8 +351,9 @@ end-register-bank
 
 0x41000140 register-bank USBDevice_DeviceEndPoint2
 	8bit register EPCFG
-		2 bit eptype0
-		2 bit eptype1
+		3 bit eptype0
+		1 skip-bit
+		3 bit eptype1
 	end-register
 	3 skip-byte
 	8bit register EPSTATUSCLR
@@ -415,8 +418,9 @@ end-register-bank
 
 0x41000160 register-bank USBDevice_DeviceEndPoint3
 	8bit register EPCFG
-		2 bit eptype0
-		2 bit eptype1
+		3 bit eptype0
+		1 skip-bit
+		3 bit eptype1
 	end-register
 	3 skip-byte
 	8bit register EPSTATUSCLR

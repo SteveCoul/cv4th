@@ -42,5 +42,7 @@ require extra/i2c_ssd1306_lcd.fth
 3 env-constant AS3935_ADDRESS
 require extra/i2c_as3935_lightning_detector.fth
 
+include ../4xc/uart.fth
+
 require platform/done.fth
 
